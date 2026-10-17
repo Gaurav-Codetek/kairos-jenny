@@ -1,0 +1,1691 @@
+Node: dcid:usPharmaKb/_meta/okf_conventions
+typeOf: dcs:Convention
+name: "OKF Conventions Used in This Bundle"
+defines: dcid:usPharmaKb/_meta/relation_vocabulary
+defines: dcid:usPharmaKb/_meta/type_vocabulary
+
+Node: dcid:usPharmaKb/_meta/relation_vocabulary
+typeOf: dcs:Vocabulary
+name: "Relation Vocabulary"
+
+Node: dcid:usPharmaKb/_meta/type_vocabulary
+typeOf: dcs:Vocabulary
+name: "Concept Type Vocabulary"
+
+Node: dcid:usPharmaKb/_meta/data_governance_policy
+typeOf: dcs:Policy
+name: "Data Governance & Licensing Rules for Agents"
+relatedTo: dcid:usPharmaKb/regulation/privacy/hipaa_deidentification
+relatedTo: dcid:usPharmaKb/regulation/state_law/ama_pdrp
+
+Node: dcid:usPharmaKb/_meta/data_quality_rules
+typeOf: dcs:Policy
+name: "Data Quality Rules"
+relatedTo: dcid:usPharmaKb/identifiers/product/ndc
+relatedTo: dcid:usPharmaKb/identifiers/provider/npi
+
+Node: dcid:usPharmaKb/actors/manufacturers/brand_manufacturer
+typeOf: dcs:ActorClass
+name: "Brand Manufacturer"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+submitsTo: dcid:usPharmaKb/actors/regulators/cms
+contractsWith: dcid:usPharmaKb/actors/pbms/pbm
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/ex_factory_sales
+
+Node: dcid:usPharmaKb/actors/manufacturers/generic_manufacturer
+typeOf: dcs:ActorClass
+name: "Generic Manufacturer"
+establishedBy: dcid:usPharmaKb/regulation/statutes/hatch_waxman
+isA: dcid:usPharmaKb/actors/manufacturers/labeler
+
+Node: dcid:usPharmaKb/actors/manufacturers/biosimilar_manufacturer
+typeOf: dcs:ActorClass
+name: "Biosimilar Manufacturer"
+establishedBy: dcid:usPharmaKb/regulation/statutes/bpcia
+
+Node: dcid:usPharmaKb/actors/manufacturers/labeler
+typeOf: dcs:ActorClass
+name: "Labeler"
+identifiedBy: dcid:usPharmaKb/identifiers/product/ndc
+
+Node: dcid:usPharmaKb/actors/distribution/3pl
+typeOf: dcs:ActorClass
+name: "Third-Party Logistics Provider (3PL)"
+regulatedBy: dcid:usPharmaKb/regulation/statutes/dscsa
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/edi_867_3pl
+
+Node: dcid:usPharmaKb/actors/distribution/ics_cencora
+typeOf: dcs:Vendor
+name: "ICS (Integrated Commercialization Solutions, Cencora)"
+isA: dcid:usPharmaKb/actors/distribution/3pl
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+partOf: dcid:usPharmaKb/actors/distribution/full_line_wholesaler
+
+Node: dcid:usPharmaKb/actors/distribution/full_line_wholesaler
+typeOf: dcs:ActorClass
+name: "Full-Line Wholesaler"
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/edi_867_wholesaler
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/edi_852_inventory
+generatesData: dcid:usPharmaKb/data_assets/finance/edi_844_849_chargebacks
+
+Node: dcid:usPharmaKb/actors/distribution/specialty_distributor
+typeOf: dcs:ActorClass
+name: "Specialty Distributor"
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/edi_867_wholesaler
+relatedTo: dcid:usPharmaKb/claims/medical/buy_and_bill
+
+Node: dcid:usPharmaKb/actors/distribution/gpo
+typeOf: dcs:ActorClass
+name: "Group Purchasing Organization (GPO)"
+contractsWith: dcid:usPharmaKb/actors/manufacturers/brand_manufacturer
+relatedTo: dcid:usPharmaKb/pricing_gtn/chargeback
+
+Node: dcid:usPharmaKb/actors/pharmacies/retail_pharmacy
+typeOf: dcs:ActorClass
+name: "Retail Pharmacy"
+identifiedBy: dcid:usPharmaKb/identifiers/provider/ncpdp_provider_id
+usesStandard: dcid:usPharmaKb/claims/pharmacy/ncpdp_telecom_d0
+
+Node: dcid:usPharmaKb/actors/pharmacies/mail_order_pharmacy
+typeOf: dcs:ActorClass
+name: "Mail-Order Pharmacy"
+partOf: dcid:usPharmaKb/actors/pbms/pbm
+
+Node: dcid:usPharmaKb/actors/pharmacies/specialty_pharmacy
+typeOf: dcs:ActorClass
+name: "Specialty Pharmacy (SP)"
+generatesData: dcid:usPharmaKb/data_assets/access/sp_data_feed
+
+Node: dcid:usPharmaKb/actors/pharmacies/ltc_pharmacy
+typeOf: dcs:ActorClass
+name: "Long-Term Care Pharmacy"
+
+Node: dcid:usPharmaKb/actors/pharmacies/340b_contract_pharmacy
+typeOf: dcs:ActorClass
+name: "340B Contract Pharmacy"
+regulatedBy: dcid:usPharmaKb/regulation/government_pricing/340b
+
+Node: dcid:usPharmaKb/actors/pbms/pbm
+typeOf: dcs:ActorClass
+name: "Pharmacy Benefit Manager (PBM)"
+adjudicatedBy: dcid:usPharmaKb/claims/pharmacy/pharmacy_claim_flow
+contractsWith: dcid:usPharmaKb/actors/manufacturers/brand_manufacturer
+identifiedBy: dcid:usPharmaKb/identifiers/payer/bin_pcn_group
+
+Node: dcid:usPharmaKb/actors/pbms/express_scripts
+typeOf: dcs:Vendor
+name: "Express Scripts (Cigna/Evernorth)"
+isA: dcid:usPharmaKb/actors/pbms/pbm
+
+Node: dcid:usPharmaKb/actors/pbms/cvs_caremark
+typeOf: dcs:Vendor
+name: "CVS Caremark"
+isA: dcid:usPharmaKb/actors/pbms/pbm
+
+Node: dcid:usPharmaKb/actors/pbms/optum_rx
+typeOf: dcs:Vendor
+name: "Optum Rx"
+isA: dcid:usPharmaKb/actors/pbms/pbm
+
+Node: dcid:usPharmaKb/actors/payers/commercial_payer
+typeOf: dcs:ActorClass
+name: "Commercial Payer"
+relatedTo: dcid:usPharmaKb/market_access/copay_assistance
+
+Node: dcid:usPharmaKb/actors/payers/medicare_part_d
+typeOf: dcs:Program
+name: "Medicare Part D"
+regulatedBy: dcid:usPharmaKb/actors/regulators/cms
+relatedTo: dcid:usPharmaKb/regulation/statutes/ira
+
+Node: dcid:usPharmaKb/actors/payers/medicare_part_b
+typeOf: dcs:Program
+name: "Medicare Part B"
+relatedTo: dcid:usPharmaKb/pricing_gtn/asp
+relatedTo: dcid:usPharmaKb/claims/medical/buy_and_bill
+
+Node: dcid:usPharmaKb/actors/payers/medicaid
+typeOf: dcs:Program
+name: "Medicaid"
+relatedTo: dcid:usPharmaKb/regulation/government_pricing/mdrp
+
+Node: dcid:usPharmaKb/actors/payers/va_dod
+typeOf: dcs:Program
+name: "VA / DoD / PHS"
+relatedTo: dcid:usPharmaKb/pricing_gtn/fss_fcp
+
+Node: dcid:usPharmaKb/actors/providers/hcp
+typeOf: dcs:ActorClass
+name: "Healthcare Professional (HCP)"
+identifiedBy: dcid:usPharmaKb/identifiers/provider/npi
+prescribes: dcid:usPharmaKb/prescriptions/prescription
+implements: dcid:usPharmaKb/data_model/entities/hcp
+
+Node: dcid:usPharmaKb/actors/providers/hco
+typeOf: dcs:ActorClass
+name: "Healthcare Organization (HCO)"
+identifiedBy: dcid:usPharmaKb/identifiers/provider/npi
+identifiedBy: dcid:usPharmaKb/identifiers/provider/hin
+partOf: dcid:usPharmaKb/actors/providers/idn
+
+Node: dcid:usPharmaKb/actors/providers/idn
+typeOf: dcs:ActorClass
+name: "Integrated Delivery Network (IDN)"
+
+Node: dcid:usPharmaKb/actors/providers/340b_covered_entity
+typeOf: dcs:ActorClass
+name: "340B Covered Entity"
+regulatedBy: dcid:usPharmaKb/regulation/government_pricing/340b
+identifiedBy: dcid:usPharmaKb/identifiers/provider/340b_id
+
+Node: dcid:usPharmaKb/actors/providers/dialysis_provider
+typeOf: dcs:ActorClass
+name: "Dialysis Provider"
+
+Node: dcid:usPharmaKb/actors/regulators/fda
+typeOf: dcs:Regulator
+name: "FDA"
+
+Node: dcid:usPharmaKb/actors/regulators/cms
+typeOf: dcs:Regulator
+name: "CMS"
+
+Node: dcid:usPharmaKb/actors/regulators/hhs_oig
+typeOf: dcs:Regulator
+name: "HHS-OIG"
+
+Node: dcid:usPharmaKb/actors/regulators/dea
+typeOf: dcs:Regulator
+name: "DEA"
+
+Node: dcid:usPharmaKb/actors/regulators/hrsa_opa
+typeOf: dcs:Regulator
+name: "HRSA Office of Pharmacy Affairs"
+
+Node: dcid:usPharmaKb/actors/regulators/state_boards
+typeOf: dcs:Regulator
+name: "State Boards of Pharmacy"
+
+Node: dcid:usPharmaKb/actors/standards/ncpdp
+typeOf: dcs:StandardsBody
+name: "NCPDP"
+
+Node: dcid:usPharmaKb/actors/standards/x12
+typeOf: dcs:StandardsBody
+name: "ASC X12"
+
+Node: dcid:usPharmaKb/actors/standards/hl7
+typeOf: dcs:StandardsBody
+name: "HL7"
+
+Node: dcid:usPharmaKb/regulation/statutes/fdca
+typeOf: dcs:Law
+name: "Federal Food, Drug, and Cosmetic Act"
+enforcedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/statutes/hatch_waxman
+typeOf: dcs:Law
+name: "Hatch-Waxman Act"
+enforcedBy: dcid:usPharmaKb/actors/regulators/fda
+relatedTo: dcid:usPharmaKb/reference_data/orange_book
+
+Node: dcid:usPharmaKb/regulation/statutes/bpcia
+typeOf: dcs:Law
+name: "Biologics Price Competition and Innovation Act"
+enforcedBy: dcid:usPharmaKb/actors/regulators/fda
+relatedTo: dcid:usPharmaKb/reference_data/purple_book
+
+Node: dcid:usPharmaKb/regulation/statutes/dscsa
+typeOf: dcs:Law
+name: "Drug Supply Chain Security Act"
+enforcedBy: dcid:usPharmaKb/actors/regulators/fda
+relatedTo: dcid:usPharmaKb/distribution_edi/epcis_dscsa
+
+Node: dcid:usPharmaKb/regulation/statutes/controlled_substances_act
+typeOf: dcs:Law
+name: "Controlled Substances Act"
+enforcedBy: dcid:usPharmaKb/actors/regulators/dea
+relatedTo: dcid:usPharmaKb/prescriptions/epcs
+
+Node: dcid:usPharmaKb/regulation/statutes/pdma
+typeOf: dcs:Law
+name: "Prescription Drug Marketing Act"
+enforcedBy: dcid:usPharmaKb/actors/regulators/fda
+relatedTo: dcid:usPharmaKb/commercial_operations/sampling
+
+Node: dcid:usPharmaKb/regulation/statutes/ira
+typeOf: dcs:Law
+name: "Inflation Reduction Act (drug provisions)"
+enforcedBy: dcid:usPharmaKb/actors/regulators/cms
+relatedTo: dcid:usPharmaKb/pricing_gtn/mfp
+relatedTo: dcid:usPharmaKb/actors/payers/medicare_part_d
+
+Node: dcid:usPharmaKb/regulation/fda/ind
+typeOf: dcs:RegulatoryPathway
+name: "Investigational New Drug (IND)"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/clinical_trial_phases
+typeOf: dcs:Regulation
+name: "Clinical Trial Phases"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/nda_505b1
+typeOf: dcs:RegulatoryPathway
+name: "NDA 505(b)(1)"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/nda_505b2
+typeOf: dcs:RegulatoryPathway
+name: "NDA 505(b)(2)"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/anda
+typeOf: dcs:RegulatoryPathway
+name: "ANDA 505(j)"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/bla
+typeOf: dcs:RegulatoryPathway
+name: "BLA 351(a)"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/biosimilar_351k
+typeOf: dcs:RegulatoryPathway
+name: "Biosimilar 351(k)"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/rems
+typeOf: dcs:Regulation
+name: "REMS"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/pharmacovigilance
+typeOf: dcs:Regulation
+name: "Pharmacovigilance & FAERS"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/opdp_promotion
+typeOf: dcs:Regulation
+name: "OPDP & Promotional Rules"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/off_label_promotion
+typeOf: dcs:Regulation
+name: "Off-Label Promotion Restrictions"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/21_cfr_part_11
+typeOf: dcs:Regulation
+name: "21 CFR Part 11"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fda/ndc_12_rule
+typeOf: dcs:Regulation
+name: "NDC 12-Digit Final Rule"
+regulatedBy: dcid:usPharmaKb/actors/regulators/fda
+
+Node: dcid:usPharmaKb/regulation/fraud_abuse/anti_kickback_statute
+typeOf: dcs:Law
+name: "Anti-Kickback Statute"
+enforcedBy: dcid:usPharmaKb/actors/regulators/hhs_oig
+restrictedBy: dcid:usPharmaKb/market_access/copay_assistance
+
+Node: dcid:usPharmaKb/regulation/fraud_abuse/false_claims_act
+typeOf: dcs:Law
+name: "False Claims Act"
+enforcedBy: dcid:usPharmaKb/actors/regulators/hhs_oig
+
+Node: dcid:usPharmaKb/regulation/fraud_abuse/stark_law
+typeOf: dcs:Law
+name: "Stark Law"
+enforcedBy: dcid:usPharmaKb/actors/regulators/cms
+
+Node: dcid:usPharmaKb/regulation/fraud_abuse/sunshine_act
+typeOf: dcs:Law
+name: "Physician Payments Sunshine Act (Open Payments)"
+enforcedBy: dcid:usPharmaKb/actors/regulators/cms
+generatesData: dcid:usPharmaKb/data_assets/promotion/open_payments
+
+Node: dcid:usPharmaKb/regulation/fraud_abuse/phrma_code
+typeOf: dcs:Code
+name: "PhRMA Code on Interactions with HCPs"
+
+Node: dcid:usPharmaKb/regulation/privacy/hipaa_privacy_rule
+typeOf: dcs:Law
+name: "HIPAA Privacy Rule"
+enforcedBy: dcid:usPharmaKb/actors/regulators/cms
+
+Node: dcid:usPharmaKb/regulation/privacy/hipaa_deidentification
+typeOf: dcs:Regulation
+name: "HIPAA De-identification"
+relatedTo: dcid:usPharmaKb/identifiers/patient/patient_token
+
+Node: dcid:usPharmaKb/regulation/privacy/limited_data_set
+typeOf: dcs:Regulation
+name: "Limited Data Set"
+
+Node: dcid:usPharmaKb/regulation/government_pricing/mdrp
+typeOf: dcs:Program
+name: "Medicaid Drug Rebate Program"
+relatedTo: dcid:usPharmaKb/pricing_gtn/amp
+relatedTo: dcid:usPharmaKb/pricing_gtn/best_price
+generatesData: dcid:usPharmaKb/data_assets/finance/medicaid_state_invoice
+
+Node: dcid:usPharmaKb/regulation/government_pricing/340b
+typeOf: dcs:Program
+name: "340B Drug Pricing Program"
+enforcedBy: dcid:usPharmaKb/actors/regulators/hrsa_opa
+relatedTo: dcid:usPharmaKb/pricing_gtn/chargeback
+
+Node: dcid:usPharmaKb/regulation/government_pricing/340b_rebate_pilot
+typeOf: dcs:Program
+name: "340B Rebate Model Pilot"
+partOf: dcid:usPharmaKb/regulation/government_pricing/340b
+
+Node: dcid:usPharmaKb/regulation/state_law/sorrell_v_ims
+typeOf: dcs:CourtDecision
+name: "Sorrell v. IMS Health (2011)"
+relatedTo: dcid:usPharmaKb/data_assets/rx_audit/iqvia_xponent
+
+Node: dcid:usPharmaKb/regulation/state_law/ama_pdrp
+typeOf: dcs:Program
+name: "AMA Physician Data Restriction Program"
+
+Node: dcid:usPharmaKb/regulation/state_law/state_marketing_laws
+typeOf: dcs:Regulation
+name: "State Marketing & Disclosure Laws"
+
+Node: dcid:usPharmaKb/identifiers/product/ndc
+typeOf: dcs:Identifier
+name: "National Drug Code (NDC)"
+assignedBy: dcid:usPharmaKb/actors/regulators/fda
+identifies: dcid:usPharmaKb/data_model/entities/product
+supersededBy: dcid:usPharmaKb/identifiers/product/ndc_12
+usedIn: dcid:usPharmaKb/claims/pharmacy/ncpdp_telecom_d0
+
+Node: dcid:usPharmaKb/identifiers/product/ndc_12
+typeOf: dcs:Identifier
+name: "NDC-12 (6-4-2)"
+supersedes: dcid:usPharmaKb/identifiers/product/ndc
+establishedBy: dcid:usPharmaKb/regulation/fda/ndc_12_rule
+
+Node: dcid:usPharmaKb/identifiers/product/rxnorm_rxcui
+typeOf: dcs:Identifier
+name: "RxNorm RxCUI"
+
+Node: dcid:usPharmaKb/identifiers/product/gpi
+typeOf: dcs:Identifier
+name: "GPI (Medi-Span)"
+
+Node: dcid:usPharmaKb/identifiers/product/gcn
+typeOf: dcs:Identifier
+name: "GCN / HICL (First Databank)"
+
+Node: dcid:usPharmaKb/identifiers/product/atc
+typeOf: dcs:Identifier
+name: "ATC Code"
+
+Node: dcid:usPharmaKb/identifiers/product/usc
+typeOf: dcs:Identifier
+name: "USC (IQVIA Uniform System of Classification)"
+
+Node: dcid:usPharmaKb/identifiers/product/cmf
+typeOf: dcs:Identifier
+name: "CMF / Product Group ID (IQVIA)"
+joinsTo: dcid:usPharmaKb/identifiers/product/ndc
+
+Node: dcid:usPharmaKb/identifiers/product/hcpcs
+typeOf: dcs:Identifier
+name: "HCPCS Level II (J-codes)"
+joinsTo: dcid:usPharmaKb/identifiers/product/ndc
+usedIn: dcid:usPharmaKb/claims/medical/x12_837p
+
+Node: dcid:usPharmaKb/identifiers/provider/npi
+typeOf: dcs:Identifier
+name: "National Provider Identifier (NPI)"
+identifies: dcid:usPharmaKb/data_model/entities/hcp
+identifies: dcid:usPharmaKb/data_model/entities/hco
+generatesData: dcid:usPharmaKb/data_assets/reference/nppes
+
+Node: dcid:usPharmaKb/identifiers/provider/nucc_taxonomy
+typeOf: dcs:Identifier
+name: "NUCC Taxonomy Code"
+
+Node: dcid:usPharmaKb/identifiers/provider/dea_number
+typeOf: dcs:Identifier
+name: "DEA Registration Number"
+assignedBy: dcid:usPharmaKb/actors/regulators/dea
+
+Node: dcid:usPharmaKb/identifiers/provider/hin
+typeOf: dcs:Identifier
+name: "HIN (HIBCC Health Industry Number)"
+
+Node: dcid:usPharmaKb/identifiers/provider/ama_me_number
+typeOf: dcs:Identifier
+name: "AMA ME Number"
+
+Node: dcid:usPharmaKb/identifiers/provider/ims_prescriber_id
+typeOf: dcs:Identifier
+name: "IQVIA Prescriber ID"
+joinsTo: dcid:usPharmaKb/identifiers/provider/npi
+
+Node: dcid:usPharmaKb/identifiers/provider/onekey_id
+typeOf: dcs:Identifier
+name: "IQVIA OneKey ID"
+
+Node: dcid:usPharmaKb/identifiers/provider/veeva_vid
+typeOf: dcs:Identifier
+name: "Veeva Network VID"
+joinsTo: dcid:usPharmaKb/identifiers/provider/npi
+usedIn: dcid:usPharmaKb/commercial_operations/customer_master_mdm
+
+Node: dcid:usPharmaKb/identifiers/provider/ncpdp_provider_id
+typeOf: dcs:Identifier
+name: "NCPDP Provider ID"
+
+Node: dcid:usPharmaKb/identifiers/provider/340b_id
+typeOf: dcs:Identifier
+name: "340B ID"
+
+Node: dcid:usPharmaKb/identifiers/provider/ccn
+typeOf: dcs:Identifier
+name: "CMS Certification Number"
+
+Node: dcid:usPharmaKb/identifiers/provider/ddd_outlet
+typeOf: dcs:Identifier
+name: "IQVIA DDD Outlet Number"
+
+Node: dcid:usPharmaKb/identifiers/payer/bin_pcn_group
+typeOf: dcs:Identifier
+name: "BIN / PCN / Group"
+usedIn: dcid:usPharmaKb/claims/pharmacy/ncpdp_telecom_d0
+identifies: dcid:usPharmaKb/data_model/entities/payer_plan
+
+Node: dcid:usPharmaKb/identifiers/payer/plan_id
+typeOf: dcs:Identifier
+name: "Payer Plan ID"
+
+Node: dcid:usPharmaKb/identifiers/payer/cms_contract_pbp
+typeOf: dcs:Identifier
+name: "CMS Contract-PBP"
+
+Node: dcid:usPharmaKb/identifiers/patient/patient_token
+typeOf: dcs:Identifier
+name: "De-identified Patient Token"
+restrictedBy: dcid:usPharmaKb/regulation/privacy/hipaa_deidentification
+identifies: dcid:usPharmaKb/data_model/entities/patient
+
+Node: dcid:usPharmaKb/reference_data/orange_book
+typeOf: dcs:ReferenceData
+name: "FDA Orange Book"
+
+Node: dcid:usPharmaKb/reference_data/purple_book
+typeOf: dcs:ReferenceData
+name: "FDA Purple Book"
+
+Node: dcid:usPharmaKb/reference_data/ndc_directory
+typeOf: dcs:ReferenceData
+name: "FDA NDC Directory"
+
+Node: dcid:usPharmaKb/reference_data/drug_compendia
+typeOf: dcs:ReferenceData
+name: "Drug Compendia (FDB, Medi-Span)"
+
+Node: dcid:usPharmaKb/reference_data/product_master
+typeOf: dcs:ReferenceData
+name: "Product Master"
+
+Node: dcid:usPharmaKb/reference_data/market_basket
+typeOf: dcs:ReferenceData
+name: "Market Basket Definition"
+
+Node: dcid:usPharmaKb/reference_data/ndc_hcpcs_crosswalk
+typeOf: dcs:ReferenceData
+name: "NDC–HCPCS Crosswalk"
+
+Node: dcid:usPharmaKb/reference_data/specialty_codes
+typeOf: dcs:ReferenceData
+name: "Specialty & Profession Codes"
+
+Node: dcid:usPharmaKb/prescriptions/prescription
+typeOf: dcs:Process
+name: "Prescription"
+generatesData: dcid:usPharmaKb/data_assets/rx_audit/iqvia_xponent
+implements: dcid:usPharmaKb/data_model/entities/prescription
+
+Node: dcid:usPharmaKb/prescriptions/e_prescribing
+typeOf: dcs:Process
+name: "E-Prescribing"
+usesStandard: dcid:usPharmaKb/prescriptions/ncpdp_script
+providedBy: dcid:usPharmaKb/service_providers/vendors/surescripts
+
+Node: dcid:usPharmaKb/prescriptions/ncpdp_script
+typeOf: dcs:TransactionStandard
+name: "NCPDP SCRIPT"
+maintainedBy: dcid:usPharmaKb/actors/standards/ncpdp
+
+Node: dcid:usPharmaKb/prescriptions/epcs
+typeOf: dcs:Process
+name: "EPCS"
+regulatedBy: dcid:usPharmaKb/regulation/statutes/controlled_substances_act
+
+Node: dcid:usPharmaKb/prescriptions/rtpb
+typeOf: dcs:Process
+name: "Real-Time Prescription Benefit"
+
+Node: dcid:usPharmaKb/prescriptions/prior_authorization
+typeOf: dcs:Process
+name: "Prior Authorization (PA / ePA)"
+generatesData: dcid:usPharmaKb/data_assets/access/epa_data
+
+Node: dcid:usPharmaKb/prescriptions/formulary
+typeOf: dcs:Process
+name: "Formulary, Tiers & Utilization Management"
+generatesData: dcid:usPharmaKb/data_assets/access/formulary_data
+
+Node: dcid:usPharmaKb/prescriptions/dispensing
+typeOf: dcs:Process
+name: "Dispensing & Adjudication"
+generatesData: dcid:usPharmaKb/claims/pharmacy/pharmacy_claim_flow
+
+Node: dcid:usPharmaKb/prescriptions/abandonment
+typeOf: dcs:Metric
+name: "Prescription Abandonment & Reversal"
+
+Node: dcid:usPharmaKb/prescriptions/pdmp
+typeOf: dcs:Program
+name: "Prescription Drug Monitoring Program"
+
+Node: dcid:usPharmaKb/prescriptions/metrics/nrx
+typeOf: dcs:Metric
+name: "NRx (New Prescriptions)"
+
+Node: dcid:usPharmaKb/prescriptions/metrics/trx
+typeOf: dcs:Metric
+name: "TRx (Total Prescriptions)"
+
+Node: dcid:usPharmaKb/prescriptions/metrics/nbrx
+typeOf: dcs:Metric
+name: "NBRx (New-to-Brand Rx)"
+
+Node: dcid:usPharmaKb/prescriptions/metrics/extended_units
+typeOf: dcs:Metric
+name: "Extended Units / Volume"
+
+Node: dcid:usPharmaKb/prescriptions/metrics/source_of_business
+typeOf: dcs:Metric
+name: "Source of Business"
+
+Node: dcid:usPharmaKb/claims/pharmacy/pharmacy_claim_flow
+typeOf: dcs:DataFlow
+name: "Pharmacy Claim Flow"
+usesStandard: dcid:usPharmaKb/claims/pharmacy/ncpdp_telecom_d0
+adjudicatedBy: dcid:usPharmaKb/actors/pbms/pbm
+generatesData: dcid:usPharmaKb/data_assets/patient_claims/pharmacy_claims_open
+generatesData: dcid:usPharmaKb/data_assets/patient_claims/iqvia_laad
+
+Node: dcid:usPharmaKb/claims/pharmacy/ncpdp_telecom_d0
+typeOf: dcs:TransactionStandard
+name: "NCPDP Telecommunication D.0"
+maintainedBy: dcid:usPharmaKb/actors/standards/ncpdp
+
+Node: dcid:usPharmaKb/claims/pharmacy/claim_status
+typeOf: dcs:CodeSystem
+name: "Pharmacy Claim Status & Reject Codes"
+
+Node: dcid:usPharmaKb/claims/pharmacy/copay_card_claim
+typeOf: dcs:Process
+name: "Copay Card Secondary Claim"
+relatedTo: dcid:usPharmaKb/market_access/copay_assistance
+
+Node: dcid:usPharmaKb/claims/medical/medical_claim_flow
+typeOf: dcs:DataFlow
+name: "Medical Claim Flow"
+usesStandard: dcid:usPharmaKb/claims/medical/x12_837p
+usesStandard: dcid:usPharmaKb/claims/medical/x12_837i
+usesStandard: dcid:usPharmaKb/claims/medical/x12_835
+generatesData: dcid:usPharmaKb/data_assets/patient_claims/medical_claims_open
+
+Node: dcid:usPharmaKb/claims/medical/x12_837p
+typeOf: dcs:TransactionStandard
+name: "X12 837P (Professional)"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/claims/medical/x12_837i
+typeOf: dcs:TransactionStandard
+name: "X12 837I (Institutional)"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/claims/medical/x12_835
+typeOf: dcs:TransactionStandard
+name: "X12 835 Remittance"
+generatesData: dcid:usPharmaKb/data_assets/patient_claims/remittance_835
+
+Node: dcid:usPharmaKb/claims/medical/code_sets
+typeOf: dcs:CodeSystem
+name: "ICD-10-CM, CPT, HCPCS, POS"
+
+Node: dcid:usPharmaKb/claims/medical/buy_and_bill
+typeOf: dcs:Process
+name: "Buy-and-Bill"
+relatedTo: dcid:usPharmaKb/identifiers/product/hcpcs
+relatedTo: dcid:usPharmaKb/pricing_gtn/asp
+
+Node: dcid:usPharmaKb/claims/medical/white_brown_bagging
+typeOf: dcs:Process
+name: "White / Brown / Clear Bagging"
+
+Node: dcid:usPharmaKb/claims/open_vs_closed
+typeOf: dcs:Concept
+name: "Open vs Closed Claims"
+
+Node: dcid:usPharmaKb/distribution_edi/edi_850_855
+typeOf: dcs:TransactionStandard
+name: "EDI 850 / 855 Purchase Order & Acknowledgment"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/distribution_edi/edi_856
+typeOf: dcs:TransactionStandard
+name: "EDI 856 Advance Ship Notice"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/distribution_edi/edi_810
+typeOf: dcs:TransactionStandard
+name: "EDI 810 Invoice"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/distribution_edi/edi_857
+typeOf: dcs:TransactionStandard
+name: "EDI 857 Shipment and Billing Notice"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/distribution_edi/edi_867
+typeOf: dcs:TransactionStandard
+name: "EDI 867 Product Transfer & Resale Report"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/distribution_edi/edi_852
+typeOf: dcs:TransactionStandard
+name: "EDI 852 Product Activity Data"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/distribution_edi/edi_844_849
+typeOf: dcs:TransactionStandard
+name: "EDI 844 / 849 Chargeback Claim & Response"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/distribution_edi/edi_845
+typeOf: dcs:TransactionStandard
+name: "EDI 845 Price Authorization"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/distribution_edi/edi_940_945
+typeOf: dcs:TransactionStandard
+name: "EDI 940 / 945 Warehouse Shipping Order & Advice"
+maintainedBy: dcid:usPharmaKb/actors/standards/x12
+
+Node: dcid:usPharmaKb/distribution_edi/epcis_dscsa
+typeOf: dcs:TransactionStandard
+name: "EPCIS / DSCSA Traceability"
+regulatedBy: dcid:usPharmaKb/regulation/statutes/dscsa
+
+Node: dcid:usPharmaKb/distribution_edi/product_trade_flow
+typeOf: dcs:DataFlow
+name: "Product & Trade Data Flow"
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/ex_factory_sales
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/edi_867_wholesaler
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/iqvia_ddd
+
+Node: dcid:usPharmaKb/pricing_gtn/wac
+typeOf: dcs:PricingConcept
+name: "WAC (Wholesale Acquisition Cost)"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/awp
+typeOf: dcs:PricingConcept
+name: "AWP (Average Wholesale Price)"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/asp
+typeOf: dcs:PricingConcept
+name: "ASP (Average Sales Price)"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/amp
+typeOf: dcs:PricingConcept
+name: "AMP (Average Manufacturer Price)"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/best_price
+typeOf: dcs:PricingConcept
+name: "Best Price"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/ura
+typeOf: dcs:PricingConcept
+name: "URA (Unit Rebate Amount)"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/340b_ceiling_price
+typeOf: dcs:PricingConcept
+name: "340B Ceiling Price"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/fss_fcp
+typeOf: dcs:PricingConcept
+name: "FSS / Federal Ceiling Price"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/mfp
+typeOf: dcs:PricingConcept
+name: "MFP (Maximum Fair Price)"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/chargeback
+typeOf: dcs:PricingConcept
+name: "Chargeback"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/commercial_rebate
+typeOf: dcs:PricingConcept
+name: "Commercial / PBM Rebate"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/medicaid_rebate
+typeOf: dcs:PricingConcept
+name: "Medicaid Rebate"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/part_d_discount
+typeOf: dcs:PricingConcept
+name: "Part D Manufacturer Discount"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/copay_cost
+typeOf: dcs:PricingConcept
+name: "Copay Program Cost"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/distribution_fees
+typeOf: dcs:PricingConcept
+name: "Distribution Service Fees"
+partOf: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/pricing_gtn/gross_to_net
+typeOf: dcs:PricingConcept
+name: "Gross-to-Net (GTN)"
+derivedFrom: dcid:usPharmaKb/data_assets/finance/contracts_data
+
+Node: dcid:usPharmaKb/data_assets/dataset_taxonomy
+typeOf: dcs:Taxonomy
+name: "Dataset Type Taxonomy"
+defines: dcid:usPharmaKb/data_assets/dataset_selection_guide
+
+Node: dcid:usPharmaKb/data_assets/dataset_selection_guide
+typeOf: dcs:Guide
+name: "Which Dataset Answers Which Question"
+relatedTo: dcid:usPharmaKb/data_assets/dataset_taxonomy
+
+Node: dcid:usPharmaKb/data_assets/sales_distribution/ex_factory_sales
+typeOf: dcs:DatasetType
+name: "Ex-Factory Sales (Sell-In)"
+derivedFrom: dcid:usPharmaKb/distribution_edi/edi_810
+relatedTo: dcid:usPharmaKb/data_assets/sales_distribution/edi_852_inventory
+
+Node: dcid:usPharmaKb/data_assets/sales_distribution/edi_867_wholesaler
+typeOf: dcs:DatasetType
+name: "Wholesaler / Specialty Distributor 867 (Sell-Through)"
+derivedFrom: dcid:usPharmaKb/distribution_edi/edi_867
+providedBy: dcid:usPharmaKb/actors/distribution/full_line_wholesaler
+
+Node: dcid:usPharmaKb/data_assets/sales_distribution/edi_867_3pl
+typeOf: dcs:DatasetType
+name: "3PL 867 (Direct Sales Through a 3PL)"
+derivedFrom: dcid:usPharmaKb/distribution_edi/edi_867
+providedBy: dcid:usPharmaKb/actors/distribution/3pl
+
+Node: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+typeOf: dcs:DatasetType
+name: "ICS 867 (Cencora ICS 3PL Sales Feed)"
+isA: dcid:usPharmaKb/data_assets/sales_distribution/edi_867_3pl
+providedBy: dcid:usPharmaKb/actors/distribution/ics_cencora
+feeds: dcid:usPharmaKb/warehouse/tables/silver_fct_ics_867
+
+Node: dcid:usPharmaKb/data_assets/sales_distribution/edi_852_inventory
+typeOf: dcs:DatasetType
+name: "852 Inventory / Product Activity"
+derivedFrom: dcid:usPharmaKb/distribution_edi/edi_852
+
+Node: dcid:usPharmaKb/data_assets/sales_distribution/iqvia_ddd
+typeOf: dcs:DatasetType
+name: "IQVIA DDD (Outlet-Level Sales)"
+providedBy: dcid:usPharmaKb/service_providers/vendors/iqvia
+
+Node: dcid:usPharmaKb/data_assets/sales_distribution/snr_sales
+typeOf: dcs:DatasetType
+name: "SNR Sales Feed (Market × Product, with 340B Flag)"
+feeds: dcid:usPharmaKb/warehouse/tables/bronze_raw_snr_sales
+
+Node: dcid:usPharmaKb/data_assets/sales_distribution/iqvia_nsp
+typeOf: dcs:DatasetType
+name: "IQVIA National Sales Perspectives (NSP)"
+
+Node: dcid:usPharmaKb/data_assets/rx_audit/iqvia_npa
+typeOf: dcs:DatasetType
+name: "IQVIA NPA (National Prescription Audit)"
+measures: dcid:usPharmaKb/prescriptions/metrics/trx
+
+Node: dcid:usPharmaKb/data_assets/rx_audit/iqvia_xponent
+typeOf: dcs:DatasetType
+name: "IQVIA Xponent (Prescriber-Level Rx)"
+providedBy: dcid:usPharmaKb/service_providers/vendors/iqvia
+measures: dcid:usPharmaKb/prescriptions/metrics/trx
+restrictedBy: dcid:usPharmaKb/regulation/state_law/ama_pdrp
+feeds: dcid:usPharmaKb/warehouse/tables/bronze_raw_xponent
+
+Node: dcid:usPharmaKb/data_assets/rx_audit/xponent_plantrak
+typeOf: dcs:DatasetType
+name: "IQVIA Xponent PlanTrak"
+isA: dcid:usPharmaKb/data_assets/rx_audit/iqvia_xponent
+
+Node: dcid:usPharmaKb/data_assets/rx_audit/symphony_phast
+typeOf: dcs:DatasetType
+name: "Symphony Health (ICON) PHAST Prescription"
+
+Node: dcid:usPharmaKb/data_assets/rx_audit/iqvia_midas
+typeOf: dcs:DatasetType
+name: "IQVIA MIDAS"
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/pharmacy_claims_open
+typeOf: dcs:DatasetType
+name: "Open Pharmacy (Rx) Claims"
+derivedFrom: dcid:usPharmaKb/claims/pharmacy/pharmacy_claim_flow
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/medical_claims_open
+typeOf: dcs:DatasetType
+name: "Open Medical (Mx/Dx) Claims"
+derivedFrom: dcid:usPharmaKb/claims/medical/medical_claim_flow
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/closed_claims_payer
+typeOf: dcs:DatasetType
+name: "Closed (Payer-Adjudicated) Claims"
+relatedTo: dcid:usPharmaKb/claims/open_vs_closed
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/iqvia_laad
+typeOf: dcs:DatasetType
+name: "IQVIA LAAD (Longitudinal Access & Adjudication Data)"
+providedBy: dcid:usPharmaKb/service_providers/vendors/iqvia
+derivedFrom: dcid:usPharmaKb/data_assets/patient_claims/iqvia_lrx
+derivedFrom: dcid:usPharmaKb/data_assets/patient_claims/iqvia_fia
+feeds: dcid:usPharmaKb/warehouse/tables/gold_rx_mx_claims
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/iqvia_lrx
+typeOf: dcs:DatasetType
+name: "IQVIA LRx (Longitudinal Prescription Claims)"
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/iqvia_fia
+typeOf: dcs:DatasetType
+name: "IQVIA FIA (Formulary Impact Analyzer / Lifecycle Claims)"
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/iqvia_dx_hx
+typeOf: dcs:DatasetType
+name: "IQVIA Dx / Hx (Professional & Institutional Claims)"
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/komodo_healthcare_map
+typeOf: dcs:DatasetType
+name: "Komodo Healthcare Map"
+providedBy: dcid:usPharmaKb/service_providers/vendors/komodo_health
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/komodo_claims
+typeOf: dcs:DatasetType
+name: "Komodo Claims Extracts (Mx / Rx)"
+derivedFrom: dcid:usPharmaKb/data_assets/patient_claims/komodo_healthcare_map
+feeds: dcid:usPharmaKb/data_assets/provider_aggregates/komodo_claims_by_provider
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/symphony_idv
+typeOf: dcs:DatasetType
+name: "Symphony Health (ICON) Integrated Dataverse"
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/healthverity
+typeOf: dcs:DatasetType
+name: "HealthVerity Marketplace Data"
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/cms_medicare_claims
+typeOf: dcs:DatasetType
+name: "CMS Medicare FFS Claims (ResDAC / VRDC)"
+
+Node: dcid:usPharmaKb/data_assets/patient_claims/remittance_835
+typeOf: dcs:DatasetType
+name: "Remittance (835) Data"
+derivedFrom: dcid:usPharmaKb/claims/medical/x12_835
+
+Node: dcid:usPharmaKb/data_assets/provider_aggregates/komodo_claims_by_provider
+typeOf: dcs:DatasetType
+name: "Komodo Claims by Provider (HCP × Affiliation Aggregate)"
+derivedFrom: dcid:usPharmaKb/data_assets/patient_claims/komodo_claims
+feeds: dcid:usPharmaKb/warehouse/tables/gold_komodo_monoferric_claims_by_provider
+joinsTo: dcid:usPharmaKb/data_assets/promotion/crm_calls
+
+Node: dcid:usPharmaKb/data_assets/provider_aggregates/cms_part_d_prescriber
+typeOf: dcs:DatasetType
+name: "CMS Medicare Part D Prescribers PUF"
+
+Node: dcid:usPharmaKb/data_assets/provider_aggregates/cms_part_b_provider
+typeOf: dcs:DatasetType
+name: "CMS Medicare Physician & Other Practitioners PUF"
+
+Node: dcid:usPharmaKb/data_assets/reference/nppes
+typeOf: dcs:DatasetType
+name: "NPPES NPI File"
+feeds: dcid:usPharmaKb/warehouse/tables/raw_npi_info
+
+Node: dcid:usPharmaKb/data_assets/reference/iqvia_onekey
+typeOf: dcs:DatasetType
+name: "IQVIA OneKey"
+
+Node: dcid:usPharmaKb/data_assets/reference/veeva_opendata
+typeOf: dcs:DatasetType
+name: "Veeva OpenData / Network"
+feeds: dcid:usPharmaKb/warehouse/tables/silver_dim_hco
+
+Node: dcid:usPharmaKb/data_assets/reference/ama_masterfile
+typeOf: dcs:DatasetType
+name: "AMA Physician Masterfile"
+
+Node: dcid:usPharmaKb/data_assets/reference/hcp_hco_affiliation
+typeOf: dcs:DatasetType
+name: "HCP–HCO Affiliation"
+feeds: dcid:usPharmaKb/warehouse/tables/raw_npi_hco_mapping
+
+Node: dcid:usPharmaKb/data_assets/reference/zip_to_territory
+typeOf: dcs:DatasetType
+name: "Zip-to-Territory (ZTT) Alignment"
+feeds: dcid:usPharmaKb/warehouse/tables/silver_curr_ztt
+
+Node: dcid:usPharmaKb/data_assets/reference/account_alignment
+typeOf: dcs:DatasetType
+name: "Account / Network Alignment"
+feeds: dcid:usPharmaKb/warehouse/tables/silver_network_all_dim_alignment
+
+Node: dcid:usPharmaKb/data_assets/reference/drug_mapping
+typeOf: dcs:DatasetType
+name: "Claims Drug Mapping (NDC → Product/Market)"
+feeds: dcid:usPharmaKb/warehouse/tables/raw_iqvia_claims_drug_mapping
+
+Node: dcid:usPharmaKb/data_assets/reference/time_dimension
+typeOf: dcs:DatasetType
+name: "Calendar / Time Dimension"
+
+Node: dcid:usPharmaKb/data_assets/promotion/crm_calls
+typeOf: dcs:DatasetType
+name: "CRM Call Activity (Veeva)"
+generatesData: dcid:usPharmaKb/data_model/entities/call
+feeds: dcid:usPharmaKb/warehouse/tables/bronze_raw_veeva_calls
+
+Node: dcid:usPharmaKb/data_assets/promotion/samples
+typeOf: dcs:DatasetType
+name: "Sample Transactions"
+regulatedBy: dcid:usPharmaKb/regulation/statutes/pdma
+
+Node: dcid:usPharmaKb/data_assets/promotion/speaker_programs
+typeOf: dcs:DatasetType
+name: "Speaker Program Data"
+feeds: dcid:usPharmaKb/data_assets/promotion/open_payments
+
+Node: dcid:usPharmaKb/data_assets/promotion/open_payments
+typeOf: dcs:DatasetType
+name: "CMS Open Payments"
+establishedBy: dcid:usPharmaKb/regulation/fraud_abuse/sunshine_act
+
+Node: dcid:usPharmaKb/data_assets/promotion/digital_engagement
+typeOf: dcs:DatasetType
+name: "Digital & Omnichannel Engagement"
+
+Node: dcid:usPharmaKb/data_assets/promotion/promotional_audit
+typeOf: dcs:DatasetType
+name: "Promotional Audit (Competitive)"
+
+Node: dcid:usPharmaKb/data_assets/access/formulary_data
+typeOf: dcs:DatasetType
+name: "Formulary & Policy Data"
+
+Node: dcid:usPharmaKb/data_assets/access/payer_lives
+typeOf: dcs:DatasetType
+name: "Payer & Covered Lives"
+
+Node: dcid:usPharmaKb/data_assets/access/hub_data
+typeOf: dcs:DatasetType
+name: "Hub / Patient Services Data"
+relatedTo: dcid:usPharmaKb/market_access/hub_services
+
+Node: dcid:usPharmaKb/data_assets/access/sp_data_feed
+typeOf: dcs:DatasetType
+name: "Specialty Pharmacy Data Feed"
+providedBy: dcid:usPharmaKb/actors/pharmacies/specialty_pharmacy
+
+Node: dcid:usPharmaKb/data_assets/access/copay_program_data
+typeOf: dcs:DatasetType
+name: "Copay Program Data"
+relatedTo: dcid:usPharmaKb/claims/pharmacy/copay_card_claim
+
+Node: dcid:usPharmaKb/data_assets/access/epa_data
+typeOf: dcs:DatasetType
+name: "ePA Transaction Data"
+
+Node: dcid:usPharmaKb/data_assets/clinical_rwd/ehr_data
+typeOf: dcs:DatasetType
+name: "EHR Data"
+
+Node: dcid:usPharmaKb/data_assets/clinical_rwd/lab_data
+typeOf: dcs:DatasetType
+name: "Lab Results Data"
+
+Node: dcid:usPharmaKb/data_assets/clinical_rwd/mortality_data
+typeOf: dcs:DatasetType
+name: "Mortality Data"
+
+Node: dcid:usPharmaKb/data_assets/clinical_rwd/consumer_sdoh
+typeOf: dcs:DatasetType
+name: "Consumer & SDOH Data"
+
+Node: dcid:usPharmaKb/data_assets/finance/contracts_data
+typeOf: dcs:DatasetType
+name: "Contracts & Customer Eligibility"
+
+Node: dcid:usPharmaKb/data_assets/finance/edi_844_849_chargebacks
+typeOf: dcs:DatasetType
+name: "Chargeback Data (844/849)"
+derivedFrom: dcid:usPharmaKb/distribution_edi/edi_844_849
+measures: dcid:usPharmaKb/pricing_gtn/chargeback
+
+Node: dcid:usPharmaKb/data_assets/finance/rebate_utilization
+typeOf: dcs:DatasetType
+name: "Rebate Utilisation Invoices"
+measures: dcid:usPharmaKb/pricing_gtn/commercial_rebate
+
+Node: dcid:usPharmaKb/data_assets/finance/medicaid_state_invoice
+typeOf: dcs:DatasetType
+name: "Medicaid State Invoices (CMS-R-144)"
+measures: dcid:usPharmaKb/pricing_gtn/medicaid_rebate
+
+Node: dcid:usPharmaKb/data_assets/finance/government_pricing_calc
+typeOf: dcs:DatasetType
+name: "Government Pricing Calculations"
+
+Node: dcid:usPharmaKb/commercial_operations/sales_rep
+typeOf: dcs:Role
+name: "Pharmaceutical Sales Representative"
+generatesData: dcid:usPharmaKb/data_assets/promotion/crm_calls
+alignedTo: dcid:usPharmaKb/data_model/entities/territory
+
+Node: dcid:usPharmaKb/commercial_operations/msl
+typeOf: dcs:Role
+name: "Medical Science Liaison (MSL)"
+restrictedBy: dcid:usPharmaKb/regulation/fda/off_label_promotion
+
+Node: dcid:usPharmaKb/commercial_operations/kam
+typeOf: dcs:Role
+name: "Key Account Manager"
+relatedTo: dcid:usPharmaKb/actors/providers/idn
+
+Node: dcid:usPharmaKb/commercial_operations/field_reimbursement_manager
+typeOf: dcs:Role
+name: "Field Reimbursement Manager"
+restrictedBy: dcid:usPharmaKb/regulation/fraud_abuse/anti_kickback_statute
+
+Node: dcid:usPharmaKb/commercial_operations/targeting_segmentation
+typeOf: dcs:Process
+name: "Targeting, Segmentation & Deciling"
+derivedFrom: dcid:usPharmaKb/data_assets/rx_audit/iqvia_xponent
+derivedFrom: dcid:usPharmaKb/data_assets/provider_aggregates/komodo_claims_by_provider
+
+Node: dcid:usPharmaKb/commercial_operations/call_plan
+typeOf: dcs:Process
+name: "Call Plan"
+derivedFrom: dcid:usPharmaKb/commercial_operations/targeting_segmentation
+
+Node: dcid:usPharmaKb/commercial_operations/territory_alignment
+typeOf: dcs:Process
+name: "Territory Design & Alignment"
+generatesData: dcid:usPharmaKb/data_assets/reference/zip_to_territory
+generatesData: dcid:usPharmaKb/data_assets/reference/account_alignment
+
+Node: dcid:usPharmaKb/commercial_operations/sales_force_sizing
+typeOf: dcs:Process
+name: "Sales Force Sizing"
+
+Node: dcid:usPharmaKb/commercial_operations/crm
+typeOf: dcs:Process
+name: "CRM for Life Sciences"
+generatesData: dcid:usPharmaKb/data_assets/promotion/crm_calls
+generatesData: dcid:usPharmaKb/data_assets/promotion/samples
+
+Node: dcid:usPharmaKb/commercial_operations/sampling
+typeOf: dcs:Process
+name: "Sampling & Sample Accountability"
+regulatedBy: dcid:usPharmaKb/regulation/statutes/pdma
+
+Node: dcid:usPharmaKb/commercial_operations/incentive_compensation
+typeOf: dcs:Process
+name: "Incentive Compensation (IC)"
+derivedFrom: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+derivedFrom: dcid:usPharmaKb/data_assets/reference/zip_to_territory
+
+Node: dcid:usPharmaKb/commercial_operations/omnichannel
+typeOf: dcs:Process
+name: "Omnichannel Engagement & Next Best Action"
+generatesData: dcid:usPharmaKb/data_assets/promotion/digital_engagement
+
+Node: dcid:usPharmaKb/commercial_operations/customer_master_mdm
+typeOf: dcs:Process
+name: "Customer Master Data Management (MDM)"
+derivedFrom: dcid:usPharmaKb/data_assets/reference/veeva_opendata
+derivedFrom: dcid:usPharmaKb/data_assets/reference/nppes
+derivedFrom: dcid:usPharmaKb/data_assets/reference/iqvia_onekey
+
+Node: dcid:usPharmaKb/commercial_operations/hco_hierarchy
+typeOf: dcs:Process
+name: "HCO Hierarchy"
+partOf: dcid:usPharmaKb/commercial_operations/customer_master_mdm
+
+Node: dcid:usPharmaKb/commercial_operations/prescriber_matching
+typeOf: dcs:Process
+name: "Prescriber & Ship-to Matching"
+partOf: dcid:usPharmaKb/commercial_operations/customer_master_mdm
+
+Node: dcid:usPharmaKb/market_access/hub_services
+typeOf: dcs:Process
+name: "Hub Services"
+generatesData: dcid:usPharmaKb/data_assets/access/hub_data
+
+Node: dcid:usPharmaKb/market_access/copay_assistance
+typeOf: dcs:Process
+name: "Copay Assistance"
+generatesData: dcid:usPharmaKb/data_assets/access/copay_program_data
+
+Node: dcid:usPharmaKb/market_access/copay_accumulators
+typeOf: dcs:Process
+name: "Copay Accumulators & Maximizers"
+relatedTo: dcid:usPharmaKb/market_access/copay_assistance
+
+Node: dcid:usPharmaKb/market_access/patient_assistance_program
+typeOf: dcs:Process
+name: "Patient Assistance Program (PAP)"
+
+Node: dcid:usPharmaKb/market_access/sp_network_design
+typeOf: dcs:Process
+name: "Specialty Pharmacy Network Design"
+generatesData: dcid:usPharmaKb/data_assets/access/sp_data_feed
+
+Node: dcid:usPharmaKb/market_access/payer_contracting
+typeOf: dcs:Process
+name: "Payer Contracting & Pull-Through"
+generatesData: dcid:usPharmaKb/data_assets/finance/rebate_utilization
+
+Node: dcid:usPharmaKb/service_providers/categories/cro
+typeOf: dcs:ServiceCategory
+name: "Contract Research Organization (CRO)"
+
+Node: dcid:usPharmaKb/service_providers/categories/cdmo
+typeOf: dcs:ServiceCategory
+name: "CDMO / CMO"
+
+Node: dcid:usPharmaKb/service_providers/categories/commercial_data_provider
+typeOf: dcs:ServiceCategory
+name: "Commercial Data Provider"
+
+Node: dcid:usPharmaKb/service_providers/categories/tokenization_privacy
+typeOf: dcs:ServiceCategory
+name: "Tokenization & Privacy"
+
+Node: dcid:usPharmaKb/service_providers/categories/crm_software
+typeOf: dcs:ServiceCategory
+name: "CRM & Commercial Software"
+
+Node: dcid:usPharmaKb/service_providers/categories/commercial_analytics
+typeOf: dcs:ServiceCategory
+name: "Commercial Analytics & Consulting"
+
+Node: dcid:usPharmaKb/service_providers/categories/it_services
+typeOf: dcs:ServiceCategory
+name: "IT & Data Platform Services"
+
+Node: dcid:usPharmaKb/service_providers/categories/cso
+typeOf: dcs:ServiceCategory
+name: "Contract Sales Organization (CSO)"
+
+Node: dcid:usPharmaKb/service_providers/categories/hub_patient_services
+typeOf: dcs:ServiceCategory
+name: "Hub & Patient Services Providers"
+
+Node: dcid:usPharmaKb/service_providers/categories/3pl_logistics
+typeOf: dcs:ServiceCategory
+name: "3PL & Specialty Logistics"
+
+Node: dcid:usPharmaKb/service_providers/categories/gtn_channel_data
+typeOf: dcs:ServiceCategory
+name: "GTN, Contracting & Channel Data Management"
+
+Node: dcid:usPharmaKb/service_providers/categories/market_access_heor
+typeOf: dcs:ServiceCategory
+name: "Market Access, Pricing & HEOR"
+
+Node: dcid:usPharmaKb/service_providers/categories/regulatory_pv
+typeOf: dcs:ServiceCategory
+name: "Regulatory & Pharmacovigilance Outsourcing"
+
+Node: dcid:usPharmaKb/service_providers/categories/medcomms_agencies
+typeOf: dcs:ServiceCategory
+name: "Medical Communications & Healthcare Marketing Agencies"
+
+Node: dcid:usPharmaKb/service_providers/categories/compliance_transparency
+typeOf: dcs:ServiceCategory
+name: "Compliance & Transparency Services"
+
+Node: dcid:usPharmaKb/service_providers/engagement_models
+typeOf: dcs:Concept
+name: "Service Engagement Models"
+
+Node: dcid:usPharmaKb/service_providers/vendors/iqvia
+typeOf: dcs:Vendor
+name: "IQVIA"
+provides: dcid:usPharmaKb/data_assets/rx_audit/iqvia_xponent
+provides: dcid:usPharmaKb/data_assets/patient_claims/iqvia_laad
+provides: dcid:usPharmaKb/data_assets/sales_distribution/iqvia_ddd
+isA: dcid:usPharmaKb/service_providers/categories/commercial_data_provider
+
+Node: dcid:usPharmaKb/service_providers/vendors/komodo_health
+typeOf: dcs:Vendor
+name: "Komodo Health"
+provides: dcid:usPharmaKb/data_assets/patient_claims/komodo_healthcare_map
+isA: dcid:usPharmaKb/service_providers/categories/commercial_data_provider
+
+Node: dcid:usPharmaKb/service_providers/vendors/symphony_health
+typeOf: dcs:Vendor
+name: "Symphony Health (ICON)"
+provides: dcid:usPharmaKb/data_assets/patient_claims/symphony_idv
+
+Node: dcid:usPharmaKb/service_providers/vendors/veeva
+typeOf: dcs:Vendor
+name: "Veeva Systems"
+provides: dcid:usPharmaKb/data_assets/reference/veeva_opendata
+isA: dcid:usPharmaKb/service_providers/categories/crm_software
+
+Node: dcid:usPharmaKb/service_providers/vendors/surescripts
+typeOf: dcs:Vendor
+name: "Surescripts"
+provides: dcid:usPharmaKb/prescriptions/e_prescribing
+
+Node: dcid:usPharmaKb/service_providers/vendors/datavant
+typeOf: dcs:Vendor
+name: "Datavant"
+isA: dcid:usPharmaKb/service_providers/categories/tokenization_privacy
+
+Node: dcid:usPharmaKb/service_providers/vendors/integrichain
+typeOf: dcs:Vendor
+name: "IntegriChain"
+isA: dcid:usPharmaKb/service_providers/categories/gtn_channel_data
+
+Node: dcid:usPharmaKb/service_providers/vendors/mmit
+typeOf: dcs:Vendor
+name: "MMIT"
+provides: dcid:usPharmaKb/data_assets/access/formulary_data
+
+Node: dcid:usPharmaKb/analytics_kpis/market_share
+typeOf: dcs:Metric
+name: "Market Share"
+
+Node: dcid:usPharmaKb/analytics_kpis/persistence
+typeOf: dcs:Metric
+name: "Persistence"
+
+Node: dcid:usPharmaKb/analytics_kpis/adherence_pdc
+typeOf: dcs:Metric
+name: "Adherence (PDC / MPR)"
+
+Node: dcid:usPharmaKb/analytics_kpis/lines_of_therapy
+typeOf: dcs:Metric
+name: "Lines of Therapy"
+
+Node: dcid:usPharmaKb/analytics_kpis/patient_journey
+typeOf: dcs:Metric
+name: "Patient Journey"
+
+Node: dcid:usPharmaKb/analytics_kpis/time_to_therapy
+typeOf: dcs:Metric
+name: "Time to Therapy"
+
+Node: dcid:usPharmaKb/analytics_kpis/approval_rejection_rates
+typeOf: dcs:Metric
+name: "Approval, Rejection & Abandonment Rates"
+
+Node: dcid:usPharmaKb/analytics_kpis/payer_mix
+typeOf: dcs:Metric
+name: "Payer Mix"
+
+Node: dcid:usPharmaKb/analytics_kpis/reach_frequency
+typeOf: dcs:Metric
+name: "Reach & Frequency"
+
+Node: dcid:usPharmaKb/analytics_kpis/promotion_response
+typeOf: dcs:Metric
+name: "Promotion Response"
+
+Node: dcid:usPharmaKb/analytics_kpis/launch_tracking
+typeOf: dcs:Metric
+name: "Launch Tracking"
+
+Node: dcid:usPharmaKb/analytics_kpis/loe_erosion
+typeOf: dcs:Metric
+name: "Loss of Exclusivity & Generic Erosion"
+
+Node: dcid:usPharmaKb/analytics_kpis/gtn_rate
+typeOf: dcs:Metric
+name: "GTN Rate"
+
+Node: dcid:usPharmaKb/analytics_kpis/channel_inventory
+typeOf: dcs:Metric
+name: "Channel Inventory / Days on Hand"
+
+Node: dcid:usPharmaKb/analytics_kpis/forecasting
+typeOf: dcs:Metric
+name: "Forecasting"
+
+Node: dcid:usPharmaKb/data_flows/rx_to_pharmacy_claim
+typeOf: dcs:DataFlow
+name: "Prescription to Pharmacy Claim (hop by hop)"
+relatedTo: dcid:usPharmaKb/claims/pharmacy/pharmacy_claim_flow
+generatesData: dcid:usPharmaKb/data_assets/rx_audit/iqvia_xponent
+generatesData: dcid:usPharmaKb/data_assets/patient_claims/iqvia_laad
+
+Node: dcid:usPharmaKb/data_flows/iv_drug_to_medical_claim
+typeOf: dcs:DataFlow
+name: "Physician-Administered (IV) Drug Flow"
+generatesData: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+generatesData: dcid:usPharmaKb/data_assets/patient_claims/komodo_claims
+relatedTo: dcid:usPharmaKb/claims/medical/buy_and_bill
+
+Node: dcid:usPharmaKb/data_flows/medical_claim
+typeOf: dcs:DataFlow
+name: "Medical Claim Data Flow"
+relatedTo: dcid:usPharmaKb/claims/medical/medical_claim_flow
+
+Node: dcid:usPharmaKb/data_flows/product_and_trade
+typeOf: dcs:DataFlow
+name: "Product, Trade & Chargeback Flow"
+relatedTo: dcid:usPharmaKb/distribution_edi/product_trade_flow
+generatesData: dcid:usPharmaKb/data_assets/finance/edi_844_849_chargebacks
+
+Node: dcid:usPharmaKb/data_flows/money_flow
+typeOf: dcs:DataFlow
+name: "Money Flow"
+relatedTo: dcid:usPharmaKb/pricing_gtn/gross_to_net
+
+Node: dcid:usPharmaKb/data_model/entities/hcp
+typeOf: dcs:Entity
+name: "HCP"
+affiliatedWith: dcid:usPharmaKb/data_model/entities/hco
+alignedTo: dcid:usPharmaKb/data_model/entities/territory
+
+Node: dcid:usPharmaKb/data_model/entities/hco
+typeOf: dcs:Entity
+name: "HCO"
+partOf: dcid:usPharmaKb/actors/providers/idn
+
+Node: dcid:usPharmaKb/data_model/entities/patient
+typeOf: dcs:Entity
+name: "Patient"
+
+Node: dcid:usPharmaKb/data_model/entities/product
+typeOf: dcs:Entity
+name: "Product"
+
+Node: dcid:usPharmaKb/data_model/entities/prescription
+typeOf: dcs:Entity
+name: "Prescription"
+prescribes: dcid:usPharmaKb/data_model/entities/hcp
+
+Node: dcid:usPharmaKb/data_model/entities/pharmacy_claim
+typeOf: dcs:Entity
+name: "Pharmacy Claim"
+adjudicatedBy: dcid:usPharmaKb/data_model/entities/pbm
+identifiedBy: dcid:usPharmaKb/identifiers/payer/bin_pcn_group
+
+Node: dcid:usPharmaKb/data_model/entities/medical_claim
+typeOf: dcs:Entity
+name: "Medical Claim"
+relatedTo: dcid:usPharmaKb/data_model/entities/hco
+
+Node: dcid:usPharmaKb/data_model/entities/payer_plan
+typeOf: dcs:Entity
+name: "Payer / Plan"
+
+Node: dcid:usPharmaKb/data_model/entities/pbm
+typeOf: dcs:Entity
+name: "PBM"
+
+Node: dcid:usPharmaKb/data_model/entities/pharmacy
+typeOf: dcs:Entity
+name: "Pharmacy"
+
+Node: dcid:usPharmaKb/data_model/entities/territory
+typeOf: dcs:Entity
+name: "Territory"
+
+Node: dcid:usPharmaKb/data_model/entities/rep
+typeOf: dcs:Entity
+name: "Rep"
+alignedTo: dcid:usPharmaKb/data_model/entities/territory
+
+Node: dcid:usPharmaKb/data_model/entities/call
+typeOf: dcs:Entity
+name: "Call"
+relatedTo: dcid:usPharmaKb/data_model/entities/hcp
+relatedTo: dcid:usPharmaKb/data_model/entities/rep
+
+Node: dcid:usPharmaKb/data_model/entities/sample
+typeOf: dcs:Entity
+name: "Sample"
+
+Node: dcid:usPharmaKb/data_model/entities/shipment
+typeOf: dcs:Entity
+name: "Shipment / Sale Line"
+shipsTo: dcid:usPharmaKb/data_model/entities/hco
+
+Node: dcid:usPharmaKb/data_model/entities/contract
+typeOf: dcs:Entity
+name: "Contract"
+
+Node: dcid:usPharmaKb/data_model/entities/chargeback
+typeOf: dcs:Entity
+name: "Chargeback"
+partOf: dcid:usPharmaKb/data_model/entities/contract
+
+Node: dcid:usPharmaKb/data_model/entities/rebate
+typeOf: dcs:Entity
+name: "Rebate"
+
+Node: dcid:usPharmaKb/data_model/entities/payment
+typeOf: dcs:Entity
+name: "Transfer of Value"
+relatedTo: dcid:usPharmaKb/data_model/entities/hcp
+
+Node: dcid:usPharmaKb/data_model/joins/xponent_to_hcp
+typeOf: dcs:JoinPath
+name: "Xponent → HCP → Territory"
+joinsTo: dcid:usPharmaKb/data_assets/rx_audit/iqvia_xponent
+joinsTo: dcid:usPharmaKb/data_model/entities/hcp
+joinsTo: dcid:usPharmaKb/data_assets/reference/zip_to_territory
+
+Node: dcid:usPharmaKb/data_model/joins/claims_to_product
+typeOf: dcs:JoinPath
+name: "Claims → Product"
+joinsTo: dcid:usPharmaKb/data_assets/reference/drug_mapping
+joinsTo: dcid:usPharmaKb/reference_data/ndc_hcpcs_crosswalk
+
+Node: dcid:usPharmaKb/data_model/joins/867_to_hco
+typeOf: dcs:JoinPath
+name: "867 → HCO → System"
+joinsTo: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+joinsTo: dcid:usPharmaKb/data_assets/reference/veeva_opendata
+joinsTo: dcid:usPharmaKb/data_assets/reference/account_alignment
+
+Node: dcid:usPharmaKb/data_model/joins/claims_to_plan
+typeOf: dcs:JoinPath
+name: "Pharmacy Claim → Plan → Formulary"
+joinsTo: dcid:usPharmaKb/data_assets/access/formulary_data
+
+Node: dcid:usPharmaKb/data_model/joins/patient_linkage
+typeOf: dcs:JoinPath
+name: "Patient Linkage Across Sources"
+restrictedBy: dcid:usPharmaKb/regulation/privacy/hipaa_deidentification
+
+Node: dcid:usPharmaKb/data_model/joins/crm_to_rx
+typeOf: dcs:JoinPath
+name: "CRM Calls → Rx / Claims Volume"
+joinsTo: dcid:usPharmaKb/data_assets/promotion/crm_calls
+joinsTo: dcid:usPharmaKb/data_assets/provider_aggregates/komodo_claims_by_provider
+
+Node: dcid:usPharmaKb/data_model/joins/867_to_komodo
+typeOf: dcs:JoinPath
+name: "867 Sales ↔ Komodo Claims (IV drugs)"
+joinsTo: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+joinsTo: dcid:usPharmaKb/data_assets/provider_aggregates/komodo_claims_by_provider
+
+Node: dcid:usPharmaKb/warehouse/tables/bronze_raw_ics_867
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.raw_ics_867"
+instanceOf: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+feeds: dcid:usPharmaKb/warehouse/tables/bronze_stg_ics_867
+
+Node: dcid:usPharmaKb/warehouse/tables/bronze_stg_ics_867
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.stg_ics_867"
+instanceOf: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+feeds: dcid:usPharmaKb/warehouse/tables/silver_fct_ics_867
+
+Node: dcid:usPharmaKb/warehouse/tables/silver_fct_ics_867
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.silver.fct_ics_867"
+instanceOf: dcid:usPharmaKb/data_assets/sales_distribution/ics_867
+derivedFrom: dcid:usPharmaKb/warehouse/tables/bronze_stg_ics_867
+derivedFrom: dcid:usPharmaKb/warehouse/tables/silver_dim_hco
+derivedFrom: dcid:usPharmaKb/warehouse/tables/silver_curr_ztt
+derivedFrom: dcid:usPharmaKb/warehouse/tables/silver_network_all_dim_alignment
+feeds: dcid:usPharmaKb/warehouse/tables/gold_bi_account_sales
+implements: dcid:usPharmaKb/data_model/entities/shipment
+
+Node: dcid:usPharmaKb/warehouse/tables/gold_bi_account_sales
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.gold.bi_account_sales"
+derivedFrom: dcid:usPharmaKb/warehouse/tables/silver_fct_ics_867
+
+Node: dcid:usPharmaKb/warehouse/tables/silver_dim_hco
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.silver.dim_hco"
+instanceOf: dcid:usPharmaKb/data_assets/reference/veeva_opendata
+implements: dcid:usPharmaKb/data_model/entities/hco
+
+Node: dcid:usPharmaKb/warehouse/tables/silver_curr_ztt
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.silver.curr_ztt"
+instanceOf: dcid:usPharmaKb/data_assets/reference/zip_to_territory
+
+Node: dcid:usPharmaKb/warehouse/tables/silver_network_all_dim_alignment
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.silver.network_all_dim_alignment"
+instanceOf: dcid:usPharmaKb/data_assets/reference/account_alignment
+
+Node: dcid:usPharmaKb/warehouse/tables/silver_fct_time
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.silver.fct_time"
+instanceOf: dcid:usPharmaKb/data_assets/reference/time_dimension
+
+Node: dcid:usPharmaKb/warehouse/tables/gold_rx_mx_claims
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.gold.rx_mx_claims"
+instanceOf: dcid:usPharmaKb/data_assets/patient_claims/iqvia_laad
+joinsTo: dcid:usPharmaKb/warehouse/tables/raw_iqvia_claims_drug_mapping
+
+Node: dcid:usPharmaKb/warehouse/tables/gold_komodo_monoferric_claims_by_provider
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.gold.pharm_cosm_komodo_monoferric_fact_claims_by_provider_20260616"
+instanceOf: dcid:usPharmaKb/data_assets/provider_aggregates/komodo_claims_by_provider
+joinsTo: dcid:usPharmaKb/warehouse/tables/bronze_raw_veeva_calls
+
+Node: dcid:usPharmaKb/warehouse/tables/bronze_raw_xponent
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.raw_xponent"
+instanceOf: dcid:usPharmaKb/data_assets/rx_audit/iqvia_xponent
+
+Node: dcid:usPharmaKb/warehouse/tables/raw_ddd
+typeOf: dcs:WarehouseTable
+name: "intelliegencedatacatalog.ddd_sales.raw_ddd"
+instanceOf: dcid:usPharmaKb/data_assets/sales_distribution/iqvia_ddd
+
+Node: dcid:usPharmaKb/warehouse/tables/bronze_raw_snr_sales
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.raw_snr_sales"
+instanceOf: dcid:usPharmaKb/data_assets/sales_distribution/snr_sales
+
+Node: dcid:usPharmaKb/warehouse/tables/bronze_raw_veeva_calls
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.raw_veeva_calls"
+instanceOf: dcid:usPharmaKb/data_assets/promotion/crm_calls
+
+Node: dcid:usPharmaKb/warehouse/tables/raw_npi_info
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.raw_npi_info"
+instanceOf: dcid:usPharmaKb/data_assets/reference/nppes
+
+Node: dcid:usPharmaKb/warehouse/tables/raw_npi_hco_mapping
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.raw_npi_hco_mapping"
+instanceOf: dcid:usPharmaKb/data_assets/reference/hcp_hco_affiliation
+
+Node: dcid:usPharmaKb/warehouse/tables/raw_onekey
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.raw_onekey"
+instanceOf: dcid:usPharmaKb/data_assets/reference/iqvia_onekey
+
+Node: dcid:usPharmaKb/warehouse/tables/raw_iqvia_claims_drug_mapping
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.raw_iqvia_claims_drug_mapping"
+instanceOf: dcid:usPharmaKb/data_assets/reference/drug_mapping
+
+Node: dcid:usPharmaKb/warehouse/tables/raw_market_basket_treatments
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.raw_market_basket_treatments"
+instanceOf: dcid:usPharmaKb/reference_data/market_basket
+
+Node: dcid:usPharmaKb/warehouse/tables/pharm_cosm_sales_all_fact_daily_orders
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.gold.pharm_cosm_sales_all_fact_daily_orders_20260616"
+joinsTo: dcid:usPharmaKb/warehouse/tables/silver_fct_ics_867
+
+Node: dcid:usPharmaKb/warehouse/tables/logs_bronze_layer
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.logs.bronze_layer_logs"
+
+Node: dcid:usPharmaKb/warehouse/tables/logs_gold_layer
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.logs.gold_layer_logs"
+
+Node: dcid:usPharmaKb/warehouse/tables/bronze_comm_table_log
+typeOf: dcs:WarehouseTable
+name: "nexora_poc_catalog.bronze.comm_table_log"
+
+Node: dcid:usPharmaKb/warehouse/pipelines/ics_sales_ingestion
+typeOf: dcs:Pipeline
+name: "ics_sales_ingestion (Databricks job 572339974626818)"
+generatesData: dcid:usPharmaKb/warehouse/tables/bronze_raw_ics_867
+generatesData: dcid:usPharmaKb/warehouse/tables/bronze_stg_ics_867
+generatesData: dcid:usPharmaKb/warehouse/tables/silver_fct_ics_867
+generatesData: dcid:usPharmaKb/warehouse/tables/gold_bi_account_sales
+generatesData: dcid:usPharmaKb/warehouse/tables/silver_network_all_dim_alignment
+generatesData: dcid:usPharmaKb/warehouse/tables/logs_bronze_layer
+generatesData: dcid:usPharmaKb/warehouse/tables/logs_gold_layer
+generatesData: dcid:usPharmaKb/warehouse/tables/bronze_comm_table_log
+

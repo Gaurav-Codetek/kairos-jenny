@@ -1,0 +1,36 @@
+# Golden incidents: real failed runs with known, verified answers.
+#
+# Classification is judged from the stored error and the task code, so it is
+# stable. Diagnosis reads the LIVE workspace (files, tables), so it can only be
+# scored while the data still shows the incident: set `diagnosable: false`
+# once the data has moved on, and say why in `note`.
+#
+# expect (checked against the column diff Agent B computes):
+#   counts:          [expected_count, actual_count]
+#   extra_includes:  columns that must be reported as extra
+#   renames:         [old, new] pairs that must be reported as rename candidates
+#   no_other_extra:  true → nothing extra beyond the renames
+
+cases:
+  - id: ics_extra_column
+    run_id: 2cb9b929-cc87-43c7-971a-3ece74e3da33
+    description: raw_ingestion failed "Column Count Mismatch! Expected 78, got 79"
+    expected_class: EXTRA_COLUMN
+    diagnosable: false
+    note: >
+      RAW_867_DLY.csv has since been changed to 78 columns (DETAIL_REPORT_GROUP_STATE_CD
+      removed), so the extra column can no longer be observed. Classification only.
+    expect:
+      counts: [78, 79]
+      extra_includes: [DETAIL_REPORT_GROUP_STATE_CD]
+      renames: [[SALES_QTY, SOLD_QTY]]
+
+  - id: ics_column_rename
+    run_id: f824d1ef-a2db-40d9-9b7e-dc697d248c41
+    description: raw_ingestion failed "Column Order Mismatch!" — really SALES_QTY renamed to SOLD_QTY
+    expected_class: COLUMN_RENAME
+    diagnosable: true
+    expect:
+      counts: [78, 78]
+      renames: [[SALES_QTY, SOLD_QTY]]
+      no_other_extra: true

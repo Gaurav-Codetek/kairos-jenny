@@ -1,0 +1,67 @@
+[project]
+name = "kairos-kb"
+version = "0.1.0"
+description = "AI-Native Data Platform Intelligence — Synthetic Warehouse & Evidence-Backed RCA"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "sqlalchemy[asyncio]>=2.0.30",
+    "asyncpg>=0.30.0",
+    "alembic>=1.13.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.3.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.27.0",
+    "langchain>=0.3",
+    "langchain-core>=0.3",
+    "langchain-openai>=0.3.0",
+    "langgraph>=0.2",
+    "langsmith>=0.3",
+    "openai>=1.30.0",
+    "pgvector>=0.3.0",
+    "pyyaml>=6.0",
+    "mcp>=2.0",
+    "python-multipart>=0.0.9",
+    "typesafe-sdk",
+    "snowflake-connector-python>=3.12",
+    # Jenny's turn-taking: the Smart Turn audio model (kairos_kb/companion/smart_turn.py)
+    "numpy>=1.26",
+    "onnxruntime>=1.18",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+    "ruff>=0.5.0",
+    "mypy>=1.10.0",
+    "aiosqlite>=0.20.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["kairos_kb*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+# Evals call live Databricks, TypeSafe and Azure OpenAI and spend LLM budget,
+# so a plain `pytest` never runs them. Run them with `pytest -m eval`.
+addopts = "-m 'not eval'"
+markers = [
+    "eval: agent evaluations against live services (opt-in: pytest -m eval)",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true

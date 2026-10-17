@@ -1,0 +1,188 @@
+# Cold-agent evaluation: questions a new agent might bring to this warehouse.
+#
+# The agent has never seen the platform and gets nothing but the Kairos MCP
+# server. Each case is asked in a fresh conversation. A case passes when every
+# `must_mention` group has at least one phrase in the answer (case-insensitive)
+# and the judge scores the answer at or above the pass mark against `reference`.
+#
+# Roles keep the set honest: Kairos is not built for one kind of agent.
+# Cases assume the ICS Sales Warehouse workspace is synced and the
+# ics_sales_ingestion pipeline (job 572339974626818) has been enriched.
+
+pass_mark: 0.7
+
+cases:
+  - id: orient-domains
+    role: orientation
+    question: "I've just been connected to this company's data platform. What business areas or data products does it cover, and which are best documented?"
+    must_mention:
+      - ["ICS"]
+    reference: >
+      Names the ICS Sales data product (Nexora PoC / ICS Sales) and points to its key tables or
+      pipeline. May mention other areas if present. Should not invent data products.
+
+  - id: analyst-line-level-sales
+    role: analyst
+    question: "I need ICS sales at the level of individual invoice lines, with product NDC and quantity. Which table should I use, and what does one row represent?"
+    must_mention:
+      - ["fct_ics_867"]
+      - ["invoice line", "line item", "line-item", "invoice item", "INVOICE_ITEM"]
+    reference: >
+      nexora_poc_catalog.silver.fct_ics_867 — one row per invoice line item (an NDC on an invoice
+      for an organisation on a date). Columns include NDC_CODE and QUANTITY. Should flag that the
+      stated key was found not to be unique if Kairos reports that.
+
+  - id: analyst-account-sales
+    role: analyst
+    question: "Where can I get ICS sales already aggregated to account level for BI reporting?"
+    must_mention:
+      - ["bi_account_sales"]
+    reference: >
+      nexora_poc_catalog.gold.bi_account_sales, the gold aggregate built from the silver fact
+      fct_ics_867 by the fct_to_bi task of the ics_sales_ingestion pipeline.
+
+  - id: pipeline-writer
+    role: pipeline-ops
+    question: "Which pipeline and which task produce the raw ICS 867 table, raw_ics_867?"
+    must_mention:
+      - ["ics_sales_ingestion", "572339974626818"]
+      - ["raw_ingestion"]
+    reference: >
+      The ics_sales_ingestion job (572339974626818); its raw_ingestion task loads
+      nexora_poc_catalog.bronze.raw_ics_867.
+
+  - id: impact-staging-change
+    role: impact-analysis
+    question: "We plan to change the schema of the bronze table stg_ics_867. What downstream tables and pipeline tasks would be affected?"
+    must_mention:
+      - ["fct_ics_867"]
+      - ["stg_to_fct"]
+    reference: >
+      stg_to_fct reads stg_ics_867 and writes silver fct_ics_867; downstream of that, fct_to_bi
+      builds gold bi_account_sales. The DQM tasks may also be affected.
+
+  - id: lineage-inputs
+    role: data-engineer
+    question: "What are the input tables that go into fct_ics_867?"
+    must_mention:
+      - ["stg_ics_867"]
+      - ["curr_ztt", "dim_hco", "network_all_dim_alignment", "dim_veeva_network_custom_key", "fct_time"]
+    reference: >
+      bronze.stg_ics_867 as the main source, enriched with silver dimension/snapshot tables such
+      as curr_ztt, dim_hco, network_all_dim_alignment, dim_veeva_network_custom_key and fct_time,
+      in the stg_to_fct task.
+
+  - id: governance-pii
+    role: governance
+    question: "Does the ICS silver fact table contain personal or sensitive data? Which columns?"
+    must_mention:
+      - ["fct_ics_867"]
+      - ["CUST_NAME", "CUST_ADDRESS", "CUST_DEA", "CUST_HIN", "address"]
+    reference: >
+      Yes — customer names, addresses and identifiers such as CUST_NAME, CUST_ADDRESS_LINE_1,
+      CUST_DEA and CUST_HIN are personal or sensitive.
+
+  - id: quality-grain
+    role: data-quality
+    question: "Is ORG_VID + INVOICE_ID + INVOICE_ITEM + NDC_CODE + TIME_CALENDAR_DATE a unique key for fct_ics_867?"
+    must_mention:
+      - ["not unique", "isn't unique", "is not a unique", "duplicate", "not a unique"]
+    reference: >
+      No. Kairos's grain check found duplicate rows for that key, so it is not unique; an
+      additional identifier is needed. (If the table was re-profiled and the check now passes,
+      an answer quoting the current check result is correct.)
+
+  - id: negative-false-writes
+    role: pipeline-ops
+    question: "Does the ics_sales_ingestion pipeline write the calls, xponent or onekey tables?"
+    must_mention:
+      - ["no", "does not", "doesn't", "not written", "not"]
+    reference: >
+      No. The pipeline writes the ICS tables (raw_ics_867, stg_ics_867, fct_ics_867,
+      bi_account_sales and log tables). calls, xponent and onekey are written by other jobs or
+      sessions according to Delta history. Claiming the pipeline writes them is wrong.
+
+  - id: ops-logs
+    role: pipeline-ops
+    question: "Where does the ICS pipeline record the load status of each run?"
+    must_mention:
+      - ["bronze_layer_logs", "gold_layer_logs", "comm_table_log"]
+    reference: >
+      Log tables: nexora_poc_catalog.logs.bronze_layer_logs (stage/silver loads),
+      logs.gold_layer_logs (gold load) and bronze.comm_table_log (ingestion log).
+
+  - id: join-dimension
+    role: analyst
+    question: "How do I join the ICS silver fact table to the HCO dimension table dim_hco?"
+    must_mention:
+      - ["dim_hco"]
+      - ["JOIN", "join on", "join key", " ON "]
+    reference: >
+      Proposes concrete key column(s) shared by fct_ics_867 and dim_hco with a caution about
+      grain, grounded in Kairos's join evidence rather than guessed.
+
+  - id: rca-task-io
+    role: incident-response
+    question: "The raw_to_stg task of the ICS pipeline failed last night. Which tables does it read and write, so I know what to check?"
+    must_mention:
+      - ["raw_ics_867"]
+      - ["stg_ics_867"]
+    reference: >
+      raw_to_stg reads bronze.raw_ics_867 and writes bronze.stg_ics_867, and appends to
+      logs.bronze_layer_logs.
+
+  # ── Discovery by meaning: no table names in the question ──
+  # These are how a new agent actually arrives: with a business need, not a name.
+
+  - id: discover-hco-master
+    role: discovery
+    question: "Is there curated master data about healthcare organisations (hospitals, clinics) I can use? Which table?"
+    must_mention:
+      - ["dim_hco"]
+    reference: >
+      nexora_poc_catalog.silver.dim_hco, the curated silver HCO dimension. Raw hco_details may be
+      mentioned as a less curated source.
+
+  - id: discover-territory
+    role: discovery
+    question: "I need to map sales to sales territories and regions. What data maps organisations to territories?"
+    must_mention:
+      - ["network_all_dim_alignment", "curr_ztt"]
+    reference: >
+      silver.network_all_dim_alignment (territory/region alignment dimension) and/or silver.curr_ztt
+      (current territory snapshot), both used when building the ICS sales fact.
+
+  - id: discover-wholesale-price
+    role: discovery
+    question: "Where can I find the wholesale acquisition cost (unit price) of each product on each sale?"
+    must_mention:
+      - ["fct_ics_867", "stg_ics_867", "raw_ics_867"]
+      - ["WAC"]
+    reference: >
+      The WAC column of the ICS sales tables — curated in silver.fct_ics_867 (also present in the
+      bronze stg/raw ICS 867 tables).
+
+  - id: discover-ingestion-pipeline
+    role: discovery
+    question: "Which pipeline brings distributor 867 sales data into the platform, and what are its stages?"
+    must_mention:
+      - ["ics_sales_ingestion", "572339974626818"]
+      - ["raw_ingestion"]
+      - ["stg_to_fct", "fct_to_bi"]
+    reference: >
+      The ics_sales_ingestion job: raw_ingestion → raw_to_stg → stg_to_fct → fct_to_bi, with DQM
+      checks between layers (DQM_Bronze, DQM_Silver, DQM_Gold).
+
+  # ── Operations from the map alone: no RCA tool, only facts the map records ──
+
+  - id: ops-why-failed
+    role: incident-response
+    question: "Why did the most recent failed run of the raw_ingestion task in the ICS ingestion pipeline fail, and where in the notebook did it fail?"
+    must_mention:
+      - ["Column Order Mismatch", "column order"]
+      - ["process_single_table", "line 172", "cell 1"]
+    reference: >
+      The run on 2026-09-29 (attempt 0) failed with "ValueError: Column Order Mismatch!" — the
+      incoming file's columns did not match the expected order. It was raised in cell 1, line 172,
+      inside process_single_table of the ics_ingestion_notebook; a retry (attempt 1) then succeeded.
+      Earlier failures (mid-September) were a different error: "Column Count Mismatch! Expected 78, got 79".

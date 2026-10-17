@@ -1,0 +1,1072 @@
+# Generated 2026-10-03 by `python -m kairos_kb.evals.question_bank` from the map.
+# References are what Kairos holds about each entity. Regenerating replaces this file;
+# put hand-written questions in curated.yaml.
+cases:
+- id: table-meaning-comm-table-log
+  category: table-meaning
+  question: What does the table comm_table_log hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.bronze.comm_table_log: nexora_poc_catalog.bronze.comm_table_log is a small Delta-managed
+    audit/log table that records one row per source file processed by the ICS Sales ingestion pipeline. It is written
+    by the raw_ingestion task (job 572339974626818 / ics_sales_ingestion) as part of the raw ingestion notebook
+    and contains the file name, the logical target table name, the source ADLS path, and the processed date. Grain:
+    Each row represents a single record from a source file. file_name + adls_path + processed_date do not uniquely
+    identify rows; an additional identifier is required (for example source_row_number, row_hash, or ingest_run_id)
+    to make the grain unique.. Trust level: profiled.'
+  must_mention:
+  - - comm_table_log
+- id: table-writer-comm-table-log
+  category: lineage
+  question: Which pipeline and which task write nexora_poc_catalog.bronze.comm_table_log?
+  reference: 'Written by: ics_sales_ingestion, raw_ingestion (evidence: Delta history, /Workspace/Users/gaurav.patel@procdnaana).'
+  must_mention:
+  - - ics_sales_ingestion
+    - raw_ingestion
+- id: table-key-comm-table-log
+  category: grain-and-keys
+  question: I want to deduplicate comm_table_log. Which columns uniquely identify a row, and has that been checked?
+  reference: 'Grain key file_name, adls_path, processed_date; Each row represents a single record from a source
+    file. file_name + adls_path + processed_date do not uniquely identify rows; an additional identifier is required
+    (for example source_row_number, row_hash, or ingest_run_id) to make the grain unique. Uniqueness check: does
+    NOT hold.'
+  must_mention:
+  - - file_name
+    - adls_path
+    - processed_date
+- id: table-meaning-raw-ics-867
+  category: table-meaning
+  question: What does the table raw_ics_867 hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.bronze.raw_ics_867: A managed Delta raw landing table capturing rows from incoming
+    ICS 867 EDI/sales files. It contains one row per detail/invoice line ingested from the source file(s), includes
+    ingestion metadata (file_path, insert_date), and is the upstream raw source for the bronze staging table nexora_poc_catalog.bronze.stg_ics_867.
+    The table is small in the snapshot (183 rows, 40 KB) and has full Delta history … Grain: One row represents
+    a single detail/invoice line parsed from an ICS 867 input message.. Trust level: verified.'
+  must_mention:
+  - - raw_ics_867
+- id: table-writer-raw-ics-867
+  category: lineage
+  question: Which pipeline and which task write nexora_poc_catalog.bronze.raw_ics_867?
+  reference: 'Written by: ics_sales_ingestion (evidence: Delta history).'
+  must_mention:
+  - - ics_sales_ingestion
+- id: table-impact-raw-ics-867
+  category: impact
+  question: If the data in raw_ics_867 is wrong, which downstream tables would be affected?
+  reference: 'Downstream of nexora_poc_catalog.bronze.raw_ics_867: nexora_poc_catalog.bronze.stg_ics_867.'
+  must_mention:
+  - - stg_ics_867
+- id: table-key-raw-ics-867
+  category: grain-and-keys
+  question: I want to deduplicate raw_ics_867. Which columns uniquely identify a row, and has that been checked?
+  reference: 'Grain key INTERCHANGE_SENDER_ID, INTERCHANGE_RECEIVER_ID, APPLICATION_SENDER_ID, APPLICATION_RECEIVER_ID,
+    REPORT_ID, REPORT_CONTRACT_ID; One row represents a single detail/invoice line parsed from an ICS 867 input
+    message. Uniqueness check: not run.'
+  must_mention:
+  - - INTERCHANGE_SENDER_ID
+    - INTERCHANGE_RECEIVER_ID
+    - APPLICATION_SENDER_ID
+    - APPLICATION_RECEIVER_ID
+    - REPORT_ID
+    - REPORT_CONTRACT_ID
+- id: table-meaning-stg-ics-867
+  category: table-meaning
+  question: What does the table stg_ics_867 hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.bronze.stg_ics_867: nexora_poc_catalog.bronze.stg_ics_867 is a managed Delta bronze
+    staging table that holds typed, de-duplicated rows produced by the raw_to_stg task of the ics_sales_ingestion
+    job. It represents the parsed/typed records from an ICS file ingest (sales/invoice detail lines) with ingestion
+    metadata (staged file name, staged timestamp, updated_by) and a derived CUSTOM_KEY_VALUE used for intra-run
+    de-du… Grain: not stated. Trust level: verified.'
+  must_mention:
+  - - stg_ics_867
+- id: table-writer-stg-ics-867
+  category: lineage
+  question: Which pipeline and which task write nexora_poc_catalog.bronze.stg_ics_867?
+  reference: 'Written by: ics_sales_ingestion, raw_to_stg (evidence: Delta history, /Workspace/Users/anshika.sharma@procdnaa).'
+  must_mention:
+  - - ics_sales_ingestion
+    - raw_to_stg
+- id: table-sources-stg-ics-867
+  category: lineage
+  question: What is stg_ics_867 built from? Name the upstream tables.
+  reference: 'Upstream of nexora_poc_catalog.bronze.stg_ics_867: nexora_poc_catalog.bronze.raw_ics_867.'
+  must_mention:
+  - - raw_ics_867
+- id: table-impact-stg-ics-867
+  category: impact
+  question: If the data in stg_ics_867 is wrong, which downstream tables would be affected?
+  reference: 'Downstream of nexora_poc_catalog.bronze.stg_ics_867: nexora_poc_catalog.silver.fct_ics_867.'
+  must_mention:
+  - - fct_ics_867
+- id: table-key-stg-ics-867
+  category: grain-and-keys
+  question: I want to deduplicate stg_ics_867. Which columns uniquely identify a row, and has that been checked?
+  reference: 'Grain key INTERCHANGE_SENDER_ID, INTERCHANGE_RECEIVER_ID, APPLICATION_SENDER_ID, APPLICATION_RECEIVER_ID,
+    REPORT_ID, REPORT_CONTRACT_ID;  Uniqueness check: not run.'
+  must_mention:
+  - - INTERCHANGE_SENDER_ID
+    - INTERCHANGE_RECEIVER_ID
+    - APPLICATION_SENDER_ID
+    - APPLICATION_RECEIVER_ID
+    - REPORT_ID
+    - REPORT_CONTRACT_ID
+- id: table-meaning-bi-account-sales
+  category: table-meaning
+  question: What does the table bi_account_sales hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.gold.bi_account_sales: nexora_poc_catalog.gold.bi_account_sales is a gold-level
+    aggregated BI fact table that rolls up silver fct_ics_867 to one row per organization/product (SQL groups by
+    ORG_VID, SYS_VID, PRODUCT). It contains organization identity fields (preferred mastered HCO attributes with
+    fallbacks), territory alignment, order timing and reorder flags, aggregated volume and money measures, and load
+    audit fields… Grain: ORG_VID + SYS_VID + PRODUCT uniquely identifies each row.. Trust level: verified.'
+  must_mention:
+  - - bi_account_sales
+- id: table-writer-bi-account-sales
+  category: lineage
+  question: Which pipeline and which task write nexora_poc_catalog.gold.bi_account_sales?
+  reference: 'Written by: ics_sales_ingestion, fct_to_bi (evidence: Delta history, /Workspace/Users/anshika.sharma@procdnaa).'
+  must_mention:
+  - - ics_sales_ingestion
+    - fct_to_bi
+- id: table-sources-bi-account-sales
+  category: lineage
+  question: What is bi_account_sales built from? Name the upstream tables.
+  reference: 'Upstream of nexora_poc_catalog.gold.bi_account_sales: nexora_poc_catalog.silver.fct_ics_867.'
+  must_mention:
+  - - fct_ics_867
+- id: table-key-bi-account-sales
+  category: grain-and-keys
+  question: I want to deduplicate bi_account_sales. Which columns uniquely identify a row, and has that been checked?
+  reference: 'Grain key ORG_VID, SYS_VID, PRODUCT; ORG_VID + SYS_VID + PRODUCT uniquely identifies each row. Uniqueness
+    check: holds.'
+  must_mention:
+  - - ORG_VID
+    - SYS_VID
+    - PRODUCT
+- id: table-meaning-bronze-layer-logs
+  category: table-meaning
+  question: What does the table bronze_layer_logs hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.logs.bronze_layer_logs: nexora_poc_catalog.logs.bronze_layer_logs is a small Delta-managed
+    append-only operational log table that records one-row run/audit events for the ICS Sales ingestion pipeline.
+    It is written primarily by the ics_sales_ingestion job (job_id 572339974626818) as part of the raw_to_stg (and
+    also stg_to_fct) tasks; a few interactive notebook sessions have also written to it. Each row captures who ran
+    … Grain: one row = one pipeline run / one logged operation (e.g. raw_to_stg append). Unique key: job_name +
+    log_timestamp (validated unique across 205 rows).. Trust level: verified.'
+  must_mention:
+  - - bronze_layer_logs
+- id: table-writer-bronze-layer-logs
+  category: lineage
+  question: Which pipeline and which task write nexora_poc_catalog.logs.bronze_layer_logs?
+  reference: 'Written by: ics_sales_ingestion, stg_to_fct, raw_to_stg (evidence: Delta history, /Workspace/Users/anshika.sharma@procdnaa).'
+  must_mention:
+  - - ics_sales_ingestion
+    - stg_to_fct
+    - raw_to_stg
+- id: table-key-bronze-layer-logs
+  category: grain-and-keys
+  question: I want to deduplicate bronze_layer_logs. Which columns uniquely identify a row, and has that been checked?
+  reference: 'Grain key job_name, log_timestamp; one row = one pipeline run / one logged operation (e.g. raw_to_stg
+    append). Unique key: job_name + log_timestamp (validated unique across 205 rows). Uniqueness check: holds.'
+  must_mention:
+  - - job_name
+    - log_timestamp
+- id: table-meaning-gold-layer-logs
+  category: table-meaning
+  question: What does the table gold_layer_logs hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.logs.gold_layer_logs: nexora_poc_catalog.logs.gold_layer_logs is a small Delta-managed
+    audit/log table that captures one run-level audit row each time the gold BI refresh notebook fct_to_gold_bi_account_sales
+    (run by the ics_sales_ingestion job) completes a load. The table contains seven columns recording which job
+    and source ran, which target table was touched, the load outcome and message, the number of records proc… Grain:
+    one row per job run / target-table / timestamp (not strictly unique). Trust level: verified.'
+  must_mention:
+  - - gold_layer_logs
+- id: table-writer-gold-layer-logs
+  category: lineage
+  question: Which pipeline and which task write nexora_poc_catalog.logs.gold_layer_logs?
+  reference: 'Written by: ics_sales_ingestion, fct_to_bi (evidence: Delta history, /Workspace/Users/anshika.sharma@procdnaa).'
+  must_mention:
+  - - ics_sales_ingestion
+    - fct_to_bi
+- id: table-meaning-curr-ztt
+  category: table-meaning
+  question: What does the table curr_ztt hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.silver.curr_ztt: nexora_poc_catalog.silver.curr_ztt is a silver-level territory
+    snapshot table (ZIP→territory/team mapping) used as a dimension for ICS sales transformations. It contains location
+    and territory attributes plus ingestion metadata and a trimester snapshot date. The table is a managed Delta
+    table with ~4.75M rows and was last written via an interactive CREATE OR REPLACE TABLE AS SELECT (not a schedul…
+    Grain: ZIP_CODE + TRIMESTER_START_DATE + TEAM + STAGED_FILE_NAME (unique across 4,746,342 rows). Trust level:
+    verified.'
+  must_mention:
+  - - curr_ztt
+- id: table-impact-curr-ztt
+  category: impact
+  question: If the data in curr_ztt is wrong, which downstream tables would be affected?
+  reference: 'Downstream of nexora_poc_catalog.silver.curr_ztt: nexora_poc_catalog.silver.fct_ics_867.'
+  must_mention:
+  - - fct_ics_867
+- id: table-key-curr-ztt
+  category: grain-and-keys
+  question: I want to deduplicate curr_ztt. Which columns uniquely identify a row, and has that been checked?
+  reference: 'Grain key ZIP_CODE, TRIMESTER_START_DATE, TEAM, STAGED_FILE_NAME; ZIP_CODE + TRIMESTER_START_DATE
+    + TEAM + STAGED_FILE_NAME (unique across 4,746,342 rows) Uniqueness check: holds.'
+  must_mention:
+  - - ZIP_CODE
+    - TRIMESTER_START_DATE
+    - TEAM
+    - STAGED_FILE_NAME
+- id: table-meaning-dim-hco
+  category: table-meaning
+  question: What does the table dim_hco hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.silver.dim_hco: nexora_poc_catalog.silver.dim_hco is the curated silver HCO (healthcare
+    organization) master/dimension table used to enrich ICS sales facts. It stores organization and address identifiers,
+    descriptive attributes (name, specialty, class of trade), licensing and provider identifiers (NPI, DEA, HIN),
+    geographic address fields, account/portfolio segmentation and multiple derived decile/potential/reve… Grain:
+    ORG_VID,ADDRESS_VID (composite; unique across 194,459 rows). Trust level: verified.'
+  must_mention:
+  - - dim_hco
+- id: table-impact-dim-hco
+  category: impact
+  question: If the data in dim_hco is wrong, which downstream tables would be affected?
+  reference: 'Downstream of nexora_poc_catalog.silver.dim_hco: nexora_poc_catalog.silver.fct_ics_867.'
+  must_mention:
+  - - fct_ics_867
+- id: table-key-dim-hco
+  category: grain-and-keys
+  question: I want to deduplicate dim_hco. Which columns uniquely identify a row, and has that been checked?
+  reference: 'Grain key ORG_VID, ADDRESS_VID; ORG_VID,ADDRESS_VID (composite; unique across 194,459 rows) Uniqueness
+    check: holds.'
+  must_mention:
+  - - ORG_VID
+    - ADDRESS_VID
+- id: table-meaning-dim-veeva-network-custom-key
+  category: table-meaning
+  question: What does the table dim_veeva_network_custom_key hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.silver.dim_veeva_network_custom_key: A silver-level dimension snapshot containing
+    Veeva Network custom key values associated with entities (HCO/HCP/etc.). It stores historical snapshots (start/end/staged
+    dates) plus metadata about source system, staging file and load timestamps. The table appears to be maintained
+    as a curated dimension used to enrich and master entity identifiers in the ICS Sales product; it feeds the silver
+    fact fc… Grain: Claimed grain: CUSTOM_KEY_ENTITY_ID_V + CUSTOM_KEY_SOURCE_TYPE_V + CUSTOM_KEY_SOURCE_KEY_ID_V
+    — FAILED (not unique: 59,712 duplicate rows out of 12,144,312). True grain unknown; investigation needed to
+    identify additional column(s) or a surrogate key to achieve uniqueness.. Trust level: profiled.'
+  must_mention:
+  - - dim_veeva_network_custom_key
+- id: table-impact-dim-veeva-network-custom-key
+  category: impact
+  question: If the data in dim_veeva_network_custom_key is wrong, which downstream tables would be affected?
+  reference: 'Downstream of nexora_poc_catalog.silver.dim_veeva_network_custom_key: nexora_poc_catalog.silver.fct_ics_867.'
+  must_mention:
+  - - fct_ics_867
+- id: table-key-dim-veeva-network-custom-key
+  category: grain-and-keys
+  question: I want to deduplicate dim_veeva_network_custom_key. Which columns uniquely identify a row, and has that
+    been checked?
+  reference: 'Grain key CUSTOM_KEY_ENTITY_ID_V, CUSTOM_KEY_SOURCE_TYPE_V, CUSTOM_KEY_SOURCE_KEY_ID_V; Claimed grain:
+    CUSTOM_KEY_ENTITY_ID_V + CUSTOM_KEY_SOURCE_TYPE_V + CUSTOM_KEY_SOURCE_KEY_ID_V — FAILED (not unique: 59,712
+    duplicate rows out of 12,144,312). True grain unknown; investigation needed to identify additional column(s)
+    or a surrogate key to achieve uniqueness. Uniqueness check: does NOT hold.'
+  must_mention:
+  - - CUSTOM_KEY_ENTITY_ID_V
+    - CUSTOM_KEY_SOURCE_TYPE_V
+    - CUSTOM_KEY_SOURCE_KEY_ID_V
+- id: table-meaning-fct-ics-867
+  category: table-meaning
+  question: What does the table fct_ics_867 hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.silver.fct_ics_867: nexora_poc_catalog.silver.fct_ics_867 is a Delta-managed silver-level
+    fact/event table capturing invoice line items from ICS 867 feeds (sales/returns) enriched with HCO/HCP, customer
+    and territory alignment dimensions. It is produced by the ics_sales_ingestion job (and occasionally by interactive
+    sessions) and is consumed downstream by a gold roll-up job that builds bi_account_sales. Grain: Invoice line-level
+    rows are not uniquely identified by INVOICE_ID + INVOICE_ITEM alone. The production grain should be an invoice
+    line uniquely identified by INVOICE_ID + INVOICE_ITEM + an additional identifier (for example ORG_VID or SYS_VID
+    or SOURCE or a native invoice-line ID). INVOICE_ID + INVOICE_ITEM alone is not unique (95 duplicate rows out
+    of 183).. Trust level: profiled.'
+  must_mention:
+  - - fct_ics_867
+- id: table-writer-fct-ics-867
+  category: lineage
+  question: Which pipeline and which task write nexora_poc_catalog.silver.fct_ics_867?
+  reference: 'Written by: ics_sales_ingestion, stg_to_fct (evidence: Delta history, /Workspace/Users/anshika.sharma@procdnaa).'
+  must_mention:
+  - - ics_sales_ingestion
+    - stg_to_fct
+- id: table-sources-fct-ics-867
+  category: lineage
+  question: What is fct_ics_867 built from? Name the upstream tables.
+  reference: 'Upstream of nexora_poc_catalog.silver.fct_ics_867: nexora_poc_catalog.bronze.stg_ics_867, nexora_poc_catalog.silver.curr_ztt,
+    nexora_poc_catalog.silver.dim_hco, nexora_poc_catalog.silver.dim_veeva_network_custom_key, nexora_poc_catalog.silver.fct_time,
+    nexora_poc_catalog.silver.network_all_dim_alignment.'
+  must_mention:
+  - - stg_ics_867
+    - curr_ztt
+    - dim_hco
+    - dim_veeva_network_custom_key
+    - fct_time
+    - network_all_dim_alignment
+- id: table-impact-fct-ics-867
+  category: impact
+  question: If the data in fct_ics_867 is wrong, which downstream tables would be affected?
+  reference: 'Downstream of nexora_poc_catalog.silver.fct_ics_867: nexora_poc_catalog.gold.bi_account_sales.'
+  must_mention:
+  - - bi_account_sales
+- id: table-key-fct-ics-867
+  category: grain-and-keys
+  question: I want to deduplicate fct_ics_867. Which columns uniquely identify a row, and has that been checked?
+  reference: 'Grain key INVOICE_ID, INVOICE_ITEM; Invoice line-level rows are not uniquely identified by INVOICE_ID
+    + INVOICE_ITEM alone. The production grain should be an invoice line uniquely identified by INVOICE_ID + INVOICE_ITEM
+    + an additional identifier (for example ORG_VID or SYS_VID or SOURCE or a native invoice-line ID). INVOICE_ID
+    + INVOICE_ITEM alone is not unique (95 duplicate rows out of 183). Uniqueness check: does NOT hold.'
+  must_mention:
+  - - INVOICE_ID
+    - INVOICE_ITEM
+- id: table-meaning-fct-time
+  category: table-meaning
+  question: What does the table fct_time hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.silver.fct_time: nexora_poc_catalog.silver.fct_time is a curated time-dimension
+    table used as the canonical calendar/time lookup for ICS Sales transforms. It provides many pre-computed calendar
+    attributes (year, month, week, fiscal labels, quarter/trimester labels, week end, rolling flags and a large
+    set of binary period flags) and a small surrogate ID. The table is stored as a managed Delta table and was created…
+    Grain: The grain is ID. ID is unique across 1,951 rows.. Trust level: verified.'
+  must_mention:
+  - - fct_time
+- id: table-impact-fct-time
+  category: impact
+  question: If the data in fct_time is wrong, which downstream tables would be affected?
+  reference: 'Downstream of nexora_poc_catalog.silver.fct_time: nexora_poc_catalog.silver.fct_ics_867.'
+  must_mention:
+  - - fct_ics_867
+- id: table-key-fct-time
+  category: grain-and-keys
+  question: I want to deduplicate fct_time. Which columns uniquely identify a row, and has that been checked?
+  reference: 'Grain key ID; The grain is ID. ID is unique across 1,951 rows. Uniqueness check: holds.'
+  must_mention:
+  - - ID
+- id: table-meaning-network-all-dim-alignment
+  category: table-meaning
+  question: What does the table network_all_dim_alignment hold, and what does one row represent?
+  reference: 'nexora_poc_catalog.silver.network_all_dim_alignment: A silver-level, managed Delta dimension that
+    records territory/region/network alignment for VEN/VID entities (likely HCO/HCP or account-level identifiers)
+    across alignment snapshot dates. It is used as a curated dimension (alignment/master mapping) by the ICS fact-building
+    pipeline and is maintained by an ingestion job that runs CREATE OR REPLACE TABLE AS SELECT. Grain: The canonical
+    grain is (VID, ALIGNMENT_TRIMESTER_START_DATE, ALIGNMENT_TYPE). Uniqueness was verified: VID + ALIGNMENT_TRIMESTER_START_DATE
+    + ALIGNMENT_TYPE is unique across 1,190,688 rows.. Trust level: verified.'
+  must_mention:
+  - - network_all_dim_alignment
+- id: table-writer-network-all-dim-alignment
+  category: lineage
+  question: Which pipeline and which task write nexora_poc_catalog.silver.network_all_dim_alignment?
+  reference: 'Written by: ics_sales_ingestion (evidence: Delta history).'
+  must_mention:
+  - - ics_sales_ingestion
+- id: table-impact-network-all-dim-alignment
+  category: impact
+  question: If the data in network_all_dim_alignment is wrong, which downstream tables would be affected?
+  reference: 'Downstream of nexora_poc_catalog.silver.network_all_dim_alignment: nexora_poc_catalog.silver.fct_ics_867.'
+  must_mention:
+  - - fct_ics_867
+- id: table-key-network-all-dim-alignment
+  category: grain-and-keys
+  question: I want to deduplicate network_all_dim_alignment. Which columns uniquely identify a row, and has that
+    been checked?
+  reference: 'Grain key VID, ALIGNMENT_TRIMESTER_START_DATE, ALIGNMENT_TYPE; The canonical grain is (VID, ALIGNMENT_TRIMESTER_START_DATE,
+    ALIGNMENT_TYPE). Uniqueness was verified: VID + ALIGNMENT_TRIMESTER_START_DATE + ALIGNMENT_TYPE is unique across
+    1,190,688 rows. Uniqueness check: holds.'
+  must_mention:
+  - - VID
+    - ALIGNMENT_TRIMESTER_START_DATE
+    - ALIGNMENT_TYPE
+- id: column-comm-table-log-file-name
+  category: columns
+  question: In comm_table_log, what does the column file_name mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.comm_table_log.file_name (STRING): Base name of the source file that was
+    processed (e.g. foo.csv or part-0000.parquet)'
+  must_mention:
+  - - file_name
+- id: column-raw-ics-867-transaction-qualifier
+  category: columns
+  question: In raw_ics_867, what does the column TRANSACTION_QUALIFIER mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.raw_ics_867.TRANSACTION_QUALIFIER (STRING): Transaction qualifier code from
+    the ICS/EDI header'
+  must_mention:
+  - - TRANSACTION_QUALIFIER
+- id: column-comm-table-log-table-name
+  category: columns
+  question: In comm_table_log, what does the column table_name mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.comm_table_log.table_name (STRING): Target catalog table name that the ingestion
+    job wrote this file''s data into (schema.table or table identifier from ingestion metadata)'
+  must_mention:
+  - - table_name
+- id: column-raw-ics-867-interchange-sender-id-qcd
+  category: columns
+  question: In raw_ics_867, what does the column INTERCHANGE_SENDER_ID_QCD mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.raw_ics_867.INTERCHANGE_SENDER_ID_QCD (STRING): Quality code for interchange
+    sender id'
+  must_mention:
+  - - INTERCHANGE_SENDER_ID_QCD
+- id: column-comm-table-log-adls-path
+  category: columns
+  question: In comm_table_log, what does the column adls_path mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.comm_table_log.adls_path (STRING): Full ADLS/volume path or directory where
+    the source file was found (used to disambiguate files with the same name)'
+  must_mention:
+  - - adls_path
+- id: column-raw-ics-867-interchange-sender-id
+  category: columns
+  question: In raw_ics_867, what does the column INTERCHANGE_SENDER_ID mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.raw_ics_867.INTERCHANGE_SENDER_ID (STRING): Interchange sender identifier'
+  must_mention:
+  - - INTERCHANGE_SENDER_ID
+- id: column-comm-table-log-processed-date
+  category: columns
+  question: In comm_table_log, what does the column processed_date mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.comm_table_log.processed_date (DATE): The date the file was (attempted to
+    be) processed or the data partition date associated with the file'
+  must_mention:
+  - - processed_date
+- id: column-raw-ics-867-interchange-receiver-id-qcd
+  category: columns
+  question: In raw_ics_867, what does the column INTERCHANGE_RECEIVER_ID_QCD mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.raw_ics_867.INTERCHANGE_RECEIVER_ID_QCD (STRING): Quality code for interchange
+    receiver id'
+  must_mention:
+  - - INTERCHANGE_RECEIVER_ID_QCD
+- id: column-raw-ics-867-interchange-receiver-id
+  category: columns
+  question: In raw_ics_867, what does the column INTERCHANGE_RECEIVER_ID mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.raw_ics_867.INTERCHANGE_RECEIVER_ID (STRING): Interchange receiver identifier'
+  must_mention:
+  - - INTERCHANGE_RECEIVER_ID
+- id: column-raw-ics-867-interchange-dte
+  category: columns
+  question: In raw_ics_867, what does the column INTERCHANGE_DTE mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.raw_ics_867.INTERCHANGE_DTE (STRING): Interchange date (raw string)'
+  must_mention:
+  - - INTERCHANGE_DTE
+- id: column-raw-ics-867-interchange-tm
+  category: columns
+  question: In raw_ics_867, what does the column INTERCHANGE_TM mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.raw_ics_867.INTERCHANGE_TM (STRING): Interchange time (raw string)'
+  must_mention:
+  - - INTERCHANGE_TM
+- id: column-raw-ics-867-interchange-control-nbr
+  category: columns
+  question: In raw_ics_867, what does the column INTERCHANGE_CONTROL_NBR mean, and what is its data type?
+  reference: 'nexora_poc_catalog.bronze.raw_ics_867.INTERCHANGE_CONTROL_NBR (STRING): Interchange control number'
+  must_mention:
+  - - INTERCHANGE_CONTROL_NBR
+- id: pipeline-steps-archive-individual-pipeline-ds-513081132763091
+  category: pipelines
+  question: What steps does the pipeline 'Archive_Individual_Pipeline_DS' run, and in what order?
+  reference: 'Archive_Individual_Pipeline_DS (513081132763091) runs 12 tasks in dependency order: Config_Load →
+    Data_Copy_to_ADLS → ADLS_TO_PRE_STG → PRESTG_DQMS → PRESTG_BR → PRE_STG_TO_STG → STG_DQMS → STG_BR → STG_TO_FACTS
+    → FACTS_BR → FACTS_DQMS → FACTS_QC.'
+  must_mention:
+  - - Config_Load
+  - - FACTS_QC
+- id: pipeline-steps-avishi-test-3-individual-pipeline-572321961288014
+  category: pipelines
+  question: What steps does the pipeline 'Avishi_test_3_Individual_Pipeline' run, and in what order?
+  reference: 'Avishi_test_3_Individual_Pipeline (572321961288014) runs 12 tasks in dependency order: Config_Load
+    → Data_Copy_to_ADLS → ADLS_TO_PRE_STG → PRESTG_DQMS → PRESTG_BR → PRE_STG_TO_STG → STG_DQMS → STG_BR → STG_TO_FACTS
+    → FACTS_BR → FACTS_DQMS → FACTS_QC.'
+  must_mention:
+  - - Config_Load
+  - - FACTS_QC
+- id: pipeline-steps-avishi-test-project-2-individual-pipeline-86423074894789
+  category: pipelines
+  question: What steps does the pipeline 'Avishi_test_project_2_Individual_Pipeline' run, and in what order?
+  reference: 'Avishi_test_project_2_Individual_Pipeline (86423074894789) runs 12 tasks in dependency order: Config_Load
+    → Data_Copy_to_ADLS → ADLS_TO_PRE_STG → PRESTG_DQMS → PRESTG_BR → PRE_STG_TO_STG → STG_DQMS → STG_BR → STG_TO_FACTS
+    → FACTS_BR → FACTS_DQMS → FACTS_QC.'
+  must_mention:
+  - - Config_Load
+  - - FACTS_QC
+- id: pipeline-steps-data-exploration-stat-73736390780676
+  category: pipelines
+  question: What steps does the pipeline 'data_exploration_stat' run, and in what order?
+  reference: 'data_exploration_stat (73736390780676) runs 10 tasks in dependency order: 01_inventory_tables → 02_collect_table_detail
+    → 02_table_row_counts → 02_table_volume_metrics → 03_collect_table_history → 03_column_quality_stats → 03_column_stats
+    → 04_build_final_freshness → 04_build_final_profile → 04_build_final_quality.'
+  must_mention:
+  - - 01_inventory_tables
+  - - 04_build_final_quality
+- id: pipeline-steps-data-pipeline-666297031438634
+  category: pipelines
+  question: What steps does the pipeline 'Data Pipeline' run, and in what order?
+  reference: 'Data Pipeline (666297031438634) runs 5 tasks in dependency order: Data_Ingestion → Data_Transformation
+    → Final_Table_Creation → Insights_Generation → Send_Email.'
+  must_mention:
+  - - Data_Ingestion
+  - - Send_Email
+- id: pipeline-steps-demo-1123661418728064
+  category: pipelines
+  question: What steps does the pipeline 'Demo' run, and in what order?
+  reference: 'Demo (1123661418728064) runs 3 tasks in dependency order: Demo → DQM → Staging.'
+  must_mention:
+  - - Demo
+  - - Staging
+- id: pipeline-steps-dev-gaurav-patel-intelligence-pipeline-doc-ingestion-239367834860442
+  category: pipelines
+  question: What steps does the pipeline '[dev gaurav_patel] intelligence_pipeline_doc_ingestion' run, and in what
+    order?
+  reference: '[dev gaurav_patel] intelligence_pipeline_doc_ingestion (239367834860442) runs 5 tasks in dependency
+    order: file_scanner → registry_merge → parse_foreach → chunk_foreach → consolidation.'
+  must_mention:
+  - - file_scanner
+  - - consolidation
+- id: pipeline-steps-dqm-test-pipeline-681105135104197
+  category: pipelines
+  question: What steps does the pipeline 'DQM_test_pipeline' run, and in what order?
+  reference: 'DQM_test_pipeline (681105135104197) runs 3 tasks in dependency order: raw_to_pre_staging → DQM_layer_1
+    → Job_1.'
+  must_mention:
+  - - raw_to_pre_staging
+  - - Job_1
+- id: pipeline-steps-hcp-xref-and-merge-104233585356586
+  category: pipelines
+  question: What steps does the pipeline 'HCP Xref and Merge' run, and in what order?
+  reference: 'HCP Xref and Merge (104233585356586) runs 8 tasks in dependency order: premdm_pty_hco → premdm_pty_hco_address
+    → premdm_pty_hco_affiliation → premdm_pty_hco_comm → premdm_pty_hco_id → referential_dqm_check_hco → pub_hco_xref
+    → pub_hco_merge.'
+  must_mention:
+  - - premdm_pty_hco
+  - - pub_hco_merge
+- id: pipeline-steps-ics-sales-ingestion-572339974626818
+  category: pipelines
+  question: What steps does the pipeline 'ics_sales_ingestion' run, and in what order?
+  reference: 'ics_sales_ingestion (572339974626818) runs 7 tasks in dependency order: raw_ingestion → raw_to_stg
+    → DQM_Bronze → stg_to_fct → DQM_Silver → fct_to_bi → DQM_Gold.'
+  must_mention:
+  - - raw_ingestion
+  - - DQM_Gold
+- id: pipeline-steps-individual-pipeline-207306823735399
+  category: pipelines
+  question: What steps does the pipeline 'Individual_Pipeline' run, and in what order?
+  reference: 'Individual_Pipeline (207306823735399) runs 12 tasks in dependency order: Config_Load → Data_Copy_to_ADLS
+    → ADLS_TO_PRE_STG → PRESTG_DQMS → PRESTG_BR → PRE_STG_TO_STG → STG_DQMS → STG_BR → STG_TO_FACTS → FACTS_BR →
+    FACTS_DQMS → FACTS_QC.'
+  must_mention:
+  - - Config_Load
+  - - FACTS_QC
+- id: pipeline-steps-individual-pipeline-cloudagnostic-247539844401373
+  category: pipelines
+  question: What steps does the pipeline 'Individual_Pipeline_CloudAgnostic' run, and in what order?
+  reference: 'Individual_Pipeline_CloudAgnostic (247539844401373) runs 9 tasks in dependency order: Config_Load
+    → Data_Copy_to_ADLS → ADLS_TO_PRE_STG → PRESTG_DQMS → PRE_STG_TO_STG → STG_DQMS → STG_TO_FACTS → FACTS_DQMS
+    → FACTS_QC.'
+  must_mention:
+  - - Config_Load
+  - - FACTS_QC
+- id: pipeline-steps-individual-pipeline-ds-212834138175922
+  category: pipelines
+  question: What steps does the pipeline 'Individual_Pipeline_DS' run, and in what order?
+  reference: 'Individual_Pipeline_DS (212834138175922) runs 12 tasks in dependency order: Config_Load → Data_Copy_to_ADLS
+    → ADLS_TO_PRE_STG → PRESTG_DQMS → PRESTG_BR → PRE_STG_TO_STG → STG_DQMS → STG_BR → STG_TO_FACTS → FACTS_BR →
+    FACTS_DQMS → FACTS_QC.'
+  must_mention:
+  - - Config_Load
+  - - FACTS_QC
+- id: pipeline-steps-individual-pipeline-test2807-452777931135699
+  category: pipelines
+  question: What steps does the pipeline 'Individual_Pipeline_test2807' run, and in what order?
+  reference: 'Individual_Pipeline_test2807 (452777931135699) runs 12 tasks in dependency order: Config_Load → Data_Copy_to_ADLS
+    → ADLS_TO_PRE_STG → PRESTG_DQMS → PRESTG_BR → PRE_STG_TO_STG → STG_DQMS → STG_BR → STG_TO_FACTS → FACTS_BR →
+    FACTS_DQMS → FACTS_QC.'
+  must_mention:
+  - - Config_Load
+  - - FACTS_QC
+- id: pipeline-steps-intelligence-pipeline-v3-123978851264810
+  category: pipelines
+  question: What steps does the pipeline 'intelligence_pipeline_v3' run, and in what order?
+  reference: 'intelligence_pipeline_v3 (123978851264810) runs 4 tasks in dependency order: scan_and_register → parse_documents
+    → chunk_for_search → consolidate.'
+  must_mention:
+  - - scan_and_register
+  - - consolidate
+- id: pipeline-failure-ics-sales-ingestion
+  category: operations
+  question: Did the pipeline 'ics_sales_ingestion' fail recently? Which task failed, and with what error?
+  reference: 'Most recent failed run started 2026-10-01T05:18:07.009000+00:00; result FAILED; failed task raw_ingestion;
+    error: ValueError: Column Order Mismatch!.'
+  must_mention:
+  - - raw_ingestion
+- id: pipeline-failure-avishi-test-project-2-individual-pipeline
+  category: operations
+  question: Did the pipeline 'Avishi_test_project_2_Individual_Pipeline' fail recently? Which task failed, and with
+    what error?
+  reference: 'Most recent failed run started 2026-09-29T11:13:30.943000+00:00; result FAILED; failed task ADLS_TO_PRE_STG;
+    error: Run failed with error message (later attempt succeeded).'
+  must_mention:
+  - - ADLS_TO_PRE_STG
+- id: pipeline-failure-individual-pipeline-ds
+  category: operations
+  question: Did the pipeline 'Individual_Pipeline_DS' fail recently? Which task failed, and with what error?
+  reference: 'Most recent failed run started 2026-09-29T11:11:47.054000+00:00; result FAILED; failed task Config_Load;
+    error: Run failed with error message.'
+  must_mention:
+  - - Config_Load
+- id: pipeline-failure-avishi-test-project-2-master-pipeline
+  category: operations
+  question: Did the pipeline 'Avishi_test_project_2_Master_Pipeline' fail recently? Which task failed, and with
+    what error?
+  reference: 'Most recent failed run started 2026-09-29T11:00:24.384000+00:00; result FAILED; failed task Master_Job;
+    error: TypeError: ''NoneType'' object is not subscriptable.'
+  must_mention:
+  - - Master_Job
+- id: pipeline-failure-weekly-gepa-prompt-optimization
+  category: operations
+  question: Did the pipeline 'Weekly GEPA Prompt Optimization' fail recently? Which task failed, and with what error?
+  reference: 'Most recent failed run started 2026-09-26T20:30:00.894000+00:00; result FAILED; failed task notebook_task_GEPA_Prompt_Optimization_Job;
+    error: [TABLE_OR_VIEW_NOT_FOUND] The table or view `hq_insights_poc`.`self_learning_metrics`.`ai_unanswered_questions`
+    cannot be found. Verify the spelling and correctness of the schema and catalog..'
+  must_mention:
+  - - notebook_task_GEPA_Prompt_Optimization_Job
+- id: pipeline-failure-archive-individual-pipeline-ds
+  category: operations
+  question: Did the pipeline 'Archive_Individual_Pipeline_DS' fail recently? Which task failed, and with what error?
+  reference: 'Most recent failed run started 2026-08-14T13:35:46.339000+00:00; result FAILED; failed task STG_DQMS;
+    error: [UNRESOLVED_COLUMN.WITH_SUGGESTION] A column, variable, or function parameter with name `channel_details`
+    cannot be resolved. Did you mean one of the following? [`channel_id`, `change_flag`, `new_rx`….'
+  must_mention:
+  - - STG_DQMS
+- id: pipeline-failure-individual-pipeline
+  category: operations
+  question: Did the pipeline 'Individual_Pipeline' fail recently? Which task failed, and with what error?
+  reference: 'Most recent failed run started 2026-08-07T12:15:33.393000+00:00; result FAILED; failed task ADLS_TO_PRE_STG;
+    error: ValueError: max() iterable argument is empty.'
+  must_mention:
+  - - ADLS_TO_PRE_STG
+- id: pipeline-failure-individual-pipeline-test2807
+  category: operations
+  question: Did the pipeline 'Individual_Pipeline_test2807' fail recently? Which task failed, and with what error?
+  reference: 'Most recent failed run started 2026-07-29T06:56:33.885000+00:00; result SUCCESS; failed task STG_DQMS;
+    error: Exception: CRITICAL DQM FAILURES: (later attempt succeeded).'
+  must_mention:
+  - - STG_DQMS
+- id: pipeline-failure-schema-validation-test
+  category: operations
+  question: Did the pipeline 'schema_validation_test' fail recently? Which task failed, and with what error?
+  reference: 'Most recent failed run started 2026-07-29T06:47:31.508000+00:00; result FAILED; failed task Ingestion;
+    error: ValueError: Column Count Mismatch! Expected 25, got 26.'
+  must_mention:
+  - - Ingestion
+- id: dataset-type-ics-867
+  category: industry-in-warehouse
+  question: Which tables in our warehouse contain ICS 867 (Cencora ICS 3PL Sales Feed) data?
+  reference: 'Kairos binds these tables to ICS 867 (Cencora ICS 3PL Sales Feed) (/data-assets/sales-distribution/ics-867),
+    as proposals: nexora_poc_catalog.silver.fct_ics_867, ct_sm_chatbot_auxo.claims_summaries.sales_all_fact_combined,
+    ct_sm_chatbot_auxo.claims_summaries.sales_all_fact_combined_backup, ct_sm_chatbot_auxo.claims_summaries.ex_factory_sales_20260413,
+    nexora_poc_catalog.gold.pharm_cosm_sales_all_fact_daily_orders_20260616.'
+  must_mention:
+  - - fct_ics_867
+    - sales_all_fact_combined
+    - sales_all_fact_combined_backup
+    - ex_factory_sales_20260413
+    - pharm_cosm_sales_all_fact_daily_orders_20260616
+- id: dataset-type-iqvia-xponent
+  category: industry-in-warehouse
+  question: Which tables in our warehouse contain IQVIA Xponent (Prescriber-Level Rx) data?
+  reference: 'Kairos binds these tables to IQVIA Xponent (Prescriber-Level Rx) (/data-assets/rx-audit/iqvia-xponent),
+    as proposals: nexora_poc_catalog.metadata.xponent_ingestion, nexora_poc_catalog.bronze.raw_xponent, nexora_poc_catalog.raw.xponent,
+    nexora_poc_catalog.metadata.xponent_bronze, nexora_poc_catalog.bronze.xponent_staging, nexora_poc_catalog.bronze.xponent.'
+  must_mention:
+  - - xponent_ingestion
+    - raw_xponent
+    - xponent
+    - xponent_bronze
+    - xponent_staging
+    - xponent
+- id: dataset-type-drug-mapping
+  category: industry-in-warehouse
+  question: Which tables in our warehouse contain Claims Drug Mapping (NDC → Product/Market) data?
+  reference: 'Kairos binds these tables to Claims Drug Mapping (NDC → Product/Market) (/data-assets/reference/drug-mapping),
+    as proposals: nexora_poc_catalog.bronze.raw_iqvia_claims_drug_mapping, nexora_poc_catalog.gold.rx_mx_claims.'
+  must_mention:
+  - - raw_iqvia_claims_drug_mapping
+    - rx_mx_claims
+- id: dataset-type-snr-sales
+  category: industry-in-warehouse
+  question: Which tables in our warehouse contain SNR Sales Feed (Market × Product, with 340B Flag) data?
+  reference: 'Kairos binds these tables to SNR Sales Feed (Market × Product, with 340B Flag) (/data-assets/sales-distribution/snr-sales),
+    as proposals: nexora_poc_catalog.bronze.raw_snr_sales, nexora_poc_catalog.bronze.raw_snr_sales_002, nexora_poc_catalog.bronze.raw_snr_sales_test,
+    nexora_poc_catalog.silver.raw_snr_sales_test, intelliegencedatacatalog.bronze.raw_snr_data, intelliegencedatacatalog.bronze.snr_sales,
+    intelliegencedatacatalog.silver.fact_snr_sales, ct_sm_chatbot_auxo.claims_summaries.snr_all_fact_combined_20260413,
+    ct_sm_chatbot_auxo.claims_summaries.snr_all_fact_combined_20260413_backup, nexora_poc_catalog.bronze.source1.'
+  must_mention:
+  - - raw_snr_sales
+    - raw_snr_sales_002
+    - raw_snr_sales_test
+    - raw_snr_sales_test
+    - raw_snr_data
+    - snr_sales
+    - fact_snr_sales
+    - snr_all_fact_combined_20260413
+    - snr_all_fact_combined_20260413_backup
+    - source1
+- id: dataset-type-komodo-claims-by-provider
+  category: industry-in-warehouse
+  question: Which tables in our warehouse contain Komodo Claims by Provider (HCP × Affiliation Aggregate) data?
+  reference: 'Kairos binds these tables to Komodo Claims by Provider (HCP × Affiliation Aggregate) (/data-assets/provider-aggregates/komodo-claims-by-provider),
+    as proposals: nexora_poc_catalog.gold.pharm_cosm_komodo_monoferric_fact_claims_by_provider_20260616.'
+  must_mention:
+  - - pharm_cosm_komodo_monoferric_fact_claims_by_provider_20260616
+- id: dataset-type-crm-calls
+  category: industry-in-warehouse
+  question: Which tables in our warehouse contain CRM Call Activity (Veeva) data?
+  reference: 'Kairos binds these tables to CRM Call Activity (Veeva) (/data-assets/promotion/crm-calls), as proposals:
+    nexora_poc_catalog.gold.pharm_cosm_calls_crm, nexora_poc_catalog.bronze.raw_veeva_calls, nexora_poc_catalog.bronze.stg_veeva_calls,
+    nexora_poc_catalog.silver.fct_veeva_calls, nexora_poc_catalog.gold.pharm_cosm_crm_call_rte_datamart_20260616,
+    ct_sm_chatbot_auxo.claims_summaries.crm_call_rte_20260413_backup, ct_sm_chatbot_auxo.claims_summaries.crm_call_rte_20260413.'
+  must_mention:
+  - - pharm_cosm_calls_crm
+    - raw_veeva_calls
+    - stg_veeva_calls
+    - fct_veeva_calls
+    - pharm_cosm_crm_call_rte_datamart_20260616
+    - crm_call_rte_20260413_backup
+    - crm_call_rte_20260413
+- id: dataset-type-iqvia-ddd
+  category: industry-in-warehouse
+  question: Which tables in our warehouse contain IQVIA DDD (Outlet-Level Sales) data?
+  reference: 'Kairos binds these tables to IQVIA DDD (Outlet-Level Sales) (/data-assets/sales-distribution/iqvia-ddd),
+    as proposals: intelliegencedatacatalog.ddd_sales.raw_ddd.'
+  must_mention:
+  - - raw_ddd
+- id: dataset-type-iqvia-laad
+  category: industry-in-warehouse
+  question: Which tables in our warehouse contain IQVIA LAAD (Longitudinal Access & Adjudication Data) data?
+  reference: 'Kairos binds these tables to IQVIA LAAD (Longitudinal Access & Adjudication Data) (/data-assets/patient-claims/iqvia-laad),
+    as proposals: nexora_poc_catalog.gold.rx_mx_claims.'
+  must_mention:
+  - - rx_mx_claims
+- id: identifier-columns-npi
+  category: industry-in-warehouse
+  question: Which columns in our warehouse hold National Provider Identifier (NPI) values, and what format should
+    they have?
+  reference: '64 columns are bound to National Provider Identifier (NPI), named HCO_NPI, NPI, NPI_ID, NPI_NUM, NPI_NUMBER,
+    NPI_VOD, ORG_NPI, PROVIDER_NPI, RENDERING_NPI, covered_recipient_npi, npi, npi_id, prov_billing_npi, prov_referring_npi,
+    prov_rendering_npi. Format: 10 digits, Luhn check.'
+  must_mention:
+  - - HCO_NPI
+    - NPI
+    - NPI_ID
+    - NPI_NUM
+    - NPI_NUMBER
+    - NPI_VOD
+    - ORG_NPI
+    - PROVIDER_NPI
+    - RENDERING_NPI
+    - covered_recipient_npi
+    - npi
+    - npi_id
+    - prov_billing_npi
+    - prov_referring_npi
+    - prov_rendering_npi
+- id: identifier-columns-ndc
+  category: industry-in-warehouse
+  question: Which columns in our warehouse hold National Drug Code (NDC) values, and what format should they have?
+  reference: '17 columns are bound to National Drug Code (NDC), named NDC11, NDC_11, NDC_CODE, NDC_Norm, ndc_code.
+    Format: 10-digit 4-4-2 | 5-3-2 | 5-4-1; HIPAA billing 11-digit 5-4-2.'
+  must_mention:
+  - - NDC11
+    - NDC_11
+    - NDC_CODE
+    - NDC_Norm
+    - ndc_code
+- id: identifier-columns-dea-number
+  category: industry-in-warehouse
+  question: Which columns in our warehouse hold DEA Registration Number values, and what format should they have?
+  reference: '35 columns are bound to DEA Registration Number, named CLEANED_DETAIL_REPORT_GROUP_DEA_NBR, CUST_DEA,
+    DEA_NUMBER, DETAIL_REPORT_GROUP_DEA_NBR, HCO_DEA, ORG_DEA, PRIM_REPORT_GROUP_DEA_NBR, SND_REPORT_GROUP_DEA_NBR.
+    Format: 2 letters + 7 digits.'
+  must_mention:
+  - - CLEANED_DETAIL_REPORT_GROUP_DEA_NBR
+    - CUST_DEA
+    - DEA_NUMBER
+    - DETAIL_REPORT_GROUP_DEA_NBR
+    - HCO_DEA
+    - ORG_DEA
+    - PRIM_REPORT_GROUP_DEA_NBR
+    - SND_REPORT_GROUP_DEA_NBR
+- id: identifier-columns-hin
+  category: industry-in-warehouse
+  question: Which columns in our warehouse hold HIN (HIBCC Health Industry Number) values, and what format should
+    they have?
+  reference: '32 columns are bound to HIN (HIBCC Health Industry Number), named CLEANED_DETAIL_REPORT_GROUP_HIN_NBR,
+    CUST_HIN, DETAIL_REPORT_GROUP_HIN_NBR, HCO_HIN, HIN, ORG_HIN, PRIM_REPORT_GROUP_HIN_NBR, SND_REPORT_GROUP_HIN_NBR.
+    Format: 9 chars.'
+  must_mention:
+  - - CLEANED_DETAIL_REPORT_GROUP_HIN_NBR
+    - CUST_HIN
+    - DETAIL_REPORT_GROUP_HIN_NBR
+    - HCO_HIN
+    - HIN
+    - ORG_HIN
+    - PRIM_REPORT_GROUP_HIN_NBR
+    - SND_REPORT_GROUP_HIN_NBR
+- id: identifier-columns-veeva-vid
+  category: industry-in-warehouse
+  question: Which columns in our warehouse hold Veeva Network VID values, and what format should they have?
+  reference: '50 columns are bound to Veeva Network VID, named ADDRESS_VID, AFFILIATED_ORG_VID, AFFILIATED_SYSTEM_VID,
+    HCO_VID, HCP_VID, ORG_VID, PRIMARY_PARENT_VID, SYSTEM_VID, SYS_VID, VID, hcp_vid. Format: 18-digit numeric.'
+  must_mention:
+  - - ADDRESS_VID
+    - AFFILIATED_ORG_VID
+    - AFFILIATED_SYSTEM_VID
+    - HCO_VID
+    - HCP_VID
+    - ORG_VID
+    - PRIMARY_PARENT_VID
+    - SYSTEM_VID
+    - SYS_VID
+    - VID
+    - hcp_vid
+- id: identifier-columns-ims-prescriber-id
+  category: industry-in-warehouse
+  question: Which columns in our warehouse hold IQVIA Prescriber ID values, and what format should they have?
+  reference: '7 columns are bound to IQVIA Prescriber ID, named IMS_PRESCRIBER_ID, ims_prescriber_id. Format: vendor-defined.'
+  must_mention:
+  - - IMS_PRESCRIBER_ID
+    - ims_prescriber_id
+- id: identifier-columns-plan-id
+  category: industry-in-warehouse
+  question: Which columns in our warehouse hold Payer Plan ID values, and what format should they have?
+  reference: '7 columns are bound to Payer Plan ID, named PAYER_PLAN_ID, PLAN_ID, SECONDARY_PLAN_ID. Format: vendor-defined.'
+  must_mention:
+  - - PAYER_PLAN_ID
+    - PLAN_ID
+    - SECONDARY_PLAN_ID
+- id: concept-copay-program-data
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Copay Program Data, and what should I watch out for when using
+    it?
+  reference: 'Copay Program Data (Dataset Type): Claims paid by the manufacturer copay programme via its BIN/PCN.
+    grain: claim × card; measures: redemptions, $ paid; phi_status: de-identified. Pitfall: * Commercial only'
+  must_mention:
+  - - Copay Program Data
+- id: concept-patient-token
+  category: industry-knowledge
+  question: In US pharma commercial data, what is De-identified Patient Token, and what should I watch out for when
+    using it?
+  reference: 'De-identified Patient Token (Identifier): Hashed identifier derived from PII (name, DOB, sex, zip)
+    that links one patient across de-identified datasets without exposing identity. identifier_format: vendor hash.'
+  must_mention:
+  - - De-identified Patient Token
+- id: concept-adherence-pdc
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Adherence (PDC / MPR), and what should I watch out for when using
+    it?
+  reference: 'Adherence (PDC / MPR) (Metric): Proportion of days covered or medication possession ratio over a period.
+    .'
+  must_mention:
+  - - Adherence
+- id: concept-340b-ceiling-price
+  category: industry-knowledge
+  question: In US pharma commercial data, what is 340B Ceiling Price, and what should I watch out for when using
+    it?
+  reference: '340B Ceiling Price (Pricing Concept): AMP − URA per unit. .'
+  must_mention:
+  - - 340B Ceiling Price
+- id: concept-medicaid
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Medicaid, and what should I watch out for when using it?
+  reference: 'Medicaid (Program): State-federal programme; outpatient drugs carry statutory MDRP rebates. .'
+  must_mention:
+  - - Medicaid
+- id: concept-21-cfr-part-11
+  category: industry-knowledge
+  question: In US pharma commercial data, what is 21 CFR Part 11, and what should I watch out for when using it?
+  reference: '21 CFR Part 11 (Regulation): Requirements for electronic records and signatures (CRM sample signatures,
+    eTMF). .'
+  must_mention:
+  - - 21 CFR Part 11
+- id: concept-hub-data
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Hub / Patient Services Data, and what should I watch out for when
+    using it?
+  reference: 'Hub / Patient Services Data (Dataset Type): Case records from manufacturer hubs: enrolments, benefit
+    verification, PA support, financial assistance, SP triage. grain: patient case × status event; measures: time-to-therapy,
+    case outcomes; phi_status: identifiable PHI with patient consent. Pitfall: * PHI — firewall from sales'
+  must_mention:
+  - - Hub / Patient Services Data
+- id: concept-plan-id
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Payer Plan ID, and what should I watch out for when using it?
+  reference: 'Payer Plan ID (Identifier): Vendor plan key (e.g. IQVIA `PAYER_PLAN_ID`, LAAD `PLAN_ID`) mapping to
+    payer, PBM, model (commercial, Part D, Medicaid). identifier_format: vendor-defined.'
+  must_mention:
+  - - Payer Plan ID
+- id: concept-forecasting
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Forecasting, and what should I watch out for when using it?
+  reference: 'Forecasting (Metric): Patient- or trend-based demand and revenue projections. .'
+  must_mention:
+  - - Forecasting
+- id: concept-awp
+  category: industry-knowledge
+  question: In US pharma commercial data, what is AWP (Average Wholesale Price), and what should I watch out for
+    when using it?
+  reference: 'AWP (Average Wholesale Price) (Pricing Concept): Compendia benchmark (≈ WAC × 1.2) still used in PBM
+    pricing. .'
+  must_mention:
+  - - AWP
+- id: concept-va-dod
+  category: industry-knowledge
+  question: In US pharma commercial data, what is VA / DoD / PHS, and what should I watch out for when using it?
+  reference: 'VA / DoD / PHS (Program): Federal purchasers buying at FSS / Federal Ceiling Price. .'
+  must_mention:
+  - - VA / DoD / PHS
+- id: concept-off-label-promotion
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Off-Label Promotion Restrictions, and what should I watch out
+    for when using it?
+  reference: 'Off-Label Promotion Restrictions (Regulation): Manufacturers may not promote unapproved uses; MSLs
+    may answer unsolicited requests. .'
+  must_mention:
+  - - Off-Label Promotion Restrictions
+- id: concept-consumer-sdoh
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Consumer & SDOH Data, and what should I watch out for when using
+    it?
+  reference: 'Consumer & SDOH Data (Dataset Type): Socioeconomic and lifestyle attributes linked to de-identified
+    patients. grain: record × patient token; measures: clinical values; phi_status: de-identified PHI. Pitfall:
+    * Linkage only under expert determination'
+  must_mention:
+  - - Consumer & SDOH Data
+- id: concept-gcn
+  category: industry-knowledge
+  question: In US pharma commercial data, what is GCN / HICL (First Databank), and what should I watch out for when
+    using it?
+  reference: 'GCN / HICL (First Databank) (Identifier): First Databank formulation (GCN) and ingredient (HICL) codes.
+    identifier_format: numeric.'
+  must_mention:
+  - - GCN / HICL
+- id: concept-lines-of-therapy
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Lines of Therapy, and what should I watch out for when using it?
+  reference: 'Lines of Therapy (Metric): Sequencing of regimens per patient using claims rules (gap, add-on, switch).
+    .'
+  must_mention:
+  - - Lines of Therapy
+- id: concept-commercial-rebate
+  category: industry-knowledge
+  question: In US pharma commercial data, what is Commercial / PBM Rebate, and what should I watch out for when
+    using it?
+  reference: 'Commercial / PBM Rebate (Pricing Concept): Rebates and admin fees paid to PBMs/plans on utilisation
+    invoices for formulary position. .'
+  must_mention:
+  - - Commercial / PBM Rebate
+- id: unprofiled-ct-sm-chatbot-auxo-bronze-conference-raw
+  category: trust
+  question: What is in the table ct_sm_chatbot_auxo.bronze.conference_raw, and how far can I rely on what you know
+    about it?
+  reference: 'ct_sm_chatbot_auxo.bronze.conference_raw is only synced (platform metadata: names, types, comments);
+    Kairos has not profiled or verified it, so meaning, grain and quality are unknown. A good answer describes its
+    columns and says plainly that it is unverified.'
+  must_mention:
+  - - conference_raw
+  - - synced
+    - not profiled
+    - unverified
+    - not been profiled
+    - not verified
+    - metadata only
+- id: unprofiled-ct-sm-chatbot-auxo-sm-schema-drug-combinations-tagging-20-se
+  category: trust
+  question: What is in the table ct_sm_chatbot_auxo.sm_schema.drug_combinations_tagging_20_sept, and how far can
+    I rely on what you know about it?
+  reference: 'ct_sm_chatbot_auxo.sm_schema.drug_combinations_tagging_20_sept is only synced (platform metadata:
+    names, types, comments); Kairos has not profiled or verified it, so meaning, grain and quality are unknown.
+    A good answer describes its columns and says plainly that it is unverified.'
+  must_mention:
+  - - drug_combinations_tagging_20_sept
+  - - synced
+    - not profiled
+    - unverified
+    - not been profiled
+    - not verified
+    - metadata only
+- id: unprofiled-intelliegencedatacatalog-functionalities-quality-pipeline
+  category: trust
+  question: What is in the table intelliegencedatacatalog.functionalities.quality_pipeline, and how far can I rely
+    on what you know about it?
+  reference: 'intelliegencedatacatalog.functionalities.quality_pipeline is only synced (platform metadata: names,
+    types, comments); Kairos has not profiled or verified it, so meaning, grain and quality are unknown. A good
+    answer describes its columns and says plainly that it is unverified.'
+  must_mention:
+  - - quality_pipeline
+  - - synced
+    - not profiled
+    - unverified
+    - not been profiled
+    - not verified
+    - metadata only
+- id: unprofiled-intelliegencedatacatalog-sandbox-schema-validation-source-wi
+  category: trust
+  question: What is in the table intelliegencedatacatalog.sandbox_schema_validation.source_with_extra_column_1,
+    and how far can I rely on what you know about it?
+  reference: 'intelliegencedatacatalog.sandbox_schema_validation.source_with_extra_column_1 is only synced (platform
+    metadata: names, types, comments); Kairos has not profiled or verified it, so meaning, grain and quality are
+    unknown. A good answer describes its columns and says plainly that it is unverified.'
+  must_mention:
+  - - source_with_extra_column_1
+  - - synced
+    - not profiled
+    - unverified
+    - not been profiled
+    - not verified
+    - metadata only
+- id: unprofiled-nexora-poc-catalog-bronze-market-basket-treatments
+  category: trust
+  question: What is in the table nexora_poc_catalog.bronze.market_basket_treatments, and how far can I rely on what
+    you know about it?
+  reference: 'nexora_poc_catalog.bronze.market_basket_treatments is only synced (platform metadata: names, types,
+    comments); Kairos has not profiled or verified it, so meaning, grain and quality are unknown. A good answer
+    describes its columns and says plainly that it is unverified.'
+  must_mention:
+  - - market_basket_treatments
+  - - synced
+    - not profiled
+    - unverified
+    - not been profiled
+    - not verified
+    - metadata only
+- id: unprofiled-nexora-poc-catalog-gold-pharm-cosm-calls-crm
+  category: trust
+  question: What is in the table nexora_poc_catalog.gold.pharm_cosm_calls_crm, and how far can I rely on what you
+    know about it?
+  reference: 'nexora_poc_catalog.gold.pharm_cosm_calls_crm is only synced (platform metadata: names, types, comments);
+    Kairos has not profiled or verified it, so meaning, grain and quality are unknown. A good answer describes its
+    columns and says plainly that it is unverified.'
+  must_mention:
+  - - pharm_cosm_calls_crm
+  - - synced
+    - not profiled
+    - unverified
+    - not been profiled
+    - not verified
+    - metadata only
+- id: unprofiled-samples-accuweather-historical-daynight-metric
+  category: trust
+  question: What is in the table samples.accuweather.historical_daynight_metric, and how far can I rely on what
+    you know about it?
+  reference: 'samples.accuweather.historical_daynight_metric is only synced (platform metadata: names, types, comments);
+    Kairos has not profiled or verified it, so meaning, grain and quality are unknown. A good answer describes its
+    columns and says plainly that it is unverified.'
+  must_mention:
+  - - historical_daynight_metric
+  - - synced
+    - not profiled
+    - unverified
+    - not been profiled
+    - not verified
+    - metadata only
+- id: unprofiled-samples-tpcds-sf1-web-returns
+  category: trust
+  question: What is in the table samples.tpcds_sf1.web_returns, and how far can I rely on what you know about it?
+  reference: 'samples.tpcds_sf1.web_returns is only synced (platform metadata: names, types, comments); Kairos has
+    not profiled or verified it, so meaning, grain and quality are unknown. A good answer describes its columns
+    and says plainly that it is unverified.'
+  must_mention:
+  - - web_returns
+  - - synced
+    - not profiled
+    - unverified
+    - not been profiled
+    - not verified
+    - metadata only

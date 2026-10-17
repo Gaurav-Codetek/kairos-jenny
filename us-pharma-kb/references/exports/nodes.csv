@@ -1,0 +1,340 @@
+concept_id,type,title,description,tags
+_meta/okf-conventions,Convention,OKF Conventions Used in This Bundle,How this bundle applies Google's Open Knowledge Format v0.2 and which producer extension keys it adds.,okf|conventions
+_meta/relation-vocabulary,Vocabulary,Relation Vocabulary,Controlled list of predicates allowed in the `relations:` extension key.,okf|vocabulary|graph
+_meta/type-vocabulary,Vocabulary,Concept Type Vocabulary,The `type` values used in this bundle and what each means.,okf|vocabulary
+_meta/data-governance-policy,Policy,Data Governance & Licensing Rules for Agents,"Rules an agent must follow when combining US pharma commercial datasets: PHI, licences, AMA PDRP, projection.",governance|phi|licensing
+_meta/data-quality-rules,Policy,Data Quality Rules,Standard normalisation and validation rules for pharma commercial data.,data-quality
+actors/manufacturers/brand-manufacturer,Actor Class,Brand Manufacturer,"Company holding an NDA/BLA that markets branded drugs, sets WAC, contracts with PBMs/GPOs and funds patient programmes.",manufacturer
+actors/manufacturers/generic-manufacturer,Actor Class,Generic Manufacturer,Holder of an ANDA selling bioequivalent copies after patent/exclusivity expiry.,manufacturer|generic
+actors/manufacturers/biosimilar-manufacturer,Actor Class,Biosimilar Manufacturer,Holder of a 351(k) BLA for a biosimilar or interchangeable biologic.,manufacturer|biosimilar
+actors/manufacturers/labeler,Actor Class,Labeler,"Any firm named by an NDC labeler code: manufacturer, repackager, relabeler or private-label distributor.",manufacturer|ndc
+actors/distribution/3pl,Actor Class,Third-Party Logistics Provider (3PL),Warehouses manufacturer-owned inventory and ships orders to wholesalers and direct accounts; often also runs order-to-cash and sends 867 sales data.,distribution|3pl
+actors/distribution/ics-cencora,Vendor,"ICS (Integrated Commercialization Solutions, Cencora)",Cencora's North American 3PL brand; ships manufacturer product and delivers ICS 867 sales/returns data and analytics.,3pl|cencora|ics
+actors/distribution/full-line-wholesaler,Actor Class,Full-Line Wholesaler,"Buys from manufacturers at WAC and supplies pharmacies, hospitals and clinics; the Big Three are McKesson, Cencora and Cardinal Health.",distribution|wholesaler
+actors/distribution/specialty-distributor,Actor Class,Specialty Distributor,"Distributor serving physician offices, infusion centres and hospitals with physician-administered and specialty drugs (buy-and-bill).",distribution|specialty
+actors/distribution/gpo,Actor Class,Group Purchasing Organization (GPO),"Negotiates contract prices on behalf of hospitals, IDNs and clinics; its contracts drive wholesaler chargebacks.",distribution|contracting
+actors/pharmacies/retail-pharmacy,Actor Class,Retail Pharmacy,Chain or independent community pharmacy dispensing outpatient prescriptions and submitting NCPDP claims.,pharmacy
+actors/pharmacies/mail-order-pharmacy,Actor Class,Mail-Order Pharmacy,"Central-fill pharmacy, usually PBM-owned, shipping maintenance drugs.",pharmacy
+actors/pharmacies/specialty-pharmacy,Actor Class,Specialty Pharmacy (SP),Dispenses high-cost/complex drugs with clinical support; sends status and dispense data to manufacturers under data agreements.,pharmacy|specialty
+actors/pharmacies/ltc-pharmacy,Actor Class,Long-Term Care Pharmacy,Serves nursing homes and assisted-living facilities.,pharmacy
+actors/pharmacies/340b-contract-pharmacy,Actor Class,340B Contract Pharmacy,Pharmacy dispensing 340B-priced drug on behalf of a covered entity.,pharmacy|340b
+actors/pbms/pbm,Actor Class,Pharmacy Benefit Manager (PBM),"Adjudicates pharmacy claims, builds formularies, contracts pharmacy networks and negotiates manufacturer rebates for plan sponsors.",pbm
+actors/pbms/express-scripts,Vendor,Express Scripts (Cigna/Evernorth),Largest US PBM by claims share in 2025.,pbm
+actors/pbms/cvs-caremark,Vendor,CVS Caremark,CVS Health's PBM.,pbm
+actors/pbms/optum-rx,Vendor,Optum Rx,UnitedHealth Group's PBM.,pbm
+actors/payers/commercial-payer,Actor Class,Commercial Payer,Employer or individual-market health plan; the only channel eligible for manufacturer copay cards.,payer
+actors/payers/medicare-part-d,Program,Medicare Part D,Outpatient drug benefit for Medicare beneficiaries delivered by private PDP/MA-PD plans.,payer|medicare
+actors/payers/medicare-part-b,Program,Medicare Part B,"Medical benefit covering physician-administered drugs, paid at ASP + 6% under buy-and-bill.",payer|medicare
+actors/payers/medicaid,Program,Medicaid,State-federal programme; outpatient drugs carry statutory MDRP rebates.,payer
+actors/payers/va-dod,Program,VA / DoD / PHS,Federal purchasers buying at FSS / Federal Ceiling Price.,payer
+actors/providers/hcp,Actor Class,Healthcare Professional (HCP),"Individual prescriber or clinician (physician, NP, PA, etc.).",provider
+actors/providers/hco,Actor Class,Healthcare Organization (HCO),"Hospital, clinic, infusion centre, dialysis unit, practice or other organisation that buys, administers or bills drugs.",provider
+actors/providers/idn,Actor Class,Integrated Delivery Network (IDN),Health system owning multiple hospitals and practices; the top of the HCO hierarchy (`SYS_VID` / `AFFILIATED_SYSTEM_VID` in the warehouse).,provider
+actors/providers/340b-covered-entity,Actor Class,340B Covered Entity,HRSA-registered hospital or grantee entitled to 340B ceiling prices.,provider|340b
+actors/providers/dialysis-provider,Actor Class,Dialysis Provider,Dialysis organisation (e.g. large dialysis chains) administering IV drugs such as iron; hemodialysis volume is often separated in IV iron analytics.,provider|nephrology
+actors/regulators/fda,Regulator,FDA,"Food and Drug Administration: approvals (CDER/CBER), labeling, promotion (OPDP), safety, NDC listing, DSCSA.",regulator
+actors/regulators/cms,Regulator,CMS,"Centers for Medicare & Medicaid Services: Medicare/Medicaid, NPPES, Open Payments, ASP/AMP reporting, IRA negotiation.",regulator
+actors/regulators/hhs-oig,Regulator,HHS-OIG,"HHS Office of Inspector General: Anti-Kickback enforcement, advisory opinions, fraud alerts.",regulator
+actors/regulators/dea,Regulator,DEA,"Drug Enforcement Administration: controlled-substance scheduling, registrations, EPCS, ARCOS.",regulator
+actors/regulators/hrsa-opa,Regulator,HRSA Office of Pharmacy Affairs,Administers the 340B Drug Pricing Program and OPAIS registry.,regulator
+actors/regulators/state-boards,Regulator,State Boards of Pharmacy,"License pharmacies, wholesalers and 3PLs; run PDMPs.",regulator
+actors/standards/ncpdp,Standards Body,NCPDP,"National Council for Prescription Drug Programs: Telecommunication D.0, SCRIPT, ePA, provider IDs.",standards
+actors/standards/x12,Standards Body,ASC X12,Accredited Standards Committee X12: EDI 837/835/270/271/278 and supply-chain 850/856/867/852/844/849.,standards
+actors/standards/hl7,Standards Body,HL7,Health Level Seven: HL7 v2 and FHIR clinical/financial interoperability standards.,standards
+regulation/statutes/fdca,Law,"Federal Food, Drug, and Cosmetic Act","1938 statute governing drug safety, efficacy, approval, labeling and misbranding.",law
+regulation/statutes/hatch-waxman,Law,Hatch-Waxman Act,"1984 law creating the ANDA generic pathway, Orange Book patent listing, Paragraph IV challenges and 180-day exclusivity.",law
+regulation/statutes/bpcia,Law,Biologics Price Competition and Innovation Act,2010 law creating the 351(k) biosimilar/interchangeable pathway and 12-year reference exclusivity.,law
+regulation/statutes/dscsa,Law,Drug Supply Chain Security Act,2013 law requiring package-level serialisation and interoperable electronic tracing between trading partners.,law
+regulation/statutes/controlled-substances-act,Law,Controlled Substances Act,"Establishes Schedules I–V, DEA registration, EPCS and ARCOS reporting.",law
+regulation/statutes/pdma,Law,Prescription Drug Marketing Act,"1987 law governing drug samples: written requests, signed receipts, inventory reconciliation.",law
+regulation/statutes/ira,Law,Inflation Reduction Act (drug provisions),"2022 law creating Medicare drug price negotiation (MFP), Part D redesign, the Manufacturer Discount Program and inflation rebates.",law
+regulation/fda/ind,Regulatory Pathway,Investigational New Drug (IND),Application required before first-in-human trials.,fda
+regulation/fda/clinical-trial-phases,Regulation,Clinical Trial Phases,"Phase 1 safety, Phase 2 dose/efficacy, Phase 3 pivotal, Phase 4 post-marketing.",fda
+regulation/fda/nda-505b1,Regulatory Pathway,NDA 505(b)(1),Full New Drug Application with the sponsor's own safety/efficacy data.,fda
+regulation/fda/nda-505b2,Regulatory Pathway,NDA 505(b)(2),"NDA relying partly on literature or prior FDA findings (new forms, combinations).",fda
+regulation/fda/anda,Regulatory Pathway,ANDA 505(j),Abbreviated application for generics proving bioequivalence.,fda
+regulation/fda/bla,Regulatory Pathway,BLA 351(a),Biologics License Application for novel biologics.,fda
+regulation/fda/biosimilar-351k,Regulatory Pathway,Biosimilar 351(k),Abbreviated pathway for biosimilar or interchangeable biologics.,fda
+regulation/fda/rems,Regulation,REMS,Risk Evaluation and Mitigation Strategy; may restrict prescribing/dispensing (ETASU).,fda
+regulation/fda/pharmacovigilance,Regulation,Pharmacovigilance & FAERS,Adverse-event collection and reporting (15-day expedited reports) into FDA FAERS; reps must forward AEs heard in calls.,fda
+regulation/fda/opdp-promotion,Regulation,OPDP & Promotional Rules,FDA Office of Prescription Drug Promotion reviews Form 2253 submissions; promotion must be consistent with the label.,fda
+regulation/fda/off-label-promotion,Regulation,Off-Label Promotion Restrictions,Manufacturers may not promote unapproved uses; MSLs may answer unsolicited requests.,fda
+regulation/fda/21-cfr-part-11,Regulation,21 CFR Part 11,"Requirements for electronic records and signatures (CRM sample signatures, eTMF).",fda
+regulation/fda/ndc-12-rule,Regulation,NDC 12-Digit Final Rule,FDA rule moving the NDC to a uniform 12-digit 6-4-2 format.,fda
+regulation/fraud-abuse/anti-kickback-statute,Law,Anti-Kickback Statute,Criminal prohibition on remuneration to induce federally reimbursed business; reason copay cards exclude government-insured patients.,law
+regulation/fraud-abuse/false-claims-act,Law,False Claims Act,Civil liability (with qui tam whistleblowers) for causing false federal claims; basis of off-label and kickback settlements.,law
+regulation/fraud-abuse/stark-law,Law,Stark Law,Prohibits physician self-referral for designated health services.,law
+regulation/fraud-abuse/sunshine-act,Law,Physician Payments Sunshine Act (Open Payments),"Requires manufacturers/GPOs to report transfers of value to physicians, NPPs and teaching hospitals.",law
+regulation/fraud-abuse/phrma-code,Code,PhRMA Code on Interactions with HCPs,"Voluntary industry code on meals, speaker programmes and gifts.",compliance
+regulation/privacy/hipaa-privacy-rule,Law,HIPAA Privacy Rule,Governs use and disclosure of PHI by covered entities and business associates.,law
+regulation/privacy/hipaa-deidentification,Regulation,HIPAA De-identification,PHI is de-identified by Safe Harbor (remove 18 identifiers) or Expert Determination (very small re-identification risk); the basis for tokenised claims data.,privacy|phi
+regulation/privacy/limited-data-set,Regulation,Limited Data Set,"PHI with direct identifiers removed but dates/zip retained, usable under a Data Use Agreement.",privacy
+regulation/government-pricing/mdrp,Program,Medicaid Drug Rebate Program,Manufacturers pay states quarterly rebates (URA × units) based on AMP and Best Price; cap removed from 2024.,government-pricing
+regulation/government-pricing/340b,Program,340B Drug Pricing Program,"Covered entities buy outpatient drugs at the ceiling price (AMP − URA), mostly via wholesaler chargebacks.",government-pricing|340b
+regulation/government-pricing/340b-rebate-pilot,Program,340B Rebate Model Pilot,"HRSA pilot letting manufacturers pay 340B discounts as post-sale rebates; vacated Feb 2026, relaunched Aug 2026 for MFP-selected drugs.",340b
+regulation/state-law/sorrell-v-ims,Court Decision,Sorrell v. IMS Health (2011),"Supreme Court struck down Vermont's ban on using prescriber-identifiable data for marketing, keeping prescriber-level Rx data legal.",state-law|rx-data
+regulation/state-law/ama-pdrp,Program,AMA Physician Data Restriction Program,Lets physicians opt out of reps seeing their prescribing data; surfaced as a PDRP opt-out flag in Rx and claims feeds.,governance
+regulation/state-law/state-marketing-laws,Regulation,State Marketing & Disclosure Laws,"State gift bans, spend disclosure (e.g. VT, MA, MN) and rep licensing.",state-law
+identifiers/product/ndc,Identifier,National Drug Code (NDC),FDA three-segment product identifier (labeler-product-package) for US drugs.,identifier
+identifiers/product/ndc-12,Identifier,NDC-12 (6-4-2),Uniform 12-digit NDC format mandated from 7 Mar 2033.,identifier
+identifiers/product/rxnorm-rxcui,Identifier,RxNorm RxCUI,"NLM normalized clinical drug concept identifier, linking NDCs across labelers.",identifier
+identifiers/product/gpi,Identifier,GPI (Medi-Span),14-character Generic Product Identifier hierarchy from drug group to strength.,identifier
+identifiers/product/gcn,Identifier,GCN / HICL (First Databank),First Databank formulation (GCN) and ingredient (HICL) codes.,identifier
+identifiers/product/atc,Identifier,ATC Code,WHO Anatomical Therapeutic Chemical classification.,identifier
+identifiers/product/usc,Identifier,USC (IQVIA Uniform System of Classification),"IQVIA therapeutic class code used in Xponent, NPA and LAAD (`USC_CODE`).",identifier
+identifiers/product/cmf,Identifier,CMF / Product Group ID (IQVIA),"IQVIA product codes (`CMF10`, `PRODUCT_GROUP_ID`) used in audit deliverables instead of NDC.",identifier
+identifiers/product/hcpcs,Identifier,HCPCS Level II (J-codes),CMS codes for physician-administered drugs on medical claims; billing units differ from NDC units.,identifier
+identifiers/provider/npi,Identifier,National Provider Identifier (NPI),"CMS-issued 10-digit ID; Type 1 = individual HCP, Type 2 = organisation.",identifier
+identifiers/provider/nucc-taxonomy,Identifier,NUCC Taxonomy Code,10-character provider specialty code recorded in NPPES.,identifier
+identifiers/provider/dea-number,Identifier,DEA Registration Number,"Registration per location for controlled substances; widely used as a ship-to identifier in 867 data (`CUST_DEA`, `HCO_DEA`).",identifier
+identifiers/provider/hin,Identifier,HIN (HIBCC Health Industry Number),"Location identifier used in contracts, chargebacks and 867 ship-to data (`CUST_HIN`).",identifier
+identifiers/provider/ama-me-number,Identifier,AMA ME Number,Medical Education number from the AMA Physician Masterfile (`ME_NUMBER` in Xponent).,identifier
+identifiers/provider/ims-prescriber-id,Identifier,IQVIA Prescriber ID,"IQVIA's prescriber key in Xponent (`IMS_PRESCRIBER_ID`), mapped to NPI/ME#.",identifier
+identifiers/provider/onekey-id,Identifier,IQVIA OneKey ID,Identifier for HCPs/HCOs in IQVIA OneKey reference data.,identifier
+identifiers/provider/veeva-vid,Identifier,Veeva Network VID,"Veeva OpenData/Network ID for HCPs (`HCP_VID`), HCOs (`ORG_VID`, `HCO_VID`) and systems (`SYS_VID`, `SYSTEM_VID`); the master key in the ICS Sales Warehouse.",identifier
+identifiers/provider/ncpdp-provider-id,Identifier,NCPDP Provider ID,7-digit pharmacy identifier (formerly NABP number).,identifier
+identifiers/provider/340b-id,Identifier,340B ID,HRSA OPAIS covered-entity identifier.,identifier
+identifiers/provider/ccn,Identifier,CMS Certification Number,Medicare provider number for hospitals and facilities.,identifier
+identifiers/provider/ddd-outlet,Identifier,IQVIA DDD Outlet Number,IQVIA outlet key in DDD (`dddoutletnum`) with an outlet class/subcategory.,identifier
+identifiers/payer/bin-pcn-group,Identifier,BIN / PCN / Group,"Pharmacy-benefit routing triplet: BIN (processor), PCN (plan/line of business), Group (employer/benefit).",identifier
+identifiers/payer/plan-id,Identifier,Payer Plan ID,"Vendor plan key (e.g. IQVIA `PAYER_PLAN_ID`, LAAD `PLAN_ID`) mapping to payer, PBM, model (commercial, Part D, Medicaid).",identifier
+identifiers/payer/cms-contract-pbp,Identifier,CMS Contract-PBP,Medicare Part D/MA contract and plan benefit package ID (e.g. H1234-001).,identifier
+identifiers/patient/patient-token,Identifier,De-identified Patient Token,"Hashed identifier derived from PII (name, DOB, sex, zip) that links one patient across de-identified datasets without exposing identity.",identifier
+reference-data/orange-book,Reference Data,FDA Orange Book,"Approved drugs with therapeutic-equivalence codes, patents and exclusivities.",reference
+reference-data/purple-book,Reference Data,FDA Purple Book,"Licensed biologics, biosimilars and interchangeables with exclusivity data.",reference
+reference-data/ndc-directory,Reference Data,FDA NDC Directory,Daily-updated list of listed NDCs and package descriptions.,reference
+reference-data/drug-compendia,Reference Data,"Drug Compendia (FDB, Medi-Span)","Commercial drug files with WAC/AWP history, packaging, GPI/GCN and clinical attributes.",reference
+reference-data/product-master,Reference Data,Product Master,Internal hierarchy brand → molecule → form → strength → NDC-9 → NDC-11 with market-basket membership.,reference
+reference-data/market-basket,Reference Data,Market Basket Definition,The set of competitor and own products defining a market for share calculations (warehouse: `market_basket_treatments`).,reference
+reference-data/ndc-hcpcs-crosswalk,Reference Data,NDC–HCPCS Crosswalk,CMS ASP crosswalk mapping J-codes to NDCs with billing-unit conversion.,reference
+reference-data/specialty-codes,Reference Data,Specialty & Profession Codes,Vendor (IQVIA/AMA) and NUCC specialty codes used for HCP segmentation.,reference
+prescriptions/prescription,Process,Prescription,"A prescriber's order specifying drug, strength, quantity, directions, refills and DAW; identified at the pharmacy by Rx number + fill number.",rx
+prescriptions/e-prescribing,Process,E-Prescribing,Electronic transmission of prescriptions from EHR to pharmacy using NCPDP SCRIPT over a network such as Surescripts.,rx|erx
+prescriptions/ncpdp-script,Transaction Standard,NCPDP SCRIPT,"Standard for NewRx, RxRenewal, RxChange, CancelRx, RxFill and ePA messages.",standard
+prescriptions/epcs,Process,EPCS,DEA-compliant e-prescribing of controlled substances requiring two-factor authentication.,rx
+prescriptions/rtpb,Process,Real-Time Prescription Benefit,Patient-specific cost and coverage check at the point of prescribing.,rx|access
+prescriptions/prior-authorization,Process,Prior Authorization (PA / ePA),Payer approval required before coverage; electronic PA uses NCPDP ePA; reject code 75 signals PA required.,access
+prescriptions/formulary,Process,"Formulary, Tiers & Utilization Management","Plan list of covered drugs with tiers, exclusions, step therapy and quantity limits.",access
+prescriptions/dispensing,Process,Dispensing & Adjudication,"Pharmacy selects NDC, quantity, days supply and fill number, submits a real-time claim and dispenses on approval.",rx
+prescriptions/abandonment,Metric,Prescription Abandonment & Reversal,An approved claim not picked up is reversed (B2); abandonment rate = reversed / (paid + reversed).,kpi|access
+prescriptions/pdmp,Program,Prescription Drug Monitoring Program,"State database of dispensed controlled substances, reported in ASAP format.",rx|state
+prescriptions/metrics/nrx,Metric,NRx (New Prescriptions),Prescriptions with fill number 0 (definitions vary by vendor).,kpi|rx
+prescriptions/metrics/trx,Metric,TRx (Total Prescriptions),New prescriptions plus refills.,kpi|rx
+prescriptions/metrics/nbrx,Metric,NBRx (New-to-Brand Rx),"Prescriptions for patients new to the brand (new starts, switches, add-ons); needs patient-level data such as LAAD `NEW_TO_BRAND_YN`.",kpi|rx
+prescriptions/metrics/extended-units,Metric,Extended Units / Volume,"Dispensed quantity in units (tablets, mL, vials); used for unit-based share and for injectables.",kpi|rx
+prescriptions/metrics/source-of-business,Metric,Source of Business,"Classification of a brand Rx as new start, switch, add-on, continuing or restart (LAAD `SOURCE_OF_BUSINESS`).",kpi|rx
+claims/pharmacy/pharmacy-claim-flow,Data Flow,Pharmacy Claim Flow,Pharmacy → switch → PBM real-time adjudication → response → (optional COB/copay secondary) → reversal if not picked up → PBM invoices plan and manufacturer.,claims|pharmacy
+claims/pharmacy/ncpdp-telecom-d0,Transaction Standard,NCPDP Telecommunication D.0,"HIPAA-named standard for real-time pharmacy claims (E1 eligibility, B1 bill, B2 reverse, B3 rebill).",standard|claims
+claims/pharmacy/claim-status,Code System,Pharmacy Claim Status & Reject Codes,"Paid, rejected, reversed and captured states with NCPDP reject codes; LAAD carries `CLAIM_STATUS` and `REJECT_CODE`.",claims
+claims/pharmacy/copay-card-claim,Process,Copay Card Secondary Claim,Manufacturer copay assistance processed as a secondary NCPDP claim on its own BIN/PCN; flagged as `COPAY_CARD_FLAG` in LAAD.,claims|access
+claims/medical/medical-claim-flow,Data Flow,Medical Claim Flow,"Provider → 837P/837I → clearinghouse → payer adjudication → 835 remittance; 270/271 eligibility, 276/277 status, 278 PA.",claims|medical
+claims/medical/x12-837p,Transaction Standard,X12 837P (Professional),"Electronic CMS-1500: billing/rendering NPI, ICD-10-CM diagnoses, CPT/HCPCS lines with units, modifiers, place of service and NDC (N4).",standard|claims
+claims/medical/x12-837i,Transaction Standard,X12 837I (Institutional),"Electronic UB-04: type of bill, revenue codes, ICD-10-PCS, DRG, attending NPI.",standard|claims
+claims/medical/x12-835,Transaction Standard,X12 835 Remittance,Payment/remittance advice with claim- and line-level paid amounts and CARC/RARC adjustment codes.,standard|claims
+claims/medical/code-sets,Code System,"ICD-10-CM, CPT, HCPCS, POS","Diagnosis (ICD-10-CM), procedure (CPT/HCPCS), place-of-service and revenue code systems on medical claims.",claims|codes
+claims/medical/buy-and-bill,Process,Buy-and-Bill,"Practice buys drug from a specialty distributor, administers it, and bills the J-code on the medical benefit (Part B pays ASP+6%).",claims|specialty
+claims/medical/white-brown-bagging,Process,White / Brown / Clear Bagging,"Alternatives to buy-and-bill where an SP ships patient-specific drug to the provider (white), the patient carries it (brown) or a health-system SP supplies it (clear).",specialty
+claims/open-vs-closed,Concept,Open vs Closed Claims,Closed claims come from payers and are complete for enrolled members; open claims come from switches/clearinghouses with broad but incomplete coverage.,claims|data
+distribution-edi/edi-850-855,Transaction Standard,EDI 850 / 855 Purchase Order & Acknowledgment,Wholesaler order to manufacturer/3PL and its acknowledgment.,edi|supply-chain
+distribution-edi/edi-856,Transaction Standard,EDI 856 Advance Ship Notice,Shipment notice; carries DSCSA transaction information with serialised EPCIS data.,edi|supply-chain
+distribution-edi/edi-810,Transaction Standard,EDI 810 Invoice,Invoice for shipped product (ex-factory sale).,edi|supply-chain
+distribution-edi/edi-857,Transaction Standard,EDI 857 Shipment and Billing Notice,"Combined shipment + invoice transaction (an 856 and 810 in one); occasionally used by 3PLs. If a feed is labelled '857' but carries resale lines, it is usually an 867.",edi|supply-chain
+distribution-edi/edi-867,Transaction Standard,EDI 867 Product Transfer & Resale Report,"Wholesaler/3PL report of product sold or transferred to downstream customers, including returns.",edi|supply-chain
+distribution-edi/edi-852,Transaction Standard,EDI 852 Product Activity Data,"Distribution-centre inventory, receipts and sales by product.",edi|supply-chain
+distribution-edi/edi-844-849,Transaction Standard,EDI 844 / 849 Chargeback Claim & Response,"Wholesaler claim for the difference between WAC and a contract price, and the manufacturer response.",edi|supply-chain
+distribution-edi/edi-845,Transaction Standard,EDI 845 Price Authorization,Contract/membership eligibility sent to wholesalers.,edi|supply-chain
+distribution-edi/edi-940-945,Transaction Standard,EDI 940 / 945 Warehouse Shipping Order & Advice,Manufacturer instruction to 3PL and 3PL confirmation.,edi|supply-chain
+distribution-edi/epcis-dscsa,Transaction Standard,EPCIS / DSCSA Traceability,GS1 EPCIS events for serialised package-level tracing required by DSCSA.,edi|supply-chain
+distribution-edi/product-trade-flow,Data Flow,Product & Trade Data Flow,"Manufacturer → 3PL → wholesaler / specialty distributor → pharmacy or provider, and the EDI each hop generates.",supply-chain|flow
+pricing-gtn/wac,Pricing Concept,WAC (Wholesale Acquisition Cost),"Manufacturer list price to wholesalers before discounts (warehouse: `WAC`, `WAC_DOLLARS`).",pricing
+pricing-gtn/awp,Pricing Concept,AWP (Average Wholesale Price),Compendia benchmark (≈ WAC × 1.2) still used in PBM pricing.,pricing
+pricing-gtn/asp,Pricing Concept,ASP (Average Sales Price),Quarterly net-price average reported to CMS; Part B pays ASP + 6%.,pricing
+pricing-gtn/amp,Pricing Concept,AMP (Average Manufacturer Price),Average price paid by retail-community wholesalers/pharmacies; base of Medicaid and 340B.,pricing
+pricing-gtn/best-price,Pricing Concept,Best Price,Lowest price to any eligible commercial customer; drives Medicaid URA.,pricing
+pricing-gtn/ura,Pricing Concept,URA (Unit Rebate Amount),Medicaid rebate per unit = basic (23.1% of AMP or AMP − BP) + CPI-U inflation penalty.,pricing
+pricing-gtn/340b-ceiling-price,Pricing Concept,340B Ceiling Price,AMP − URA per unit.,pricing
+pricing-gtn/fss-fcp,Pricing Concept,FSS / Federal Ceiling Price,VA Federal Supply Schedule and Big Four ceiling prices.,pricing
+pricing-gtn/mfp,Pricing Concept,MFP (Maximum Fair Price),"IRA-negotiated Medicare price, effectuated through the Medicare Transaction Facilitator.",pricing
+pricing-gtn/chargeback,Pricing Concept,Chargeback,"Wholesaler claim for WAC minus the customer's contract price (GPO, IDN, 340B, FSS).",pricing
+pricing-gtn/commercial-rebate,Pricing Concept,Commercial / PBM Rebate,Rebates and admin fees paid to PBMs/plans on utilisation invoices for formulary position.,pricing
+pricing-gtn/medicaid-rebate,Pricing Concept,Medicaid Rebate,URA × utilisation units invoiced quarterly by states.,pricing
+pricing-gtn/part-d-discount,Pricing Concept,Part D Manufacturer Discount,10% (initial) / 20% (catastrophic) discounts under the IRA Manufacturer Discount Program.,pricing
+pricing-gtn/copay-cost,Pricing Concept,Copay Program Cost,Manufacturer spend on copay assistance.,pricing
+pricing-gtn/distribution-fees,Pricing Concept,Distribution Service Fees,Fee-for-service paid to wholesalers and SPs.,pricing
+pricing-gtn/gross-to-net,Pricing Concept,Gross-to-Net (GTN),"WAC × units minus chargebacks, rebates, government discounts, copay, fees, returns and prompt pay = net revenue.",pricing
+data-assets/dataset-taxonomy,Taxonomy,Dataset Type Taxonomy,"How US pharma commercial datasets are classified: what they measure, at what grain, and whether they are projected or census.",dataset|taxonomy
+data-assets/dataset-selection-guide,Guide,Which Dataset Answers Which Question,Question-to-dataset routing guide for analysts and agents.,dataset|guide
+data-assets/sales-distribution/ex-factory-sales,Dataset Type,Ex-Factory Sales (Sell-In),Manufacturer's own invoices to wholesalers/3PL customers — the revenue record before any downstream resale.,dataset|sales-distribution
+data-assets/sales-distribution/edi-867-wholesaler,Dataset Type,Wholesaler / Specialty Distributor 867 (Sell-Through),"Downstream resale lines from a wholesaler or specialty distributor to each ship-to account (hospital, clinic, pharmacy), including returns.",dataset|sales-distribution
+data-assets/sales-distribution/edi-867-3pl,Dataset Type,3PL 867 (Direct Sales Through a 3PL),"867-format sales and returns from a manufacturer's 3PL, covering orders the 3PL ships directly to wholesalers, specialty distributors or end accounts.",dataset|sales-distribution
+data-assets/sales-distribution/ics-867,Dataset Type,ICS 867 (Cencora ICS 3PL Sales Feed),The 867 sales/returns feed delivered by Cencora's ICS 3PL; the core sales source of the ICS Sales Warehouse (nexora_poc_catalog).,dataset|sales-distribution|ics|warehouse
+data-assets/sales-distribution/edi-852-inventory,Dataset Type,852 Inventory / Product Activity,"Wholesaler distribution-centre inventory on hand, receipts and sales by product.",dataset|sales-distribution
+data-assets/sales-distribution/iqvia-ddd,Dataset Type,IQVIA DDD (Outlet-Level Sales),"Projected weekly/monthly sales from distributors to individual outlets (hospitals, clinics, pharmacies), classified by outlet type.",dataset|sales-distribution
+data-assets/sales-distribution/snr-sales,Dataset Type,"SNR Sales Feed (Market × Product, with 340B Flag)","Weekly/monthly market- and product-level sales feed (WAC $, AWP, volume/pack/extended units) with a 340B transaction flag, as loaded in the ICS Sales Warehouse.",dataset|sales-distribution|warehouse
+data-assets/sales-distribution/iqvia-nsp,Dataset Type,IQVIA National Sales Perspectives (NSP),"Projected national $ and unit purchases by channel (retail, clinics, hospitals, LTC, mail, etc.).",dataset|sales-distribution
+data-assets/rx-audit/iqvia-npa,Dataset Type,IQVIA NPA (National Prescription Audit),Projected national dispensed prescriptions (TRx/NRx) by product and channel.,dataset|rx-audit
+data-assets/rx-audit/iqvia-xponent,Dataset Type,IQVIA Xponent (Prescriber-Level Rx),"Projected weekly dispensed prescriptions by prescriber and product across retail, mail and LTC.",dataset|rx-audit|warehouse
+data-assets/rx-audit/xponent-plantrak,Dataset Type,IQVIA Xponent PlanTrak,Prescriber-level Rx split by payer plan to measure access and pull-through.,dataset|rx-audit
+data-assets/rx-audit/symphony-phast,Dataset Type,Symphony Health (ICON) PHAST Prescription,Projected prescriber- and national-level Rx from Symphony's integrated dataverse.,dataset|rx-audit
+data-assets/rx-audit/iqvia-midas,Dataset Type,IQVIA MIDAS,"Global audited pharmaceutical sales across countries, used for global market sizing.",dataset|rx-audit
+data-assets/patient-claims/pharmacy-claims-open,Dataset Type,Open Pharmacy (Rx) Claims,De-identified NCPDP claims captured from pharmacies and switches regardless of payer; broad but not enrollment-complete.,dataset|patient-claims
+data-assets/patient-claims/medical-claims-open,Dataset Type,Open Medical (Mx/Dx) Claims,De-identified 837 professional/institutional claims from clearinghouses and practice-management systems.,dataset|patient-claims
+data-assets/patient-claims/closed-claims-payer,Dataset Type,Closed (Payer-Adjudicated) Claims,"Medical and pharmacy claims from health plans for enrolled members, with eligibility files — complete for each member's enrolled period.",dataset|patient-claims
+data-assets/patient-claims/iqvia-laad,Dataset Type,IQVIA LAAD (Longitudinal Access & Adjudication Data),"Patient-level dataset combining IQVIA Rx, lifecycle (paid/rejected/reversed), medical and remittance claims; includes copay card, source-of-business and new-to-brand flags.",dataset|patient-claims|warehouse
+data-assets/patient-claims/iqvia-lrx,Dataset Type,IQVIA LRx (Longitudinal Prescription Claims),"Patient-level dispensed Rx claims from pharmacies, payers, software providers and clearinghouses (~4B claims/yr since 2006).",dataset|patient-claims
+data-assets/patient-claims/iqvia-fia,Dataset Type,IQVIA FIA (Formulary Impact Analyzer / Lifecycle Claims),"Paid, rejected and reversed claims captured at the point of sale to measure payer friction.",dataset|patient-claims
+data-assets/patient-claims/iqvia-dx-hx,Dataset Type,IQVIA Dx / Hx (Professional & Institutional Claims),Unadjudicated office (Dx) and hospital (Hx) medical claims (~2B per year).,dataset|patient-claims
+data-assets/patient-claims/komodo-healthcare-map,Dataset Type,Komodo Healthcare Map,"Komodo Health's linked, de-identified patient-journey dataset combining open and closed medical, pharmacy, lab and EHR data for 330M+ US patients.",dataset|patient-claims
+data-assets/patient-claims/komodo-claims,Dataset Type,Komodo Claims Extracts (Mx / Rx),Brand- or market-specific patient-level medical and pharmacy claims extracts delivered from the Healthcare Map.,dataset|patient-claims
+data-assets/patient-claims/symphony-idv,Dataset Type,Symphony Health (ICON) Integrated Dataverse,Patient-level Rx and medical claims linked by token across open and closed sources.,dataset|patient-claims
+data-assets/patient-claims/healthverity,Dataset Type,HealthVerity Marketplace Data,"Tokenised, licensable claims, EHR, lab and consumer data that can be linked across suppliers.",dataset|patient-claims
+data-assets/patient-claims/cms-medicare-claims,Dataset Type,CMS Medicare FFS Claims (ResDAC / VRDC),Research-identifiable Medicare Parts A/B/D claims available under CMS data use agreements.,dataset|patient-claims
+data-assets/patient-claims/remittance-835,Dataset Type,Remittance (835) Data,"Payment outcomes for medical claims from 835 files: paid amounts, denials and adjustment reasons.",dataset|patient-claims
+data-assets/provider-aggregates/komodo-claims-by-provider,Dataset Type,Komodo Claims by Provider (HCP × Affiliation Aggregate),"Komodo claims aggregated to HCP with affiliated organisation and system, rolling time windows (C3M/C6M/C12M), total vs non-hemodialysis volume and claims.",dataset|provider-aggregates|warehouse|komodo
+data-assets/provider-aggregates/cms-part-d-prescriber,Dataset Type,CMS Medicare Part D Prescribers PUF,Public Medicare Part D claims and costs by prescriber NPI and drug.,dataset|provider-aggregates
+data-assets/provider-aggregates/cms-part-b-provider,Dataset Type,CMS Medicare Physician & Other Practitioners PUF,Public Part B services and payments by NPI and HCPCS (includes J-codes).,dataset|provider-aggregates
+data-assets/reference/nppes,Dataset Type,NPPES NPI File,"CMS registry of all NPIs with names, addresses, taxonomy codes and entity type.",dataset|reference|warehouse
+data-assets/reference/iqvia-onekey,Dataset Type,IQVIA OneKey,"Validated HCP/HCO reference data with affiliations, specialties and contact details.",dataset|reference|warehouse
+data-assets/reference/veeva-opendata,Dataset Type,Veeva OpenData / Network,"Veeva HCP/HCO reference data and MDM hub issuing VIDs, custom keys and hierarchies.",dataset|reference|warehouse
+data-assets/reference/ama-masterfile,Dataset Type,AMA Physician Masterfile,"Record of US physicians incl. residents, with ME numbers, specialties and PDRP status.",dataset|reference
+data-assets/reference/hcp-hco-affiliation,Dataset Type,HCP–HCO Affiliation,"Many-to-many links between HCPs and the organisations/systems where they practise, with role and primary flag.",dataset|reference|warehouse
+data-assets/reference/zip-to-territory,Dataset Type,Zip-to-Territory (ZTT) Alignment,"Effective-dated mapping of 5-digit zip → territory → region → nation, plus account-level overrides.",dataset|reference|warehouse
+data-assets/reference/account-alignment,Dataset Type,Account / Network Alignment,Account-level (VID-based) territory assignment that can override zip alignment for key accounts.,dataset|reference|warehouse
+data-assets/reference/drug-mapping,Dataset Type,Claims Drug Mapping (NDC → Product/Market),"Lookup mapping NDC11/USC to product, molecule, form, strength and market (e.g. IQVIA claims drug mapping).",dataset|reference|warehouse
+data-assets/reference/time-dimension,Dataset Type,Calendar / Time Dimension,"Canonical calendar with week-ending, month, quarter, trimester and rolling-window flags aligned to vendor data weeks.",dataset|reference|warehouse
+data-assets/promotion/crm-calls,Dataset Type,CRM Call Activity (Veeva),"Rep and MSL interactions recorded in CRM: calls, approved emails (RTE), meetings, products discussed and samples.",dataset|promotion|warehouse
+data-assets/promotion/samples,Dataset Type,Sample Transactions,PDMA-regulated sample disbursements with lot numbers and signatures.,dataset|promotion
+data-assets/promotion/speaker-programs,Dataset Type,Speaker Program Data,"Events, speakers, attendees and honoraria for promotional speaker programmes.",dataset|promotion
+data-assets/promotion/open-payments,Dataset Type,CMS Open Payments,"Public record of manufacturer and GPO transfers of value to physicians, NPPs and teaching hospitals.",dataset|promotion
+data-assets/promotion/digital-engagement,Dataset Type,Digital & Omnichannel Engagement,"HCP email opens, web/portal visits, webinars and programmatic media exposure.",dataset|promotion
+data-assets/promotion/promotional-audit,Dataset Type,Promotional Audit (Competitive),"Panel-based estimates of competitor details, samples and spend.",dataset|promotion
+data-assets/access/formulary-data,Dataset Type,Formulary & Policy Data,"Plan-level coverage, tier, PA/step-therapy policy and covered lives by product.",dataset|access
+data-assets/access/payer-lives,Dataset Type,Payer & Covered Lives,"Enrollment counts by plan, PBM, channel and geography.",dataset|access
+data-assets/access/hub-data,Dataset Type,Hub / Patient Services Data,"Case records from manufacturer hubs: enrolments, benefit verification, PA support, financial assistance, SP triage.",dataset|access
+data-assets/access/sp-data-feed,Dataset Type,Specialty Pharmacy Data Feed,"Status and dispense records from network SPs (referral received, PA pending, shipped, discontinued).",dataset|access
+data-assets/access/copay-program-data,Dataset Type,Copay Program Data,Claims paid by the manufacturer copay programme via its BIN/PCN.,dataset|access
+data-assets/access/epa-data,Dataset Type,ePA Transaction Data,Electronic prior authorisation requests and outcomes.,dataset|access
+data-assets/clinical-rwd/ehr-data,Dataset Type,EHR Data,"De-identified electronic health record data (problems, meds, vitals, notes-derived).",dataset|clinical-rwd
+data-assets/clinical-rwd/lab-data,Dataset Type,Lab Results Data,De-identified lab results with LOINC codes and values.,dataset|clinical-rwd
+data-assets/clinical-rwd/mortality-data,Dataset Type,Mortality Data,Death records linked by token to claims (e.g. LAAD enhanced with mortality).,dataset|clinical-rwd
+data-assets/clinical-rwd/consumer-sdoh,Dataset Type,Consumer & SDOH Data,Socioeconomic and lifestyle attributes linked to de-identified patients.,dataset|clinical-rwd
+data-assets/finance/contracts-data,Dataset Type,Contracts & Customer Eligibility,"Contract terms, tiers, price lists and eligible-member rosters (GPO, IDN, PBM, 340B).",dataset|finance
+data-assets/finance/edi-844-849-chargebacks,Dataset Type,Chargeback Data (844/849),Wholesaler chargeback claims and manufacturer responses per resale line.,dataset|finance
+data-assets/finance/rebate-utilization,Dataset Type,Rebate Utilisation Invoices,PBM/plan invoices listing claim-level or aggregated utilisation subject to rebates.,dataset|finance
+data-assets/finance/medicaid-state-invoice,Dataset Type,Medicaid State Invoices (CMS-R-144),Quarterly state invoices of utilisation units × URA.,dataset|finance
+data-assets/finance/government-pricing-calc,Dataset Type,Government Pricing Calculations,"Monthly/quarterly AMP, BP, ASP, 340B ceiling and FSS calculations from all eligible transactions.",dataset|finance
+commercial-operations/sales-rep,Role,Pharmaceutical Sales Representative,"Field employee who delivers on-label product messages, samples and access information to HCPs and accounts; measured on calls, reach/frequency and territory sales.",commercial
+commercial-operations/msl,Role,Medical Science Liaison (MSL),Non-promotional scientific role engaging KOLs and answering unsolicited medical questions; separate from sales.,commercial
+commercial-operations/kam,Role,Key Account Manager,"Manages IDNs, health systems and large accounts (contracts, P&T, pathways).",commercial
+commercial-operations/field-reimbursement-manager,Role,Field Reimbursement Manager,"Supports offices with benefit verification, PA and coding within Anti-Kickback limits.",commercial
+commercial-operations/targeting-segmentation,Process,"Targeting, Segmentation & Deciling","Ranks HCPs/accounts into deciles by market volume (Rx, claims, sales) and potential to decide who reps call on.",commercial
+commercial-operations/call-plan,Process,Call Plan,Target list × planned frequency per cycle for each territory.,commercial
+commercial-operations/territory-alignment,Process,Territory Design & Alignment,"Assignment of geographies (zips) and accounts to territories, balancing workload and potential; usually realigned annually.",commercial
+commercial-operations/sales-force-sizing,Process,Sales Force Sizing,"Rep count = targets × frequency ÷ capacity, tested against response curves.",commercial
+commercial-operations/crm,Process,CRM for Life Sciences,"System recording accounts, calls, samples, approved emails and events (Veeva CRM/Vault CRM, Salesforce Life Sciences Cloud, IQVIA OCE).",commercial
+commercial-operations/sampling,Process,Sampling & Sample Accountability,"Distribution of free samples under PDMA with signed requests, lot tracking and reconciliation.",commercial
+commercial-operations/incentive-compensation,Process,Incentive Compensation (IC),"Rep payout computed from goals and credited sales (867/DDD, Xponent, SP) via alignment rules.",commercial
+commercial-operations/omnichannel,Process,Omnichannel Engagement & Next Best Action,"Coordinated rep, email, web and media touches with model-driven next-best-action suggestions.",commercial
+commercial-operations/customer-master-mdm,Process,Customer Master Data Management (MDM),"Golden HCP/HCO records built by matching NPPES, OneKey, Veeva, AMA, DEA/HIN and source keys; every sales/claims feed is mastered to it.",commercial
+commercial-operations/hco-hierarchy,Process,HCO Hierarchy,System (IDN) → organisation → site/department hierarchy; in the warehouse SYS_VID → ORG_VID.,commercial
+commercial-operations/prescriber-matching,Process,Prescriber & Ship-to Matching,"Mapping vendor IDs (IMS ID, DEA, HIN, custom keys) to master VIDs/NPIs; the unmatched rate is a key data-quality KPI.",commercial
+market-access/hub-services,Process,Hub Services,"Manufacturer-funded patient services: benefit verification, PA support, financial assistance triage, SP routing, adherence.",access
+market-access/copay-assistance,Process,Copay Assistance,Manufacturer cards reducing commercial patients' out-of-pocket cost; excluded for federal programmes under the AKS.,access
+market-access/copay-accumulators,Process,Copay Accumulators & Maximizers,Plan designs where assistance doesn't count toward deductible/OOP or is spread to exhaust programme maximums.,access
+market-access/patient-assistance-program,Process,Patient Assistance Program (PAP),Free drug for uninsured/underinsured patients via a foundation or manufacturer programme.,access
+market-access/sp-network-design,Process,Specialty Pharmacy Network Design,"Open, limited or exclusive SP networks with data and service agreements.",access
+market-access/payer-contracting,Process,Payer Contracting & Pull-Through,"Negotiating formulary position for rebates, then ensuring field teams communicate the win.",access
+service-providers/categories/cro,Service Category,Contract Research Organization (CRO),"Clinical trial design, site management, monitoring, data management, biostatistics and submissions.",service-provider
+service-providers/categories/cdmo,Service Category,CDMO / CMO,"Contract development and manufacturing of APIs, drug products and biologics, fill-finish and packaging.",service-provider
+service-providers/categories/commercial-data-provider,Service Category,Commercial Data Provider,"Licenses Rx, claims, sales, reference and formulary data.",service-provider
+service-providers/categories/tokenization-privacy,Service Category,Tokenization & Privacy,"De-identification, patient tokens and HIPAA expert determinations for linking data.",service-provider
+service-providers/categories/crm-software,Service Category,CRM & Commercial Software,"CRM, content/MLR, reference data and MDM platforms.",service-provider
+service-providers/categories/commercial-analytics,Service Category,Commercial Analytics & Consulting,"Targeting, alignment, sizing, IC, forecasting, launch, brand analytics, data management and BI (often with offshore delivery).",service-provider
+service-providers/categories/it-services,Service Category,IT & Data Platform Services,"Data platforms (Databricks, Snowflake), integration, MDM implementation and AI engineering.",service-provider
+service-providers/categories/cso,Service Category,Contract Sales Organization (CSO),Outsourced field sales forces and inside sales.,service-provider
+service-providers/categories/hub-patient-services,Service Category,Hub & Patient Services Providers,"Hub operations, BV/PA, copay administration, nurse educators.",service-provider
+service-providers/categories/3pl-logistics,Service Category,3PL & Specialty Logistics,"Warehousing, order-to-cash, cold chain and DSCSA serialisation.",service-provider
+service-providers/categories/gtn-channel-data,Service Category,"GTN, Contracting & Channel Data Management","Contract management, chargebacks, rebates, government pricing, and aggregation of 867/852/SP feeds.",service-provider
+service-providers/categories/market-access-heor,Service Category,"Market Access, Pricing & HEOR","Value dossiers, pricing strategy, HEOR and RWE studies.",service-provider
+service-providers/categories/regulatory-pv,Service Category,Regulatory & Pharmacovigilance Outsourcing,"Submission publishing, AE case processing and signal detection.",service-provider
+service-providers/categories/medcomms-agencies,Service Category,Medical Communications & Healthcare Marketing Agencies,"Publications, medical information, HCP/DTC creative and media.",service-provider
+service-providers/categories/compliance-transparency,Service Category,Compliance & Transparency Services,"Open Payments aggregate spend, speaker-programme management, state reporting.",service-provider
+service-providers/engagement-models,Concept,Service Engagement Models,"How pharma buys services: FSP, full-service outsourcing, SaaS subscription, data licence, managed services/offshore delivery and project consulting.",service-provider
+service-providers/vendors/iqvia,Vendor,IQVIA,"Largest provider of pharma data (Xponent, NPA, DDD, LAAD, OneKey), analytics, CRO and CSO services.",vendor
+service-providers/vendors/komodo-health,Vendor,Komodo Health,Healthcare data and analytics company whose Healthcare Map links open and closed claims for 330M+ patients.,vendor
+service-providers/vendors/symphony-health,Vendor,Symphony Health (ICON),Rx and claims data provider owned by ICON.,vendor
+service-providers/vendors/veeva,Vendor,Veeva Systems,"CRM, OpenData/Network MDM and Vault applications for life sciences.",vendor
+service-providers/vendors/surescripts,Vendor,Surescripts,"Dominant US e-prescribing network (eRx, EPCS, RTPB, medication history, ePA).",vendor
+service-providers/vendors/datavant,Vendor,Datavant,Patient tokenisation and data-linking network.,vendor
+service-providers/vendors/integrichain,Vendor,IntegriChain,"Channel data management (867/852/SP aggregation), contracting and GTN platforms.",vendor
+service-providers/vendors/mmit,Vendor,MMIT,"Formulary, policy and payer-lives data.",vendor
+analytics-kpis/market-share,Metric,Market Share,"Brand TRx/NRx/NBRx, units or $ divided by the market basket total for the same dataset and period.",kpi
+analytics-kpis/persistence,Metric,Persistence,"Share of patients still on therapy N days after start (allowing a gap), from patient-level claims.",kpi
+analytics-kpis/adherence-pdc,Metric,Adherence (PDC / MPR),Proportion of days covered or medication possession ratio over a period.,kpi
+analytics-kpis/lines-of-therapy,Metric,Lines of Therapy,"Sequencing of regimens per patient using claims rules (gap, add-on, switch).",kpi
+analytics-kpis/patient-journey,Metric,Patient Journey,"Diagnosis → referral → Rx → PA → dispense/administration → persistence, built from linked claims and hub/SP data.",kpi
+analytics-kpis/time-to-therapy,Metric,Time to Therapy,Days from referral/written date to first dispense or administration.,kpi
+analytics-kpis/approval-rejection-rates,Metric,"Approval, Rejection & Abandonment Rates",Initial vs final claim outcomes from lifecycle claims (LAAD/FIA).,kpi
+analytics-kpis/payer-mix,Metric,Payer Mix,"Distribution of a brand's volume by channel (commercial, Part D, Medicaid, cash).",kpi
+analytics-kpis/reach-frequency,Metric,Reach & Frequency,"Share of targets called and average calls per target per period, from CRM.",kpi
+analytics-kpis/promotion-response,Metric,Promotion Response,"Statistical lift in Rx/sales attributable to calls, samples and digital touches.",kpi
+analytics-kpis/launch-tracking,Metric,Launch Tracking,"Early indicators for new brands: trial prescribers, NBRx, access, time to therapy.",kpi
+analytics-kpis/loe-erosion,Metric,Loss of Exclusivity & Generic Erosion,Volume and price decline after generic/biosimilar entry.,kpi
+analytics-kpis/gtn-rate,Metric,GTN Rate,Total deductions ÷ gross sales.,kpi
+analytics-kpis/channel-inventory,Metric,Channel Inventory / Days on Hand,"Ex-factory sell-in minus 867 sell-through, or 852 on-hand ÷ daily demand.",kpi
+analytics-kpis/forecasting,Metric,Forecasting,Patient- or trend-based demand and revenue projections.,kpi
+data-flows/rx-to-pharmacy-claim,Data Flow,Prescription to Pharmacy Claim (hop by hop),"From the HCP's order to PBM rebate invoices, with the dataset captured at each hop.",flow
+data-flows/iv-drug-to-medical-claim,Data Flow,Physician-Administered (IV) Drug Flow,Manufacturer → 3PL/specialty distributor → clinic/hospital (867) → administration → 837 medical claim (J-code) → Komodo/LAAD Mx claims.,flow|specialty
+data-flows/medical-claim,Data Flow,Medical Claim Data Flow,Provider → clearinghouse → payer → 835; captured as open claims (clearinghouse) and closed claims (payer).,flow
+data-flows/product-and-trade,Data Flow,"Product, Trade & Chargeback Flow",Ex-factory → 3PL → wholesaler → account with 867/852/844 data and contract pricing.,flow
+data-flows/money-flow,Data Flow,Money Flow,"Wholesaler pays WAC; PBM reimburses pharmacy; plan pays PBM; manufacturer pays chargebacks, rebates, Medicaid/Part D discounts and copay.",flow|pricing
+data-model/entities/hcp,Entity,HCP,Individual prescriber.,data-model
+data-model/entities/hco,Entity,HCO,Organisation/account (dim_hco).,data-model
+data-model/entities/patient,Entity,Patient,De-identified patient.,data-model
+data-model/entities/product,Entity,Product,Drug package and its hierarchy.,data-model
+data-model/entities/prescription,Entity,Prescription,Order and its fills.,data-model
+data-model/entities/pharmacy-claim,Entity,Pharmacy Claim,NCPDP transaction / final fill.,data-model
+data-model/entities/medical-claim,Entity,Medical Claim,837 claim and lines.,data-model
+data-model/entities/payer-plan,Entity,Payer / Plan,Benefit plan.,data-model
+data-model/entities/pbm,Entity,PBM,Pharmacy benefit manager.,data-model
+data-model/entities/pharmacy,Entity,Pharmacy,Dispensing location.,data-model
+data-model/entities/territory,Entity,Territory,Sales geography (effective-dated).,data-model
+data-model/entities/rep,Entity,Rep,Field user.,data-model
+data-model/entities/call,Entity,Call,CRM interaction.,data-model
+data-model/entities/sample,Entity,Sample,Sample disbursement.,data-model
+data-model/entities/shipment,Entity,Shipment / Sale Line,867 or ex-factory line.,data-model
+data-model/entities/contract,Entity,Contract,Pricing agreement.,data-model
+data-model/entities/chargeback,Entity,Chargeback,844 line.,data-model
+data-model/entities/rebate,Entity,Rebate,Rebate invoice line.,data-model
+data-model/entities/payment,Entity,Transfer of Value,Open Payments record.,data-model
+data-model/joins/xponent-to-hcp,Join Path,Xponent → HCP → Territory,"Map IMS_PRESCRIBER_ID/NPI_ID to the master HCP, then HCP zip → ZTT territory.",join
+data-model/joins/claims-to-product,Join Path,Claims → Product,Normalise NDC to 11 digits → drug mapping/product master → NDC-9 roll-up; for medical lines use HCPCS → NDC crosswalk with unit conversion.,join
+data-model/joins/867-to-hco,Join Path,867 → HCO → System,Ship-to DEA/HIN/custom key → Veeva custom-key crosswalk → ORG_VID → SYS_VID; then account/zip alignment.,join
+data-model/joins/claims-to-plan,Join Path,Pharmacy Claim → Plan → Formulary,BIN+PCN+Group or PLAN_ID → plan master → formulary status at date of service.,join
+data-model/joins/patient-linkage,Join Path,Patient Linkage Across Sources,"Token-to-token linkage across LAAD, Komodo, EHR, lab, hub/SP — only under expert determination and licence.",join
+data-model/joins/crm-to-rx,Join Path,CRM Calls → Rx / Claims Volume,HCP_VID (or NPI_VOD) joins calls to Xponent and Komodo-by-provider; analyse with a lagged response window.,join
+data-model/joins/867-to-komodo,Join Path,867 Sales ↔ Komodo Claims (IV drugs),Join at HCO/system level: fct_ics_867.ORG_VID/SYS_VID = AFFILIATED_ORG_VID/AFFILIATED_SYSTEM_VID (cast DOUBLE VIDs to string first) to compare purchases vs administrations.,join
+warehouse/tables/bronze-raw-ics-867,Warehouse Table,nexora_poc_catalog.bronze.raw_ics_867,Raw landing of ICS 867 EDI/sales files.,warehouse|bronze
+warehouse/tables/bronze-stg-ics-867,Warehouse Table,nexora_poc_catalog.bronze.stg_ics_867,"Typed, de-duplicated ICS 867 staging rows from the raw_to_stg task.",warehouse|bronze
+warehouse/tables/silver-fct-ics-867,Warehouse Table,nexora_poc_catalog.silver.fct_ics_867,"Curated ICS 867 invoice-line fact enriched with HCO/system VIDs, customer data and two territory alignments.",warehouse|silver
+warehouse/tables/gold-bi-account-sales,Warehouse Table,nexora_poc_catalog.gold.bi_account_sales,Gold BI mart rolling fct_ics_867 up to organisation/product.,warehouse|gold
+warehouse/tables/silver-dim-hco,Warehouse Table,nexora_poc_catalog.silver.dim_hco,Curated HCO master dimension keyed by ORG_VID.,warehouse|silver
+warehouse/tables/silver-curr-ztt,Warehouse Table,nexora_poc_catalog.silver.curr_ztt,Current zip → territory/team snapshot.,warehouse|silver
+warehouse/tables/silver-network-all-dim-alignment,Warehouse Table,nexora_poc_catalog.silver.network_all_dim_alignment,Account (VID) territory/region/national alignment.,warehouse|silver
+warehouse/tables/silver-fct-time,Warehouse Table,nexora_poc_catalog.silver.fct_time,Canonical calendar dimension.,warehouse|silver
+warehouse/tables/gold-rx-mx-claims,Warehouse Table,nexora_poc_catalog.gold.rx_mx_claims,"Uploaded patient-level Rx + Mx claims table in IQVIA LAAD layout (claim status, reject codes, copay card, NBRx, Dx/Px codes).",warehouse|gold
+warehouse/tables/gold-komodo-monoferric-claims-by-provider,Warehouse Table,nexora_poc_catalog.gold.pharm_cosm_komodo_monoferric_fact_claims_by_provider_20260616,"Komodo claims for Monoferric (IV iron) aggregated by HCP with affiliated org/system, rolling windows and hemodialysis split.",warehouse|gold
+warehouse/tables/bronze-raw-xponent,Warehouse Table,nexora_poc_catalog.bronze.raw_xponent,"Raw IQVIA Xponent delivery (prescriber × product group × plan, wide weekly measures).",warehouse|bronze
+warehouse/tables/raw-ddd,Warehouse Table,intelliegencedatacatalog.ddd_sales.raw_ddd,"Raw IQVIA DDD delivery in wide format (one column per week, Sep 2024 – Jan 2026).",warehouse|bronze
+warehouse/tables/bronze-raw-snr-sales,Warehouse Table,nexora_poc_catalog.bronze.raw_snr_sales,"SNR market × product weekly sales with 340B flag, WAC $, AWP and units.",warehouse|bronze
+warehouse/tables/bronze-raw-veeva-calls,Warehouse Table,nexora_poc_catalog.bronze.raw_veeva_calls,"Raw Veeva CRM calls/RTE with HCP/HCO/system VIDs, segments, deciles and KOL flags for Monoferric and Cosela.",warehouse|bronze
+warehouse/tables/raw-npi-info,Warehouse Table,nexora_poc_catalog.bronze.raw_npi_info,NPI reference extract.,warehouse|bronze
+warehouse/tables/raw-npi-hco-mapping,Warehouse Table,nexora_poc_catalog.bronze.raw_npi_hco_mapping,NPI → HCO affiliation mapping.,warehouse|bronze
+warehouse/tables/raw-onekey,Warehouse Table,nexora_poc_catalog.bronze.raw_onekey,IQVIA OneKey reference extract.,warehouse|bronze
+warehouse/tables/raw-iqvia-claims-drug-mapping,Warehouse Table,nexora_poc_catalog.bronze.raw_iqvia_claims_drug_mapping,NDC11/USC → product attributes lookup for claims.,warehouse|bronze
+warehouse/tables/raw-market-basket-treatments,Warehouse Table,nexora_poc_catalog.bronze.raw_market_basket_treatments,Market basket definition of competing treatments.,warehouse|bronze
+warehouse/tables/pharm-cosm-sales-all-fact-daily-orders,Warehouse Table,nexora_poc_catalog.gold.pharm_cosm_sales_all_fact_daily_orders_20260616,Daily order-level sales fact (shares CONTRACT_ID / INVOICE_ID / NDC_QUALIFIER with fct_ics_867).,warehouse|gold
+warehouse/tables/logs-bronze-layer,Warehouse Table,nexora_poc_catalog.logs.bronze_layer_logs,Run/audit events for bronze ingestion.,warehouse|operational
+warehouse/tables/logs-gold-layer,Warehouse Table,nexora_poc_catalog.logs.gold_layer_logs,Run-level audit rows for the gold BI refresh.,warehouse|operational
+warehouse/tables/bronze-comm-table-log,Warehouse Table,nexora_poc_catalog.bronze.comm_table_log,One row per source file processed by ICS ingestion.,warehouse|operational
+warehouse/pipelines/ics-sales-ingestion,Pipeline,ics_sales_ingestion (Databricks job 572339974626818),Multi-task job ingesting ICS 867 files through bronze → silver → gold and writing run logs.,warehouse|pipeline

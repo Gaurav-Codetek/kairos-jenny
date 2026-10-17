@@ -1,0 +1,15 @@
+{
+  "name": "jenny-meet",
+  "private": true,
+  "description": "Jenny's body in a Google Meet: a Chromium window that joins as a participant, speaks with her voice, shows her Stage on its camera, and hears the meeting through its captions.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "smoke": "node src/smoke.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "playwright": "1.47.2",
+    "ws": "8.18.0"
+  }
+}

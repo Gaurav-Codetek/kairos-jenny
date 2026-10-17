@@ -1,0 +1,4800 @@
+{
+ "@context": {
+  "@vocab": "https://schema.org/",
+  "okf": "urn:okf:us-pharma-kb:",
+  "rel": "urn:okf:us-pharma-kb:relation:"
+ },
+ "@graph": [
+  {
+   "@id": "okf:_meta/okf-conventions",
+   "@type": "Convention",
+   "name": "OKF Conventions Used in This Bundle",
+   "description": "How this bundle applies Google's Open Knowledge Format v0.2 and which producer extension keys it adds.",
+   "keywords": [
+    "okf",
+    "conventions"
+   ],
+   "rel:defines": [
+    {
+     "@id": "okf:_meta/relation-vocabulary"
+    },
+    {
+     "@id": "okf:_meta/type-vocabulary"
+    }
+   ]
+  },
+  {
+   "@id": "okf:_meta/relation-vocabulary",
+   "@type": "Vocabulary",
+   "name": "Relation Vocabulary",
+   "description": "Controlled list of predicates allowed in the `relations:` extension key.",
+   "keywords": [
+    "okf",
+    "vocabulary",
+    "graph"
+   ]
+  },
+  {
+   "@id": "okf:_meta/type-vocabulary",
+   "@type": "Vocabulary",
+   "name": "Concept Type Vocabulary",
+   "description": "The `type` values used in this bundle and what each means.",
+   "keywords": [
+    "okf",
+    "vocabulary"
+   ]
+  },
+  {
+   "@id": "okf:_meta/data-governance-policy",
+   "@type": "Policy",
+   "name": "Data Governance & Licensing Rules for Agents",
+   "description": "Rules an agent must follow when combining US pharma commercial datasets: PHI, licences, AMA PDRP, projection.",
+   "keywords": [
+    "governance",
+    "phi",
+    "licensing"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:regulation/privacy/hipaa-deidentification"
+    },
+    {
+     "@id": "okf:regulation/state-law/ama-pdrp"
+    }
+   ]
+  },
+  {
+   "@id": "okf:_meta/data-quality-rules",
+   "@type": "Policy",
+   "name": "Data Quality Rules",
+   "description": "Standard normalisation and validation rules for pharma commercial data.",
+   "keywords": [
+    "data-quality"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:identifiers/product/ndc"
+    },
+    {
+     "@id": "okf:identifiers/provider/npi"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/manufacturers/brand-manufacturer",
+   "@type": "Actor Class",
+   "name": "Brand Manufacturer",
+   "description": "Company holding an NDA/BLA that markets branded drugs, sets WAC, contracts with PBMs/GPOs and funds patient programmes.",
+   "keywords": [
+    "manufacturer"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ],
+   "rel:submits_to": [
+    {
+     "@id": "okf:actors/regulators/cms"
+    }
+   ],
+   "rel:contracts_with": [
+    {
+     "@id": "okf:actors/pbms/pbm"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ex-factory-sales"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/manufacturers/generic-manufacturer",
+   "@type": "Actor Class",
+   "name": "Generic Manufacturer",
+   "description": "Holder of an ANDA selling bioequivalent copies after patent/exclusivity expiry.",
+   "keywords": [
+    "manufacturer",
+    "generic"
+   ],
+   "rel:established_by": [
+    {
+     "@id": "okf:regulation/statutes/hatch-waxman"
+    }
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:actors/manufacturers/labeler"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/manufacturers/biosimilar-manufacturer",
+   "@type": "Actor Class",
+   "name": "Biosimilar Manufacturer",
+   "description": "Holder of a 351(k) BLA for a biosimilar or interchangeable biologic.",
+   "keywords": [
+    "manufacturer",
+    "biosimilar"
+   ],
+   "rel:established_by": [
+    {
+     "@id": "okf:regulation/statutes/bpcia"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/manufacturers/labeler",
+   "@type": "Actor Class",
+   "name": "Labeler",
+   "description": "Any firm named by an NDC labeler code: manufacturer, repackager, relabeler or private-label distributor.",
+   "keywords": [
+    "manufacturer",
+    "ndc"
+   ],
+   "rel:identified_by": [
+    {
+     "@id": "okf:identifiers/product/ndc"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/distribution/3pl",
+   "@type": "Actor Class",
+   "name": "Third-Party Logistics Provider (3PL)",
+   "description": "Warehouses manufacturer-owned inventory and ships orders to wholesalers and direct accounts; often also runs order-to-cash and sends 867 sales data.",
+   "keywords": [
+    "distribution",
+    "3pl"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:regulation/statutes/dscsa"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/sales-distribution/edi-867-3pl"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/distribution/ics-cencora",
+   "@type": "Vendor",
+   "name": "ICS (Integrated Commercialization Solutions, Cencora)",
+   "description": "Cencora's North American 3PL brand; ships manufacturer product and delivers ICS 867 sales/returns data and analytics.",
+   "keywords": [
+    "3pl",
+    "cencora",
+    "ics"
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:actors/distribution/3pl"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ics-867"
+    }
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:actors/distribution/full-line-wholesaler"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/distribution/full-line-wholesaler",
+   "@type": "Actor Class",
+   "name": "Full-Line Wholesaler",
+   "description": "Buys from manufacturers at WAC and supplies pharmacies, hospitals and clinics; the Big Three are McKesson, Cencora and Cardinal Health.",
+   "keywords": [
+    "distribution",
+    "wholesaler"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/sales-distribution/edi-867-wholesaler"
+    },
+    {
+     "@id": "okf:data-assets/sales-distribution/edi-852-inventory"
+    },
+    {
+     "@id": "okf:data-assets/finance/edi-844-849-chargebacks"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/distribution/specialty-distributor",
+   "@type": "Actor Class",
+   "name": "Specialty Distributor",
+   "description": "Distributor serving physician offices, infusion centres and hospitals with physician-administered and specialty drugs (buy-and-bill).",
+   "keywords": [
+    "distribution",
+    "specialty"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/sales-distribution/edi-867-wholesaler"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:claims/medical/buy-and-bill"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/distribution/gpo",
+   "@type": "Actor Class",
+   "name": "Group Purchasing Organization (GPO)",
+   "description": "Negotiates contract prices on behalf of hospitals, IDNs and clinics; its contracts drive wholesaler chargebacks.",
+   "keywords": [
+    "distribution",
+    "contracting"
+   ],
+   "rel:contracts_with": [
+    {
+     "@id": "okf:actors/manufacturers/brand-manufacturer"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:pricing-gtn/chargeback"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/pharmacies/retail-pharmacy",
+   "@type": "Actor Class",
+   "name": "Retail Pharmacy",
+   "description": "Chain or independent community pharmacy dispensing outpatient prescriptions and submitting NCPDP claims.",
+   "keywords": [
+    "pharmacy"
+   ],
+   "rel:identified_by": [
+    {
+     "@id": "okf:identifiers/provider/ncpdp-provider-id"
+    }
+   ],
+   "rel:uses_standard": [
+    {
+     "@id": "okf:claims/pharmacy/ncpdp-telecom-d0"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/pharmacies/mail-order-pharmacy",
+   "@type": "Actor Class",
+   "name": "Mail-Order Pharmacy",
+   "description": "Central-fill pharmacy, usually PBM-owned, shipping maintenance drugs.",
+   "keywords": [
+    "pharmacy"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:actors/pbms/pbm"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/pharmacies/specialty-pharmacy",
+   "@type": "Actor Class",
+   "name": "Specialty Pharmacy (SP)",
+   "description": "Dispenses high-cost/complex drugs with clinical support; sends status and dispense data to manufacturers under data agreements.",
+   "keywords": [
+    "pharmacy",
+    "specialty"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/access/sp-data-feed"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/pharmacies/ltc-pharmacy",
+   "@type": "Actor Class",
+   "name": "Long-Term Care Pharmacy",
+   "description": "Serves nursing homes and assisted-living facilities.",
+   "keywords": [
+    "pharmacy"
+   ]
+  },
+  {
+   "@id": "okf:actors/pharmacies/340b-contract-pharmacy",
+   "@type": "Actor Class",
+   "name": "340B Contract Pharmacy",
+   "description": "Pharmacy dispensing 340B-priced drug on behalf of a covered entity.",
+   "keywords": [
+    "pharmacy",
+    "340b"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:regulation/government-pricing/340b"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/pbms/pbm",
+   "@type": "Actor Class",
+   "name": "Pharmacy Benefit Manager (PBM)",
+   "description": "Adjudicates pharmacy claims, builds formularies, contracts pharmacy networks and negotiates manufacturer rebates for plan sponsors.",
+   "keywords": [
+    "pbm"
+   ],
+   "rel:adjudicated_by": [
+    {
+     "@id": "okf:claims/pharmacy/pharmacy-claim-flow"
+    }
+   ],
+   "rel:contracts_with": [
+    {
+     "@id": "okf:actors/manufacturers/brand-manufacturer"
+    }
+   ],
+   "rel:identified_by": [
+    {
+     "@id": "okf:identifiers/payer/bin-pcn-group"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/pbms/express-scripts",
+   "@type": "Vendor",
+   "name": "Express Scripts (Cigna/Evernorth)",
+   "description": "Largest US PBM by claims share in 2025.",
+   "keywords": [
+    "pbm"
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:actors/pbms/pbm"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/pbms/cvs-caremark",
+   "@type": "Vendor",
+   "name": "CVS Caremark",
+   "description": "CVS Health's PBM.",
+   "keywords": [
+    "pbm"
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:actors/pbms/pbm"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/pbms/optum-rx",
+   "@type": "Vendor",
+   "name": "Optum Rx",
+   "description": "UnitedHealth Group's PBM.",
+   "keywords": [
+    "pbm"
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:actors/pbms/pbm"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/payers/commercial-payer",
+   "@type": "Actor Class",
+   "name": "Commercial Payer",
+   "description": "Employer or individual-market health plan; the only channel eligible for manufacturer copay cards.",
+   "keywords": [
+    "payer"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:market-access/copay-assistance"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/payers/medicare-part-d",
+   "@type": "Program",
+   "name": "Medicare Part D",
+   "description": "Outpatient drug benefit for Medicare beneficiaries delivered by private PDP/MA-PD plans.",
+   "keywords": [
+    "payer",
+    "medicare"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/cms"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:regulation/statutes/ira"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/payers/medicare-part-b",
+   "@type": "Program",
+   "name": "Medicare Part B",
+   "description": "Medical benefit covering physician-administered drugs, paid at ASP + 6% under buy-and-bill.",
+   "keywords": [
+    "payer",
+    "medicare"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:pricing-gtn/asp"
+    },
+    {
+     "@id": "okf:claims/medical/buy-and-bill"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/payers/medicaid",
+   "@type": "Program",
+   "name": "Medicaid",
+   "description": "State-federal programme; outpatient drugs carry statutory MDRP rebates.",
+   "keywords": [
+    "payer"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:regulation/government-pricing/mdrp"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/payers/va-dod",
+   "@type": "Program",
+   "name": "VA / DoD / PHS",
+   "description": "Federal purchasers buying at FSS / Federal Ceiling Price.",
+   "keywords": [
+    "payer"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:pricing-gtn/fss-fcp"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/providers/hcp",
+   "@type": "Actor Class",
+   "name": "Healthcare Professional (HCP)",
+   "description": "Individual prescriber or clinician (physician, NP, PA, etc.).",
+   "keywords": [
+    "provider"
+   ],
+   "rel:identified_by": [
+    {
+     "@id": "okf:identifiers/provider/npi"
+    }
+   ],
+   "rel:prescribes": [
+    {
+     "@id": "okf:prescriptions/prescription"
+    }
+   ],
+   "rel:implements": [
+    {
+     "@id": "okf:data-model/entities/hcp"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/providers/hco",
+   "@type": "Actor Class",
+   "name": "Healthcare Organization (HCO)",
+   "description": "Hospital, clinic, infusion centre, dialysis unit, practice or other organisation that buys, administers or bills drugs.",
+   "keywords": [
+    "provider"
+   ],
+   "rel:identified_by": [
+    {
+     "@id": "okf:identifiers/provider/npi"
+    },
+    {
+     "@id": "okf:identifiers/provider/hin"
+    }
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:actors/providers/idn"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/providers/idn",
+   "@type": "Actor Class",
+   "name": "Integrated Delivery Network (IDN)",
+   "description": "Health system owning multiple hospitals and practices; the top of the HCO hierarchy (`SYS_VID` / `AFFILIATED_SYSTEM_VID` in the warehouse).",
+   "keywords": [
+    "provider"
+   ]
+  },
+  {
+   "@id": "okf:actors/providers/340b-covered-entity",
+   "@type": "Actor Class",
+   "name": "340B Covered Entity",
+   "description": "HRSA-registered hospital or grantee entitled to 340B ceiling prices.",
+   "keywords": [
+    "provider",
+    "340b"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:regulation/government-pricing/340b"
+    }
+   ],
+   "rel:identified_by": [
+    {
+     "@id": "okf:identifiers/provider/340b-id"
+    }
+   ]
+  },
+  {
+   "@id": "okf:actors/providers/dialysis-provider",
+   "@type": "Actor Class",
+   "name": "Dialysis Provider",
+   "description": "Dialysis organisation (e.g. large dialysis chains) administering IV drugs such as iron; hemodialysis volume is often separated in IV iron analytics.",
+   "keywords": [
+    "provider",
+    "nephrology"
+   ]
+  },
+  {
+   "@id": "okf:actors/regulators/fda",
+   "@type": "Regulator",
+   "name": "FDA",
+   "description": "Food and Drug Administration: approvals (CDER/CBER), labeling, promotion (OPDP), safety, NDC listing, DSCSA.",
+   "keywords": [
+    "regulator"
+   ]
+  },
+  {
+   "@id": "okf:actors/regulators/cms",
+   "@type": "Regulator",
+   "name": "CMS",
+   "description": "Centers for Medicare & Medicaid Services: Medicare/Medicaid, NPPES, Open Payments, ASP/AMP reporting, IRA negotiation.",
+   "keywords": [
+    "regulator"
+   ]
+  },
+  {
+   "@id": "okf:actors/regulators/hhs-oig",
+   "@type": "Regulator",
+   "name": "HHS-OIG",
+   "description": "HHS Office of Inspector General: Anti-Kickback enforcement, advisory opinions, fraud alerts.",
+   "keywords": [
+    "regulator"
+   ]
+  },
+  {
+   "@id": "okf:actors/regulators/dea",
+   "@type": "Regulator",
+   "name": "DEA",
+   "description": "Drug Enforcement Administration: controlled-substance scheduling, registrations, EPCS, ARCOS.",
+   "keywords": [
+    "regulator"
+   ]
+  },
+  {
+   "@id": "okf:actors/regulators/hrsa-opa",
+   "@type": "Regulator",
+   "name": "HRSA Office of Pharmacy Affairs",
+   "description": "Administers the 340B Drug Pricing Program and OPAIS registry.",
+   "keywords": [
+    "regulator"
+   ]
+  },
+  {
+   "@id": "okf:actors/regulators/state-boards",
+   "@type": "Regulator",
+   "name": "State Boards of Pharmacy",
+   "description": "License pharmacies, wholesalers and 3PLs; run PDMPs.",
+   "keywords": [
+    "regulator"
+   ]
+  },
+  {
+   "@id": "okf:actors/standards/ncpdp",
+   "@type": "Standards Body",
+   "name": "NCPDP",
+   "description": "National Council for Prescription Drug Programs: Telecommunication D.0, SCRIPT, ePA, provider IDs.",
+   "keywords": [
+    "standards"
+   ]
+  },
+  {
+   "@id": "okf:actors/standards/x12",
+   "@type": "Standards Body",
+   "name": "ASC X12",
+   "description": "Accredited Standards Committee X12: EDI 837/835/270/271/278 and supply-chain 850/856/867/852/844/849.",
+   "keywords": [
+    "standards"
+   ]
+  },
+  {
+   "@id": "okf:actors/standards/hl7",
+   "@type": "Standards Body",
+   "name": "HL7",
+   "description": "Health Level Seven: HL7 v2 and FHIR clinical/financial interoperability standards.",
+   "keywords": [
+    "standards"
+   ]
+  },
+  {
+   "@id": "okf:regulation/statutes/fdca",
+   "@type": "Law",
+   "name": "Federal Food, Drug, and Cosmetic Act",
+   "description": "1938 statute governing drug safety, efficacy, approval, labeling and misbranding.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/statutes/hatch-waxman",
+   "@type": "Law",
+   "name": "Hatch-Waxman Act",
+   "description": "1984 law creating the ANDA generic pathway, Orange Book patent listing, Paragraph IV challenges and 180-day exclusivity.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:reference-data/orange-book"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/statutes/bpcia",
+   "@type": "Law",
+   "name": "Biologics Price Competition and Innovation Act",
+   "description": "2010 law creating the 351(k) biosimilar/interchangeable pathway and 12-year reference exclusivity.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:reference-data/purple-book"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/statutes/dscsa",
+   "@type": "Law",
+   "name": "Drug Supply Chain Security Act",
+   "description": "2013 law requiring package-level serialisation and interoperable electronic tracing between trading partners.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:distribution-edi/epcis-dscsa"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/statutes/controlled-substances-act",
+   "@type": "Law",
+   "name": "Controlled Substances Act",
+   "description": "Establishes Schedules I\u2013V, DEA registration, EPCS and ARCOS reporting.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/dea"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:prescriptions/epcs"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/statutes/pdma",
+   "@type": "Law",
+   "name": "Prescription Drug Marketing Act",
+   "description": "1987 law governing drug samples: written requests, signed receipts, inventory reconciliation.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:commercial-operations/sampling"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/statutes/ira",
+   "@type": "Law",
+   "name": "Inflation Reduction Act (drug provisions)",
+   "description": "2022 law creating Medicare drug price negotiation (MFP), Part D redesign, the Manufacturer Discount Program and inflation rebates.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/cms"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:pricing-gtn/mfp"
+    },
+    {
+     "@id": "okf:actors/payers/medicare-part-d"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/ind",
+   "@type": "Regulatory Pathway",
+   "name": "Investigational New Drug (IND)",
+   "description": "Application required before first-in-human trials.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/clinical-trial-phases",
+   "@type": "Regulation",
+   "name": "Clinical Trial Phases",
+   "description": "Phase 1 safety, Phase 2 dose/efficacy, Phase 3 pivotal, Phase 4 post-marketing.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/nda-505b1",
+   "@type": "Regulatory Pathway",
+   "name": "NDA 505(b)(1)",
+   "description": "Full New Drug Application with the sponsor's own safety/efficacy data.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/nda-505b2",
+   "@type": "Regulatory Pathway",
+   "name": "NDA 505(b)(2)",
+   "description": "NDA relying partly on literature or prior FDA findings (new forms, combinations).",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/anda",
+   "@type": "Regulatory Pathway",
+   "name": "ANDA 505(j)",
+   "description": "Abbreviated application for generics proving bioequivalence.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/bla",
+   "@type": "Regulatory Pathway",
+   "name": "BLA 351(a)",
+   "description": "Biologics License Application for novel biologics.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/biosimilar-351k",
+   "@type": "Regulatory Pathway",
+   "name": "Biosimilar 351(k)",
+   "description": "Abbreviated pathway for biosimilar or interchangeable biologics.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/rems",
+   "@type": "Regulation",
+   "name": "REMS",
+   "description": "Risk Evaluation and Mitigation Strategy; may restrict prescribing/dispensing (ETASU).",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/pharmacovigilance",
+   "@type": "Regulation",
+   "name": "Pharmacovigilance & FAERS",
+   "description": "Adverse-event collection and reporting (15-day expedited reports) into FDA FAERS; reps must forward AEs heard in calls.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/opdp-promotion",
+   "@type": "Regulation",
+   "name": "OPDP & Promotional Rules",
+   "description": "FDA Office of Prescription Drug Promotion reviews Form 2253 submissions; promotion must be consistent with the label.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/off-label-promotion",
+   "@type": "Regulation",
+   "name": "Off-Label Promotion Restrictions",
+   "description": "Manufacturers may not promote unapproved uses; MSLs may answer unsolicited requests.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/21-cfr-part-11",
+   "@type": "Regulation",
+   "name": "21 CFR Part 11",
+   "description": "Requirements for electronic records and signatures (CRM sample signatures, eTMF).",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fda/ndc-12-rule",
+   "@type": "Regulation",
+   "name": "NDC 12-Digit Final Rule",
+   "description": "FDA rule moving the NDC to a uniform 12-digit 6-4-2 format.",
+   "keywords": [
+    "fda"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fraud-abuse/anti-kickback-statute",
+   "@type": "Law",
+   "name": "Anti-Kickback Statute",
+   "description": "Criminal prohibition on remuneration to induce federally reimbursed business; reason copay cards exclude government-insured patients.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/hhs-oig"
+    }
+   ],
+   "rel:restricted_by": [
+    {
+     "@id": "okf:market-access/copay-assistance"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fraud-abuse/false-claims-act",
+   "@type": "Law",
+   "name": "False Claims Act",
+   "description": "Civil liability (with qui tam whistleblowers) for causing false federal claims; basis of off-label and kickback settlements.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/hhs-oig"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fraud-abuse/stark-law",
+   "@type": "Law",
+   "name": "Stark Law",
+   "description": "Prohibits physician self-referral for designated health services.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/cms"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fraud-abuse/sunshine-act",
+   "@type": "Law",
+   "name": "Physician Payments Sunshine Act (Open Payments)",
+   "description": "Requires manufacturers/GPOs to report transfers of value to physicians, NPPs and teaching hospitals.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/cms"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/promotion/open-payments"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/fraud-abuse/phrma-code",
+   "@type": "Code",
+   "name": "PhRMA Code on Interactions with HCPs",
+   "description": "Voluntary industry code on meals, speaker programmes and gifts.",
+   "keywords": [
+    "compliance"
+   ]
+  },
+  {
+   "@id": "okf:regulation/privacy/hipaa-privacy-rule",
+   "@type": "Law",
+   "name": "HIPAA Privacy Rule",
+   "description": "Governs use and disclosure of PHI by covered entities and business associates.",
+   "keywords": [
+    "law"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/cms"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/privacy/hipaa-deidentification",
+   "@type": "Regulation",
+   "name": "HIPAA De-identification",
+   "description": "PHI is de-identified by Safe Harbor (remove 18 identifiers) or Expert Determination (very small re-identification risk); the basis for tokenised claims data.",
+   "keywords": [
+    "privacy",
+    "phi"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:identifiers/patient/patient-token"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/privacy/limited-data-set",
+   "@type": "Regulation",
+   "name": "Limited Data Set",
+   "description": "PHI with direct identifiers removed but dates/zip retained, usable under a Data Use Agreement.",
+   "keywords": [
+    "privacy"
+   ]
+  },
+  {
+   "@id": "okf:regulation/government-pricing/mdrp",
+   "@type": "Program",
+   "name": "Medicaid Drug Rebate Program",
+   "description": "Manufacturers pay states quarterly rebates (URA \u00d7 units) based on AMP and Best Price; cap removed from 2024.",
+   "keywords": [
+    "government-pricing"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:pricing-gtn/amp"
+    },
+    {
+     "@id": "okf:pricing-gtn/best-price"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/finance/medicaid-state-invoice"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/government-pricing/340b",
+   "@type": "Program",
+   "name": "340B Drug Pricing Program",
+   "description": "Covered entities buy outpatient drugs at the ceiling price (AMP \u2212 URA), mostly via wholesaler chargebacks.",
+   "keywords": [
+    "government-pricing",
+    "340b"
+   ],
+   "rel:enforced_by": [
+    {
+     "@id": "okf:actors/regulators/hrsa-opa"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:pricing-gtn/chargeback"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/government-pricing/340b-rebate-pilot",
+   "@type": "Program",
+   "name": "340B Rebate Model Pilot",
+   "description": "HRSA pilot letting manufacturers pay 340B discounts as post-sale rebates; vacated Feb 2026, relaunched Aug 2026 for MFP-selected drugs.",
+   "keywords": [
+    "340b"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:regulation/government-pricing/340b"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/state-law/sorrell-v-ims",
+   "@type": "Court Decision",
+   "name": "Sorrell v. IMS Health (2011)",
+   "description": "Supreme Court struck down Vermont's ban on using prescriber-identifiable data for marketing, keeping prescriber-level Rx data legal.",
+   "keywords": [
+    "state-law",
+    "rx-data"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:data-assets/rx-audit/iqvia-xponent"
+    }
+   ]
+  },
+  {
+   "@id": "okf:regulation/state-law/ama-pdrp",
+   "@type": "Program",
+   "name": "AMA Physician Data Restriction Program",
+   "description": "Lets physicians opt out of reps seeing their prescribing data; surfaced as a PDRP opt-out flag in Rx and claims feeds.",
+   "keywords": [
+    "governance"
+   ]
+  },
+  {
+   "@id": "okf:regulation/state-law/state-marketing-laws",
+   "@type": "Regulation",
+   "name": "State Marketing & Disclosure Laws",
+   "description": "State gift bans, spend disclosure (e.g. VT, MA, MN) and rep licensing.",
+   "keywords": [
+    "state-law"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/product/ndc",
+   "@type": "Identifier",
+   "name": "National Drug Code (NDC)",
+   "description": "FDA three-segment product identifier (labeler-product-package) for US drugs.",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:assigned_by": [
+    {
+     "@id": "okf:actors/regulators/fda"
+    }
+   ],
+   "rel:identifies": [
+    {
+     "@id": "okf:data-model/entities/product"
+    }
+   ],
+   "rel:superseded_by": [
+    {
+     "@id": "okf:identifiers/product/ndc-12"
+    }
+   ],
+   "rel:used_in": [
+    {
+     "@id": "okf:claims/pharmacy/ncpdp-telecom-d0"
+    }
+   ]
+  },
+  {
+   "@id": "okf:identifiers/product/ndc-12",
+   "@type": "Identifier",
+   "name": "NDC-12 (6-4-2)",
+   "description": "Uniform 12-digit NDC format mandated from 7 Mar 2033.",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:supersedes": [
+    {
+     "@id": "okf:identifiers/product/ndc"
+    }
+   ],
+   "rel:established_by": [
+    {
+     "@id": "okf:regulation/fda/ndc-12-rule"
+    }
+   ]
+  },
+  {
+   "@id": "okf:identifiers/product/rxnorm-rxcui",
+   "@type": "Identifier",
+   "name": "RxNorm RxCUI",
+   "description": "NLM normalized clinical drug concept identifier, linking NDCs across labelers.",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/product/gpi",
+   "@type": "Identifier",
+   "name": "GPI (Medi-Span)",
+   "description": "14-character Generic Product Identifier hierarchy from drug group to strength.",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/product/gcn",
+   "@type": "Identifier",
+   "name": "GCN / HICL (First Databank)",
+   "description": "First Databank formulation (GCN) and ingredient (HICL) codes.",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/product/atc",
+   "@type": "Identifier",
+   "name": "ATC Code",
+   "description": "WHO Anatomical Therapeutic Chemical classification.",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/product/usc",
+   "@type": "Identifier",
+   "name": "USC (IQVIA Uniform System of Classification)",
+   "description": "IQVIA therapeutic class code used in Xponent, NPA and LAAD (`USC_CODE`).",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/product/cmf",
+   "@type": "Identifier",
+   "name": "CMF / Product Group ID (IQVIA)",
+   "description": "IQVIA product codes (`CMF10`, `PRODUCT_GROUP_ID`) used in audit deliverables instead of NDC.",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:identifiers/product/ndc"
+    }
+   ]
+  },
+  {
+   "@id": "okf:identifiers/product/hcpcs",
+   "@type": "Identifier",
+   "name": "HCPCS Level II (J-codes)",
+   "description": "CMS codes for physician-administered drugs on medical claims; billing units differ from NDC units.",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:identifiers/product/ndc"
+    }
+   ],
+   "rel:used_in": [
+    {
+     "@id": "okf:claims/medical/x12-837p"
+    }
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/npi",
+   "@type": "Identifier",
+   "name": "National Provider Identifier (NPI)",
+   "description": "CMS-issued 10-digit ID; Type 1 = individual HCP, Type 2 = organisation.",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:identifies": [
+    {
+     "@id": "okf:data-model/entities/hcp"
+    },
+    {
+     "@id": "okf:data-model/entities/hco"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/reference/nppes"
+    }
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/nucc-taxonomy",
+   "@type": "Identifier",
+   "name": "NUCC Taxonomy Code",
+   "description": "10-character provider specialty code recorded in NPPES.",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/dea-number",
+   "@type": "Identifier",
+   "name": "DEA Registration Number",
+   "description": "Registration per location for controlled substances; widely used as a ship-to identifier in 867 data (`CUST_DEA`, `HCO_DEA`).",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:assigned_by": [
+    {
+     "@id": "okf:actors/regulators/dea"
+    }
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/hin",
+   "@type": "Identifier",
+   "name": "HIN (HIBCC Health Industry Number)",
+   "description": "Location identifier used in contracts, chargebacks and 867 ship-to data (`CUST_HIN`).",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/ama-me-number",
+   "@type": "Identifier",
+   "name": "AMA ME Number",
+   "description": "Medical Education number from the AMA Physician Masterfile (`ME_NUMBER` in Xponent).",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/ims-prescriber-id",
+   "@type": "Identifier",
+   "name": "IQVIA Prescriber ID",
+   "description": "IQVIA's prescriber key in Xponent (`IMS_PRESCRIBER_ID`), mapped to NPI/ME#.",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:identifiers/provider/npi"
+    }
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/onekey-id",
+   "@type": "Identifier",
+   "name": "IQVIA OneKey ID",
+   "description": "Identifier for HCPs/HCOs in IQVIA OneKey reference data.",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/veeva-vid",
+   "@type": "Identifier",
+   "name": "Veeva Network VID",
+   "description": "Veeva OpenData/Network ID for HCPs (`HCP_VID`), HCOs (`ORG_VID`, `HCO_VID`) and systems (`SYS_VID`, `SYSTEM_VID`); the master key in the ICS Sales Warehouse.",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:identifiers/provider/npi"
+    }
+   ],
+   "rel:used_in": [
+    {
+     "@id": "okf:commercial-operations/customer-master-mdm"
+    }
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/ncpdp-provider-id",
+   "@type": "Identifier",
+   "name": "NCPDP Provider ID",
+   "description": "7-digit pharmacy identifier (formerly NABP number).",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/340b-id",
+   "@type": "Identifier",
+   "name": "340B ID",
+   "description": "HRSA OPAIS covered-entity identifier.",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/ccn",
+   "@type": "Identifier",
+   "name": "CMS Certification Number",
+   "description": "Medicare provider number for hospitals and facilities.",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/provider/ddd-outlet",
+   "@type": "Identifier",
+   "name": "IQVIA DDD Outlet Number",
+   "description": "IQVIA outlet key in DDD (`dddoutletnum`) with an outlet class/subcategory.",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/payer/bin-pcn-group",
+   "@type": "Identifier",
+   "name": "BIN / PCN / Group",
+   "description": "Pharmacy-benefit routing triplet: BIN (processor), PCN (plan/line of business), Group (employer/benefit).",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:used_in": [
+    {
+     "@id": "okf:claims/pharmacy/ncpdp-telecom-d0"
+    }
+   ],
+   "rel:identifies": [
+    {
+     "@id": "okf:data-model/entities/payer-plan"
+    }
+   ]
+  },
+  {
+   "@id": "okf:identifiers/payer/plan-id",
+   "@type": "Identifier",
+   "name": "Payer Plan ID",
+   "description": "Vendor plan key (e.g. IQVIA `PAYER_PLAN_ID`, LAAD `PLAN_ID`) mapping to payer, PBM, model (commercial, Part D, Medicaid).",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/payer/cms-contract-pbp",
+   "@type": "Identifier",
+   "name": "CMS Contract-PBP",
+   "description": "Medicare Part D/MA contract and plan benefit package ID (e.g. H1234-001).",
+   "keywords": [
+    "identifier"
+   ]
+  },
+  {
+   "@id": "okf:identifiers/patient/patient-token",
+   "@type": "Identifier",
+   "name": "De-identified Patient Token",
+   "description": "Hashed identifier derived from PII (name, DOB, sex, zip) that links one patient across de-identified datasets without exposing identity.",
+   "keywords": [
+    "identifier"
+   ],
+   "rel:restricted_by": [
+    {
+     "@id": "okf:regulation/privacy/hipaa-deidentification"
+    }
+   ],
+   "rel:identifies": [
+    {
+     "@id": "okf:data-model/entities/patient"
+    }
+   ]
+  },
+  {
+   "@id": "okf:reference-data/orange-book",
+   "@type": "Reference Data",
+   "name": "FDA Orange Book",
+   "description": "Approved drugs with therapeutic-equivalence codes, patents and exclusivities.",
+   "keywords": [
+    "reference"
+   ]
+  },
+  {
+   "@id": "okf:reference-data/purple-book",
+   "@type": "Reference Data",
+   "name": "FDA Purple Book",
+   "description": "Licensed biologics, biosimilars and interchangeables with exclusivity data.",
+   "keywords": [
+    "reference"
+   ]
+  },
+  {
+   "@id": "okf:reference-data/ndc-directory",
+   "@type": "Reference Data",
+   "name": "FDA NDC Directory",
+   "description": "Daily-updated list of listed NDCs and package descriptions.",
+   "keywords": [
+    "reference"
+   ]
+  },
+  {
+   "@id": "okf:reference-data/drug-compendia",
+   "@type": "Reference Data",
+   "name": "Drug Compendia (FDB, Medi-Span)",
+   "description": "Commercial drug files with WAC/AWP history, packaging, GPI/GCN and clinical attributes.",
+   "keywords": [
+    "reference"
+   ]
+  },
+  {
+   "@id": "okf:reference-data/product-master",
+   "@type": "Reference Data",
+   "name": "Product Master",
+   "description": "Internal hierarchy brand \u2192 molecule \u2192 form \u2192 strength \u2192 NDC-9 \u2192 NDC-11 with market-basket membership.",
+   "keywords": [
+    "reference"
+   ]
+  },
+  {
+   "@id": "okf:reference-data/market-basket",
+   "@type": "Reference Data",
+   "name": "Market Basket Definition",
+   "description": "The set of competitor and own products defining a market for share calculations (warehouse: `market_basket_treatments`).",
+   "keywords": [
+    "reference"
+   ]
+  },
+  {
+   "@id": "okf:reference-data/ndc-hcpcs-crosswalk",
+   "@type": "Reference Data",
+   "name": "NDC\u2013HCPCS Crosswalk",
+   "description": "CMS ASP crosswalk mapping J-codes to NDCs with billing-unit conversion.",
+   "keywords": [
+    "reference"
+   ]
+  },
+  {
+   "@id": "okf:reference-data/specialty-codes",
+   "@type": "Reference Data",
+   "name": "Specialty & Profession Codes",
+   "description": "Vendor (IQVIA/AMA) and NUCC specialty codes used for HCP segmentation.",
+   "keywords": [
+    "reference"
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/prescription",
+   "@type": "Process",
+   "name": "Prescription",
+   "description": "A prescriber's order specifying drug, strength, quantity, directions, refills and DAW; identified at the pharmacy by Rx number + fill number.",
+   "keywords": [
+    "rx"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/rx-audit/iqvia-xponent"
+    }
+   ],
+   "rel:implements": [
+    {
+     "@id": "okf:data-model/entities/prescription"
+    }
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/e-prescribing",
+   "@type": "Process",
+   "name": "E-Prescribing",
+   "description": "Electronic transmission of prescriptions from EHR to pharmacy using NCPDP SCRIPT over a network such as Surescripts.",
+   "keywords": [
+    "rx",
+    "erx"
+   ],
+   "rel:uses_standard": [
+    {
+     "@id": "okf:prescriptions/ncpdp-script"
+    }
+   ],
+   "rel:provided_by": [
+    {
+     "@id": "okf:service-providers/vendors/surescripts"
+    }
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/ncpdp-script",
+   "@type": "Transaction Standard",
+   "name": "NCPDP SCRIPT",
+   "description": "Standard for NewRx, RxRenewal, RxChange, CancelRx, RxFill and ePA messages.",
+   "keywords": [
+    "standard"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/ncpdp"
+    }
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/epcs",
+   "@type": "Process",
+   "name": "EPCS",
+   "description": "DEA-compliant e-prescribing of controlled substances requiring two-factor authentication.",
+   "keywords": [
+    "rx"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:regulation/statutes/controlled-substances-act"
+    }
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/rtpb",
+   "@type": "Process",
+   "name": "Real-Time Prescription Benefit",
+   "description": "Patient-specific cost and coverage check at the point of prescribing.",
+   "keywords": [
+    "rx",
+    "access"
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/prior-authorization",
+   "@type": "Process",
+   "name": "Prior Authorization (PA / ePA)",
+   "description": "Payer approval required before coverage; electronic PA uses NCPDP ePA; reject code 75 signals PA required.",
+   "keywords": [
+    "access"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/access/epa-data"
+    }
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/formulary",
+   "@type": "Process",
+   "name": "Formulary, Tiers & Utilization Management",
+   "description": "Plan list of covered drugs with tiers, exclusions, step therapy and quantity limits.",
+   "keywords": [
+    "access"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/access/formulary-data"
+    }
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/dispensing",
+   "@type": "Process",
+   "name": "Dispensing & Adjudication",
+   "description": "Pharmacy selects NDC, quantity, days supply and fill number, submits a real-time claim and dispenses on approval.",
+   "keywords": [
+    "rx"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:claims/pharmacy/pharmacy-claim-flow"
+    }
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/abandonment",
+   "@type": "Metric",
+   "name": "Prescription Abandonment & Reversal",
+   "description": "An approved claim not picked up is reversed (B2); abandonment rate = reversed / (paid + reversed).",
+   "keywords": [
+    "kpi",
+    "access"
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/pdmp",
+   "@type": "Program",
+   "name": "Prescription Drug Monitoring Program",
+   "description": "State database of dispensed controlled substances, reported in ASAP format.",
+   "keywords": [
+    "rx",
+    "state"
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/metrics/nrx",
+   "@type": "Metric",
+   "name": "NRx (New Prescriptions)",
+   "description": "Prescriptions with fill number 0 (definitions vary by vendor).",
+   "keywords": [
+    "kpi",
+    "rx"
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/metrics/trx",
+   "@type": "Metric",
+   "name": "TRx (Total Prescriptions)",
+   "description": "New prescriptions plus refills.",
+   "keywords": [
+    "kpi",
+    "rx"
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/metrics/nbrx",
+   "@type": "Metric",
+   "name": "NBRx (New-to-Brand Rx)",
+   "description": "Prescriptions for patients new to the brand (new starts, switches, add-ons); needs patient-level data such as LAAD `NEW_TO_BRAND_YN`.",
+   "keywords": [
+    "kpi",
+    "rx"
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/metrics/extended-units",
+   "@type": "Metric",
+   "name": "Extended Units / Volume",
+   "description": "Dispensed quantity in units (tablets, mL, vials); used for unit-based share and for injectables.",
+   "keywords": [
+    "kpi",
+    "rx"
+   ]
+  },
+  {
+   "@id": "okf:prescriptions/metrics/source-of-business",
+   "@type": "Metric",
+   "name": "Source of Business",
+   "description": "Classification of a brand Rx as new start, switch, add-on, continuing or restart (LAAD `SOURCE_OF_BUSINESS`).",
+   "keywords": [
+    "kpi",
+    "rx"
+   ]
+  },
+  {
+   "@id": "okf:claims/pharmacy/pharmacy-claim-flow",
+   "@type": "Data Flow",
+   "name": "Pharmacy Claim Flow",
+   "description": "Pharmacy \u2192 switch \u2192 PBM real-time adjudication \u2192 response \u2192 (optional COB/copay secondary) \u2192 reversal if not picked up \u2192 PBM invoices plan and manufacturer.",
+   "keywords": [
+    "claims",
+    "pharmacy"
+   ],
+   "rel:uses_standard": [
+    {
+     "@id": "okf:claims/pharmacy/ncpdp-telecom-d0"
+    }
+   ],
+   "rel:adjudicated_by": [
+    {
+     "@id": "okf:actors/pbms/pbm"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/patient-claims/pharmacy-claims-open"
+    },
+    {
+     "@id": "okf:data-assets/patient-claims/iqvia-laad"
+    }
+   ]
+  },
+  {
+   "@id": "okf:claims/pharmacy/ncpdp-telecom-d0",
+   "@type": "Transaction Standard",
+   "name": "NCPDP Telecommunication D.0",
+   "description": "HIPAA-named standard for real-time pharmacy claims (E1 eligibility, B1 bill, B2 reverse, B3 rebill).",
+   "keywords": [
+    "standard",
+    "claims"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/ncpdp"
+    }
+   ]
+  },
+  {
+   "@id": "okf:claims/pharmacy/claim-status",
+   "@type": "Code System",
+   "name": "Pharmacy Claim Status & Reject Codes",
+   "description": "Paid, rejected, reversed and captured states with NCPDP reject codes; LAAD carries `CLAIM_STATUS` and `REJECT_CODE`.",
+   "keywords": [
+    "claims"
+   ]
+  },
+  {
+   "@id": "okf:claims/pharmacy/copay-card-claim",
+   "@type": "Process",
+   "name": "Copay Card Secondary Claim",
+   "description": "Manufacturer copay assistance processed as a secondary NCPDP claim on its own BIN/PCN; flagged as `COPAY_CARD_FLAG` in LAAD.",
+   "keywords": [
+    "claims",
+    "access"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:market-access/copay-assistance"
+    }
+   ]
+  },
+  {
+   "@id": "okf:claims/medical/medical-claim-flow",
+   "@type": "Data Flow",
+   "name": "Medical Claim Flow",
+   "description": "Provider \u2192 837P/837I \u2192 clearinghouse \u2192 payer adjudication \u2192 835 remittance; 270/271 eligibility, 276/277 status, 278 PA.",
+   "keywords": [
+    "claims",
+    "medical"
+   ],
+   "rel:uses_standard": [
+    {
+     "@id": "okf:claims/medical/x12-837p"
+    },
+    {
+     "@id": "okf:claims/medical/x12-837i"
+    },
+    {
+     "@id": "okf:claims/medical/x12-835"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/patient-claims/medical-claims-open"
+    }
+   ]
+  },
+  {
+   "@id": "okf:claims/medical/x12-837p",
+   "@type": "Transaction Standard",
+   "name": "X12 837P (Professional)",
+   "description": "Electronic CMS-1500: billing/rendering NPI, ICD-10-CM diagnoses, CPT/HCPCS lines with units, modifiers, place of service and NDC (N4).",
+   "keywords": [
+    "standard",
+    "claims"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:claims/medical/x12-837i",
+   "@type": "Transaction Standard",
+   "name": "X12 837I (Institutional)",
+   "description": "Electronic UB-04: type of bill, revenue codes, ICD-10-PCS, DRG, attending NPI.",
+   "keywords": [
+    "standard",
+    "claims"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:claims/medical/x12-835",
+   "@type": "Transaction Standard",
+   "name": "X12 835 Remittance",
+   "description": "Payment/remittance advice with claim- and line-level paid amounts and CARC/RARC adjustment codes.",
+   "keywords": [
+    "standard",
+    "claims"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/patient-claims/remittance-835"
+    }
+   ]
+  },
+  {
+   "@id": "okf:claims/medical/code-sets",
+   "@type": "Code System",
+   "name": "ICD-10-CM, CPT, HCPCS, POS",
+   "description": "Diagnosis (ICD-10-CM), procedure (CPT/HCPCS), place-of-service and revenue code systems on medical claims.",
+   "keywords": [
+    "claims",
+    "codes"
+   ]
+  },
+  {
+   "@id": "okf:claims/medical/buy-and-bill",
+   "@type": "Process",
+   "name": "Buy-and-Bill",
+   "description": "Practice buys drug from a specialty distributor, administers it, and bills the J-code on the medical benefit (Part B pays ASP+6%).",
+   "keywords": [
+    "claims",
+    "specialty"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:identifiers/product/hcpcs"
+    },
+    {
+     "@id": "okf:pricing-gtn/asp"
+    }
+   ]
+  },
+  {
+   "@id": "okf:claims/medical/white-brown-bagging",
+   "@type": "Process",
+   "name": "White / Brown / Clear Bagging",
+   "description": "Alternatives to buy-and-bill where an SP ships patient-specific drug to the provider (white), the patient carries it (brown) or a health-system SP supplies it (clear).",
+   "keywords": [
+    "specialty"
+   ]
+  },
+  {
+   "@id": "okf:claims/open-vs-closed",
+   "@type": "Concept",
+   "name": "Open vs Closed Claims",
+   "description": "Closed claims come from payers and are complete for enrolled members; open claims come from switches/clearinghouses with broad but incomplete coverage.",
+   "keywords": [
+    "claims",
+    "data"
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/edi-850-855",
+   "@type": "Transaction Standard",
+   "name": "EDI 850 / 855 Purchase Order & Acknowledgment",
+   "description": "Wholesaler order to manufacturer/3PL and its acknowledgment.",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/edi-856",
+   "@type": "Transaction Standard",
+   "name": "EDI 856 Advance Ship Notice",
+   "description": "Shipment notice; carries DSCSA transaction information with serialised EPCIS data.",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/edi-810",
+   "@type": "Transaction Standard",
+   "name": "EDI 810 Invoice",
+   "description": "Invoice for shipped product (ex-factory sale).",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/edi-857",
+   "@type": "Transaction Standard",
+   "name": "EDI 857 Shipment and Billing Notice",
+   "description": "Combined shipment + invoice transaction (an 856 and 810 in one); occasionally used by 3PLs. If a feed is labelled '857' but carries resale lines, it is usually an 867.",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/edi-867",
+   "@type": "Transaction Standard",
+   "name": "EDI 867 Product Transfer & Resale Report",
+   "description": "Wholesaler/3PL report of product sold or transferred to downstream customers, including returns.",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/edi-852",
+   "@type": "Transaction Standard",
+   "name": "EDI 852 Product Activity Data",
+   "description": "Distribution-centre inventory, receipts and sales by product.",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/edi-844-849",
+   "@type": "Transaction Standard",
+   "name": "EDI 844 / 849 Chargeback Claim & Response",
+   "description": "Wholesaler claim for the difference between WAC and a contract price, and the manufacturer response.",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/edi-845",
+   "@type": "Transaction Standard",
+   "name": "EDI 845 Price Authorization",
+   "description": "Contract/membership eligibility sent to wholesalers.",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/edi-940-945",
+   "@type": "Transaction Standard",
+   "name": "EDI 940 / 945 Warehouse Shipping Order & Advice",
+   "description": "Manufacturer instruction to 3PL and 3PL confirmation.",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:maintained_by": [
+    {
+     "@id": "okf:actors/standards/x12"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/epcis-dscsa",
+   "@type": "Transaction Standard",
+   "name": "EPCIS / DSCSA Traceability",
+   "description": "GS1 EPCIS events for serialised package-level tracing required by DSCSA.",
+   "keywords": [
+    "edi",
+    "supply-chain"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:regulation/statutes/dscsa"
+    }
+   ]
+  },
+  {
+   "@id": "okf:distribution-edi/product-trade-flow",
+   "@type": "Data Flow",
+   "name": "Product & Trade Data Flow",
+   "description": "Manufacturer \u2192 3PL \u2192 wholesaler / specialty distributor \u2192 pharmacy or provider, and the EDI each hop generates.",
+   "keywords": [
+    "supply-chain",
+    "flow"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ex-factory-sales"
+    },
+    {
+     "@id": "okf:data-assets/sales-distribution/edi-867-wholesaler"
+    },
+    {
+     "@id": "okf:data-assets/sales-distribution/ics-867"
+    },
+    {
+     "@id": "okf:data-assets/sales-distribution/iqvia-ddd"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/wac",
+   "@type": "Pricing Concept",
+   "name": "WAC (Wholesale Acquisition Cost)",
+   "description": "Manufacturer list price to wholesalers before discounts (warehouse: `WAC`, `WAC_DOLLARS`).",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/awp",
+   "@type": "Pricing Concept",
+   "name": "AWP (Average Wholesale Price)",
+   "description": "Compendia benchmark (\u2248 WAC \u00d7 1.2) still used in PBM pricing.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/asp",
+   "@type": "Pricing Concept",
+   "name": "ASP (Average Sales Price)",
+   "description": "Quarterly net-price average reported to CMS; Part B pays ASP + 6%.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/amp",
+   "@type": "Pricing Concept",
+   "name": "AMP (Average Manufacturer Price)",
+   "description": "Average price paid by retail-community wholesalers/pharmacies; base of Medicaid and 340B.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/best-price",
+   "@type": "Pricing Concept",
+   "name": "Best Price",
+   "description": "Lowest price to any eligible commercial customer; drives Medicaid URA.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/ura",
+   "@type": "Pricing Concept",
+   "name": "URA (Unit Rebate Amount)",
+   "description": "Medicaid rebate per unit = basic (23.1% of AMP or AMP \u2212 BP) + CPI-U inflation penalty.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/340b-ceiling-price",
+   "@type": "Pricing Concept",
+   "name": "340B Ceiling Price",
+   "description": "AMP \u2212 URA per unit.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/fss-fcp",
+   "@type": "Pricing Concept",
+   "name": "FSS / Federal Ceiling Price",
+   "description": "VA Federal Supply Schedule and Big Four ceiling prices.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/mfp",
+   "@type": "Pricing Concept",
+   "name": "MFP (Maximum Fair Price)",
+   "description": "IRA-negotiated Medicare price, effectuated through the Medicare Transaction Facilitator.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/chargeback",
+   "@type": "Pricing Concept",
+   "name": "Chargeback",
+   "description": "Wholesaler claim for WAC minus the customer's contract price (GPO, IDN, 340B, FSS).",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/commercial-rebate",
+   "@type": "Pricing Concept",
+   "name": "Commercial / PBM Rebate",
+   "description": "Rebates and admin fees paid to PBMs/plans on utilisation invoices for formulary position.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/medicaid-rebate",
+   "@type": "Pricing Concept",
+   "name": "Medicaid Rebate",
+   "description": "URA \u00d7 utilisation units invoiced quarterly by states.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/part-d-discount",
+   "@type": "Pricing Concept",
+   "name": "Part D Manufacturer Discount",
+   "description": "10% (initial) / 20% (catastrophic) discounts under the IRA Manufacturer Discount Program.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/copay-cost",
+   "@type": "Pricing Concept",
+   "name": "Copay Program Cost",
+   "description": "Manufacturer spend on copay assistance.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/distribution-fees",
+   "@type": "Pricing Concept",
+   "name": "Distribution Service Fees",
+   "description": "Fee-for-service paid to wholesalers and SPs.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:pricing-gtn/gross-to-net",
+   "@type": "Pricing Concept",
+   "name": "Gross-to-Net (GTN)",
+   "description": "WAC \u00d7 units minus chargebacks, rebates, government discounts, copay, fees, returns and prompt pay = net revenue.",
+   "keywords": [
+    "pricing"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:data-assets/finance/contracts-data"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/dataset-taxonomy",
+   "@type": "Taxonomy",
+   "name": "Dataset Type Taxonomy",
+   "description": "How US pharma commercial datasets are classified: what they measure, at what grain, and whether they are projected or census.",
+   "keywords": [
+    "dataset",
+    "taxonomy"
+   ],
+   "rel:defines": [
+    {
+     "@id": "okf:data-assets/dataset-selection-guide"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/dataset-selection-guide",
+   "@type": "Guide",
+   "name": "Which Dataset Answers Which Question",
+   "description": "Question-to-dataset routing guide for analysts and agents.",
+   "keywords": [
+    "dataset",
+    "guide"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:data-assets/dataset-taxonomy"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/sales-distribution/ex-factory-sales",
+   "@type": "Dataset Type",
+   "name": "Ex-Factory Sales (Sell-In)",
+   "description": "Manufacturer's own invoices to wholesalers/3PL customers \u2014 the revenue record before any downstream resale.",
+   "keywords": [
+    "dataset",
+    "sales-distribution"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:distribution-edi/edi-810"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:data-assets/sales-distribution/edi-852-inventory"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/sales-distribution/edi-867-wholesaler",
+   "@type": "Dataset Type",
+   "name": "Wholesaler / Specialty Distributor 867 (Sell-Through)",
+   "description": "Downstream resale lines from a wholesaler or specialty distributor to each ship-to account (hospital, clinic, pharmacy), including returns.",
+   "keywords": [
+    "dataset",
+    "sales-distribution"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:distribution-edi/edi-867"
+    }
+   ],
+   "rel:provided_by": [
+    {
+     "@id": "okf:actors/distribution/full-line-wholesaler"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/sales-distribution/edi-867-3pl",
+   "@type": "Dataset Type",
+   "name": "3PL 867 (Direct Sales Through a 3PL)",
+   "description": "867-format sales and returns from a manufacturer's 3PL, covering orders the 3PL ships directly to wholesalers, specialty distributors or end accounts.",
+   "keywords": [
+    "dataset",
+    "sales-distribution"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:distribution-edi/edi-867"
+    }
+   ],
+   "rel:provided_by": [
+    {
+     "@id": "okf:actors/distribution/3pl"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/sales-distribution/ics-867",
+   "@type": "Dataset Type",
+   "name": "ICS 867 (Cencora ICS 3PL Sales Feed)",
+   "description": "The 867 sales/returns feed delivered by Cencora's ICS 3PL; the core sales source of the ICS Sales Warehouse (nexora_poc_catalog).",
+   "keywords": [
+    "dataset",
+    "sales-distribution",
+    "ics",
+    "warehouse"
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:data-assets/sales-distribution/edi-867-3pl"
+    }
+   ],
+   "rel:provided_by": [
+    {
+     "@id": "okf:actors/distribution/ics-cencora"
+    }
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/silver-fct-ics-867"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/sales-distribution/edi-852-inventory",
+   "@type": "Dataset Type",
+   "name": "852 Inventory / Product Activity",
+   "description": "Wholesaler distribution-centre inventory on hand, receipts and sales by product.",
+   "keywords": [
+    "dataset",
+    "sales-distribution"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:distribution-edi/edi-852"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/sales-distribution/iqvia-ddd",
+   "@type": "Dataset Type",
+   "name": "IQVIA DDD (Outlet-Level Sales)",
+   "description": "Projected weekly/monthly sales from distributors to individual outlets (hospitals, clinics, pharmacies), classified by outlet type.",
+   "keywords": [
+    "dataset",
+    "sales-distribution"
+   ],
+   "rel:provided_by": [
+    {
+     "@id": "okf:service-providers/vendors/iqvia"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/sales-distribution/snr-sales",
+   "@type": "Dataset Type",
+   "name": "SNR Sales Feed (Market \u00d7 Product, with 340B Flag)",
+   "description": "Weekly/monthly market- and product-level sales feed (WAC $, AWP, volume/pack/extended units) with a 340B transaction flag, as loaded in the ICS Sales Warehouse.",
+   "keywords": [
+    "dataset",
+    "sales-distribution",
+    "warehouse"
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/bronze-raw-snr-sales"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/sales-distribution/iqvia-nsp",
+   "@type": "Dataset Type",
+   "name": "IQVIA National Sales Perspectives (NSP)",
+   "description": "Projected national $ and unit purchases by channel (retail, clinics, hospitals, LTC, mail, etc.).",
+   "keywords": [
+    "dataset",
+    "sales-distribution"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/rx-audit/iqvia-npa",
+   "@type": "Dataset Type",
+   "name": "IQVIA NPA (National Prescription Audit)",
+   "description": "Projected national dispensed prescriptions (TRx/NRx) by product and channel.",
+   "keywords": [
+    "dataset",
+    "rx-audit"
+   ],
+   "rel:measures": [
+    {
+     "@id": "okf:prescriptions/metrics/trx"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/rx-audit/iqvia-xponent",
+   "@type": "Dataset Type",
+   "name": "IQVIA Xponent (Prescriber-Level Rx)",
+   "description": "Projected weekly dispensed prescriptions by prescriber and product across retail, mail and LTC.",
+   "keywords": [
+    "dataset",
+    "rx-audit",
+    "warehouse"
+   ],
+   "rel:provided_by": [
+    {
+     "@id": "okf:service-providers/vendors/iqvia"
+    }
+   ],
+   "rel:measures": [
+    {
+     "@id": "okf:prescriptions/metrics/trx"
+    }
+   ],
+   "rel:restricted_by": [
+    {
+     "@id": "okf:regulation/state-law/ama-pdrp"
+    }
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/bronze-raw-xponent"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/rx-audit/xponent-plantrak",
+   "@type": "Dataset Type",
+   "name": "IQVIA Xponent PlanTrak",
+   "description": "Prescriber-level Rx split by payer plan to measure access and pull-through.",
+   "keywords": [
+    "dataset",
+    "rx-audit"
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:data-assets/rx-audit/iqvia-xponent"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/rx-audit/symphony-phast",
+   "@type": "Dataset Type",
+   "name": "Symphony Health (ICON) PHAST Prescription",
+   "description": "Projected prescriber- and national-level Rx from Symphony's integrated dataverse.",
+   "keywords": [
+    "dataset",
+    "rx-audit"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/rx-audit/iqvia-midas",
+   "@type": "Dataset Type",
+   "name": "IQVIA MIDAS",
+   "description": "Global audited pharmaceutical sales across countries, used for global market sizing.",
+   "keywords": [
+    "dataset",
+    "rx-audit"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/pharmacy-claims-open",
+   "@type": "Dataset Type",
+   "name": "Open Pharmacy (Rx) Claims",
+   "description": "De-identified NCPDP claims captured from pharmacies and switches regardless of payer; broad but not enrollment-complete.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:claims/pharmacy/pharmacy-claim-flow"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/medical-claims-open",
+   "@type": "Dataset Type",
+   "name": "Open Medical (Mx/Dx) Claims",
+   "description": "De-identified 837 professional/institutional claims from clearinghouses and practice-management systems.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:claims/medical/medical-claim-flow"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/closed-claims-payer",
+   "@type": "Dataset Type",
+   "name": "Closed (Payer-Adjudicated) Claims",
+   "description": "Medical and pharmacy claims from health plans for enrolled members, with eligibility files \u2014 complete for each member's enrolled period.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:claims/open-vs-closed"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/iqvia-laad",
+   "@type": "Dataset Type",
+   "name": "IQVIA LAAD (Longitudinal Access & Adjudication Data)",
+   "description": "Patient-level dataset combining IQVIA Rx, lifecycle (paid/rejected/reversed), medical and remittance claims; includes copay card, source-of-business and new-to-brand flags.",
+   "keywords": [
+    "dataset",
+    "patient-claims",
+    "warehouse"
+   ],
+   "rel:provided_by": [
+    {
+     "@id": "okf:service-providers/vendors/iqvia"
+    }
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:data-assets/patient-claims/iqvia-lrx"
+    },
+    {
+     "@id": "okf:data-assets/patient-claims/iqvia-fia"
+    }
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/gold-rx-mx-claims"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/iqvia-lrx",
+   "@type": "Dataset Type",
+   "name": "IQVIA LRx (Longitudinal Prescription Claims)",
+   "description": "Patient-level dispensed Rx claims from pharmacies, payers, software providers and clearinghouses (~4B claims/yr since 2006).",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/iqvia-fia",
+   "@type": "Dataset Type",
+   "name": "IQVIA FIA (Formulary Impact Analyzer / Lifecycle Claims)",
+   "description": "Paid, rejected and reversed claims captured at the point of sale to measure payer friction.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/iqvia-dx-hx",
+   "@type": "Dataset Type",
+   "name": "IQVIA Dx / Hx (Professional & Institutional Claims)",
+   "description": "Unadjudicated office (Dx) and hospital (Hx) medical claims (~2B per year).",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/komodo-healthcare-map",
+   "@type": "Dataset Type",
+   "name": "Komodo Healthcare Map",
+   "description": "Komodo Health's linked, de-identified patient-journey dataset combining open and closed medical, pharmacy, lab and EHR data for 330M+ US patients.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ],
+   "rel:provided_by": [
+    {
+     "@id": "okf:service-providers/vendors/komodo-health"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/komodo-claims",
+   "@type": "Dataset Type",
+   "name": "Komodo Claims Extracts (Mx / Rx)",
+   "description": "Brand- or market-specific patient-level medical and pharmacy claims extracts delivered from the Healthcare Map.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:data-assets/patient-claims/komodo-healthcare-map"
+    }
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:data-assets/provider-aggregates/komodo-claims-by-provider"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/symphony-idv",
+   "@type": "Dataset Type",
+   "name": "Symphony Health (ICON) Integrated Dataverse",
+   "description": "Patient-level Rx and medical claims linked by token across open and closed sources.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/healthverity",
+   "@type": "Dataset Type",
+   "name": "HealthVerity Marketplace Data",
+   "description": "Tokenised, licensable claims, EHR, lab and consumer data that can be linked across suppliers.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/cms-medicare-claims",
+   "@type": "Dataset Type",
+   "name": "CMS Medicare FFS Claims (ResDAC / VRDC)",
+   "description": "Research-identifiable Medicare Parts A/B/D claims available under CMS data use agreements.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/patient-claims/remittance-835",
+   "@type": "Dataset Type",
+   "name": "Remittance (835) Data",
+   "description": "Payment outcomes for medical claims from 835 files: paid amounts, denials and adjustment reasons.",
+   "keywords": [
+    "dataset",
+    "patient-claims"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:claims/medical/x12-835"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/provider-aggregates/komodo-claims-by-provider",
+   "@type": "Dataset Type",
+   "name": "Komodo Claims by Provider (HCP \u00d7 Affiliation Aggregate)",
+   "description": "Komodo claims aggregated to HCP with affiliated organisation and system, rolling time windows (C3M/C6M/C12M), total vs non-hemodialysis volume and claims.",
+   "keywords": [
+    "dataset",
+    "provider-aggregates",
+    "warehouse",
+    "komodo"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:data-assets/patient-claims/komodo-claims"
+    }
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/gold-komodo-monoferric-claims-by-provider"
+    }
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:data-assets/promotion/crm-calls"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/provider-aggregates/cms-part-d-prescriber",
+   "@type": "Dataset Type",
+   "name": "CMS Medicare Part D Prescribers PUF",
+   "description": "Public Medicare Part D claims and costs by prescriber NPI and drug.",
+   "keywords": [
+    "dataset",
+    "provider-aggregates"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/provider-aggregates/cms-part-b-provider",
+   "@type": "Dataset Type",
+   "name": "CMS Medicare Physician & Other Practitioners PUF",
+   "description": "Public Part B services and payments by NPI and HCPCS (includes J-codes).",
+   "keywords": [
+    "dataset",
+    "provider-aggregates"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/reference/nppes",
+   "@type": "Dataset Type",
+   "name": "NPPES NPI File",
+   "description": "CMS registry of all NPIs with names, addresses, taxonomy codes and entity type.",
+   "keywords": [
+    "dataset",
+    "reference",
+    "warehouse"
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/raw-npi-info"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/reference/iqvia-onekey",
+   "@type": "Dataset Type",
+   "name": "IQVIA OneKey",
+   "description": "Validated HCP/HCO reference data with affiliations, specialties and contact details.",
+   "keywords": [
+    "dataset",
+    "reference",
+    "warehouse"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/reference/veeva-opendata",
+   "@type": "Dataset Type",
+   "name": "Veeva OpenData / Network",
+   "description": "Veeva HCP/HCO reference data and MDM hub issuing VIDs, custom keys and hierarchies.",
+   "keywords": [
+    "dataset",
+    "reference",
+    "warehouse"
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/silver-dim-hco"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/reference/ama-masterfile",
+   "@type": "Dataset Type",
+   "name": "AMA Physician Masterfile",
+   "description": "Record of US physicians incl. residents, with ME numbers, specialties and PDRP status.",
+   "keywords": [
+    "dataset",
+    "reference"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/reference/hcp-hco-affiliation",
+   "@type": "Dataset Type",
+   "name": "HCP\u2013HCO Affiliation",
+   "description": "Many-to-many links between HCPs and the organisations/systems where they practise, with role and primary flag.",
+   "keywords": [
+    "dataset",
+    "reference",
+    "warehouse"
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/raw-npi-hco-mapping"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/reference/zip-to-territory",
+   "@type": "Dataset Type",
+   "name": "Zip-to-Territory (ZTT) Alignment",
+   "description": "Effective-dated mapping of 5-digit zip \u2192 territory \u2192 region \u2192 nation, plus account-level overrides.",
+   "keywords": [
+    "dataset",
+    "reference",
+    "warehouse"
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/silver-curr-ztt"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/reference/account-alignment",
+   "@type": "Dataset Type",
+   "name": "Account / Network Alignment",
+   "description": "Account-level (VID-based) territory assignment that can override zip alignment for key accounts.",
+   "keywords": [
+    "dataset",
+    "reference",
+    "warehouse"
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/silver-network-all-dim-alignment"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/reference/drug-mapping",
+   "@type": "Dataset Type",
+   "name": "Claims Drug Mapping (NDC \u2192 Product/Market)",
+   "description": "Lookup mapping NDC11/USC to product, molecule, form, strength and market (e.g. IQVIA claims drug mapping).",
+   "keywords": [
+    "dataset",
+    "reference",
+    "warehouse"
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/raw-iqvia-claims-drug-mapping"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/reference/time-dimension",
+   "@type": "Dataset Type",
+   "name": "Calendar / Time Dimension",
+   "description": "Canonical calendar with week-ending, month, quarter, trimester and rolling-window flags aligned to vendor data weeks.",
+   "keywords": [
+    "dataset",
+    "reference",
+    "warehouse"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/promotion/crm-calls",
+   "@type": "Dataset Type",
+   "name": "CRM Call Activity (Veeva)",
+   "description": "Rep and MSL interactions recorded in CRM: calls, approved emails (RTE), meetings, products discussed and samples.",
+   "keywords": [
+    "dataset",
+    "promotion",
+    "warehouse"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-model/entities/call"
+    }
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/bronze-raw-veeva-calls"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/promotion/samples",
+   "@type": "Dataset Type",
+   "name": "Sample Transactions",
+   "description": "PDMA-regulated sample disbursements with lot numbers and signatures.",
+   "keywords": [
+    "dataset",
+    "promotion"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:regulation/statutes/pdma"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/promotion/speaker-programs",
+   "@type": "Dataset Type",
+   "name": "Speaker Program Data",
+   "description": "Events, speakers, attendees and honoraria for promotional speaker programmes.",
+   "keywords": [
+    "dataset",
+    "promotion"
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:data-assets/promotion/open-payments"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/promotion/open-payments",
+   "@type": "Dataset Type",
+   "name": "CMS Open Payments",
+   "description": "Public record of manufacturer and GPO transfers of value to physicians, NPPs and teaching hospitals.",
+   "keywords": [
+    "dataset",
+    "promotion"
+   ],
+   "rel:established_by": [
+    {
+     "@id": "okf:regulation/fraud-abuse/sunshine-act"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/promotion/digital-engagement",
+   "@type": "Dataset Type",
+   "name": "Digital & Omnichannel Engagement",
+   "description": "HCP email opens, web/portal visits, webinars and programmatic media exposure.",
+   "keywords": [
+    "dataset",
+    "promotion"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/promotion/promotional-audit",
+   "@type": "Dataset Type",
+   "name": "Promotional Audit (Competitive)",
+   "description": "Panel-based estimates of competitor details, samples and spend.",
+   "keywords": [
+    "dataset",
+    "promotion"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/access/formulary-data",
+   "@type": "Dataset Type",
+   "name": "Formulary & Policy Data",
+   "description": "Plan-level coverage, tier, PA/step-therapy policy and covered lives by product.",
+   "keywords": [
+    "dataset",
+    "access"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/access/payer-lives",
+   "@type": "Dataset Type",
+   "name": "Payer & Covered Lives",
+   "description": "Enrollment counts by plan, PBM, channel and geography.",
+   "keywords": [
+    "dataset",
+    "access"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/access/hub-data",
+   "@type": "Dataset Type",
+   "name": "Hub / Patient Services Data",
+   "description": "Case records from manufacturer hubs: enrolments, benefit verification, PA support, financial assistance, SP triage.",
+   "keywords": [
+    "dataset",
+    "access"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:market-access/hub-services"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/access/sp-data-feed",
+   "@type": "Dataset Type",
+   "name": "Specialty Pharmacy Data Feed",
+   "description": "Status and dispense records from network SPs (referral received, PA pending, shipped, discontinued).",
+   "keywords": [
+    "dataset",
+    "access"
+   ],
+   "rel:provided_by": [
+    {
+     "@id": "okf:actors/pharmacies/specialty-pharmacy"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/access/copay-program-data",
+   "@type": "Dataset Type",
+   "name": "Copay Program Data",
+   "description": "Claims paid by the manufacturer copay programme via its BIN/PCN.",
+   "keywords": [
+    "dataset",
+    "access"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:claims/pharmacy/copay-card-claim"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/access/epa-data",
+   "@type": "Dataset Type",
+   "name": "ePA Transaction Data",
+   "description": "Electronic prior authorisation requests and outcomes.",
+   "keywords": [
+    "dataset",
+    "access"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/clinical-rwd/ehr-data",
+   "@type": "Dataset Type",
+   "name": "EHR Data",
+   "description": "De-identified electronic health record data (problems, meds, vitals, notes-derived).",
+   "keywords": [
+    "dataset",
+    "clinical-rwd"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/clinical-rwd/lab-data",
+   "@type": "Dataset Type",
+   "name": "Lab Results Data",
+   "description": "De-identified lab results with LOINC codes and values.",
+   "keywords": [
+    "dataset",
+    "clinical-rwd"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/clinical-rwd/mortality-data",
+   "@type": "Dataset Type",
+   "name": "Mortality Data",
+   "description": "Death records linked by token to claims (e.g. LAAD enhanced with mortality).",
+   "keywords": [
+    "dataset",
+    "clinical-rwd"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/clinical-rwd/consumer-sdoh",
+   "@type": "Dataset Type",
+   "name": "Consumer & SDOH Data",
+   "description": "Socioeconomic and lifestyle attributes linked to de-identified patients.",
+   "keywords": [
+    "dataset",
+    "clinical-rwd"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/finance/contracts-data",
+   "@type": "Dataset Type",
+   "name": "Contracts & Customer Eligibility",
+   "description": "Contract terms, tiers, price lists and eligible-member rosters (GPO, IDN, PBM, 340B).",
+   "keywords": [
+    "dataset",
+    "finance"
+   ]
+  },
+  {
+   "@id": "okf:data-assets/finance/edi-844-849-chargebacks",
+   "@type": "Dataset Type",
+   "name": "Chargeback Data (844/849)",
+   "description": "Wholesaler chargeback claims and manufacturer responses per resale line.",
+   "keywords": [
+    "dataset",
+    "finance"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:distribution-edi/edi-844-849"
+    }
+   ],
+   "rel:measures": [
+    {
+     "@id": "okf:pricing-gtn/chargeback"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/finance/rebate-utilization",
+   "@type": "Dataset Type",
+   "name": "Rebate Utilisation Invoices",
+   "description": "PBM/plan invoices listing claim-level or aggregated utilisation subject to rebates.",
+   "keywords": [
+    "dataset",
+    "finance"
+   ],
+   "rel:measures": [
+    {
+     "@id": "okf:pricing-gtn/commercial-rebate"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/finance/medicaid-state-invoice",
+   "@type": "Dataset Type",
+   "name": "Medicaid State Invoices (CMS-R-144)",
+   "description": "Quarterly state invoices of utilisation units \u00d7 URA.",
+   "keywords": [
+    "dataset",
+    "finance"
+   ],
+   "rel:measures": [
+    {
+     "@id": "okf:pricing-gtn/medicaid-rebate"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-assets/finance/government-pricing-calc",
+   "@type": "Dataset Type",
+   "name": "Government Pricing Calculations",
+   "description": "Monthly/quarterly AMP, BP, ASP, 340B ceiling and FSS calculations from all eligible transactions.",
+   "keywords": [
+    "dataset",
+    "finance"
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/sales-rep",
+   "@type": "Role",
+   "name": "Pharmaceutical Sales Representative",
+   "description": "Field employee who delivers on-label product messages, samples and access information to HCPs and accounts; measured on calls, reach/frequency and territory sales.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/promotion/crm-calls"
+    }
+   ],
+   "rel:aligned_to": [
+    {
+     "@id": "okf:data-model/entities/territory"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/msl",
+   "@type": "Role",
+   "name": "Medical Science Liaison (MSL)",
+   "description": "Non-promotional scientific role engaging KOLs and answering unsolicited medical questions; separate from sales.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:restricted_by": [
+    {
+     "@id": "okf:regulation/fda/off-label-promotion"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/kam",
+   "@type": "Role",
+   "name": "Key Account Manager",
+   "description": "Manages IDNs, health systems and large accounts (contracts, P&T, pathways).",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:actors/providers/idn"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/field-reimbursement-manager",
+   "@type": "Role",
+   "name": "Field Reimbursement Manager",
+   "description": "Supports offices with benefit verification, PA and coding within Anti-Kickback limits.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:restricted_by": [
+    {
+     "@id": "okf:regulation/fraud-abuse/anti-kickback-statute"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/targeting-segmentation",
+   "@type": "Process",
+   "name": "Targeting, Segmentation & Deciling",
+   "description": "Ranks HCPs/accounts into deciles by market volume (Rx, claims, sales) and potential to decide who reps call on.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:data-assets/rx-audit/iqvia-xponent"
+    },
+    {
+     "@id": "okf:data-assets/provider-aggregates/komodo-claims-by-provider"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/call-plan",
+   "@type": "Process",
+   "name": "Call Plan",
+   "description": "Target list \u00d7 planned frequency per cycle for each territory.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:commercial-operations/targeting-segmentation"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/territory-alignment",
+   "@type": "Process",
+   "name": "Territory Design & Alignment",
+   "description": "Assignment of geographies (zips) and accounts to territories, balancing workload and potential; usually realigned annually.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/reference/zip-to-territory"
+    },
+    {
+     "@id": "okf:data-assets/reference/account-alignment"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/sales-force-sizing",
+   "@type": "Process",
+   "name": "Sales Force Sizing",
+   "description": "Rep count = targets \u00d7 frequency \u00f7 capacity, tested against response curves.",
+   "keywords": [
+    "commercial"
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/crm",
+   "@type": "Process",
+   "name": "CRM for Life Sciences",
+   "description": "System recording accounts, calls, samples, approved emails and events (Veeva CRM/Vault CRM, Salesforce Life Sciences Cloud, IQVIA OCE).",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/promotion/crm-calls"
+    },
+    {
+     "@id": "okf:data-assets/promotion/samples"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/sampling",
+   "@type": "Process",
+   "name": "Sampling & Sample Accountability",
+   "description": "Distribution of free samples under PDMA with signed requests, lot tracking and reconciliation.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:regulated_by": [
+    {
+     "@id": "okf:regulation/statutes/pdma"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/incentive-compensation",
+   "@type": "Process",
+   "name": "Incentive Compensation (IC)",
+   "description": "Rep payout computed from goals and credited sales (867/DDD, Xponent, SP) via alignment rules.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ics-867"
+    },
+    {
+     "@id": "okf:data-assets/reference/zip-to-territory"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/omnichannel",
+   "@type": "Process",
+   "name": "Omnichannel Engagement & Next Best Action",
+   "description": "Coordinated rep, email, web and media touches with model-driven next-best-action suggestions.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/promotion/digital-engagement"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/customer-master-mdm",
+   "@type": "Process",
+   "name": "Customer Master Data Management (MDM)",
+   "description": "Golden HCP/HCO records built by matching NPPES, OneKey, Veeva, AMA, DEA/HIN and source keys; every sales/claims feed is mastered to it.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:data-assets/reference/veeva-opendata"
+    },
+    {
+     "@id": "okf:data-assets/reference/nppes"
+    },
+    {
+     "@id": "okf:data-assets/reference/iqvia-onekey"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/hco-hierarchy",
+   "@type": "Process",
+   "name": "HCO Hierarchy",
+   "description": "System (IDN) \u2192 organisation \u2192 site/department hierarchy; in the warehouse SYS_VID \u2192 ORG_VID.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:commercial-operations/customer-master-mdm"
+    }
+   ]
+  },
+  {
+   "@id": "okf:commercial-operations/prescriber-matching",
+   "@type": "Process",
+   "name": "Prescriber & Ship-to Matching",
+   "description": "Mapping vendor IDs (IMS ID, DEA, HIN, custom keys) to master VIDs/NPIs; the unmatched rate is a key data-quality KPI.",
+   "keywords": [
+    "commercial"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:commercial-operations/customer-master-mdm"
+    }
+   ]
+  },
+  {
+   "@id": "okf:market-access/hub-services",
+   "@type": "Process",
+   "name": "Hub Services",
+   "description": "Manufacturer-funded patient services: benefit verification, PA support, financial assistance triage, SP routing, adherence.",
+   "keywords": [
+    "access"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/access/hub-data"
+    }
+   ]
+  },
+  {
+   "@id": "okf:market-access/copay-assistance",
+   "@type": "Process",
+   "name": "Copay Assistance",
+   "description": "Manufacturer cards reducing commercial patients' out-of-pocket cost; excluded for federal programmes under the AKS.",
+   "keywords": [
+    "access"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/access/copay-program-data"
+    }
+   ]
+  },
+  {
+   "@id": "okf:market-access/copay-accumulators",
+   "@type": "Process",
+   "name": "Copay Accumulators & Maximizers",
+   "description": "Plan designs where assistance doesn't count toward deductible/OOP or is spread to exhaust programme maximums.",
+   "keywords": [
+    "access"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:market-access/copay-assistance"
+    }
+   ]
+  },
+  {
+   "@id": "okf:market-access/patient-assistance-program",
+   "@type": "Process",
+   "name": "Patient Assistance Program (PAP)",
+   "description": "Free drug for uninsured/underinsured patients via a foundation or manufacturer programme.",
+   "keywords": [
+    "access"
+   ]
+  },
+  {
+   "@id": "okf:market-access/sp-network-design",
+   "@type": "Process",
+   "name": "Specialty Pharmacy Network Design",
+   "description": "Open, limited or exclusive SP networks with data and service agreements.",
+   "keywords": [
+    "access"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/access/sp-data-feed"
+    }
+   ]
+  },
+  {
+   "@id": "okf:market-access/payer-contracting",
+   "@type": "Process",
+   "name": "Payer Contracting & Pull-Through",
+   "description": "Negotiating formulary position for rebates, then ensuring field teams communicate the win.",
+   "keywords": [
+    "access"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/finance/rebate-utilization"
+    }
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/cro",
+   "@type": "Service Category",
+   "name": "Contract Research Organization (CRO)",
+   "description": "Clinical trial design, site management, monitoring, data management, biostatistics and submissions.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/cdmo",
+   "@type": "Service Category",
+   "name": "CDMO / CMO",
+   "description": "Contract development and manufacturing of APIs, drug products and biologics, fill-finish and packaging.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/commercial-data-provider",
+   "@type": "Service Category",
+   "name": "Commercial Data Provider",
+   "description": "Licenses Rx, claims, sales, reference and formulary data.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/tokenization-privacy",
+   "@type": "Service Category",
+   "name": "Tokenization & Privacy",
+   "description": "De-identification, patient tokens and HIPAA expert determinations for linking data.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/crm-software",
+   "@type": "Service Category",
+   "name": "CRM & Commercial Software",
+   "description": "CRM, content/MLR, reference data and MDM platforms.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/commercial-analytics",
+   "@type": "Service Category",
+   "name": "Commercial Analytics & Consulting",
+   "description": "Targeting, alignment, sizing, IC, forecasting, launch, brand analytics, data management and BI (often with offshore delivery).",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/it-services",
+   "@type": "Service Category",
+   "name": "IT & Data Platform Services",
+   "description": "Data platforms (Databricks, Snowflake), integration, MDM implementation and AI engineering.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/cso",
+   "@type": "Service Category",
+   "name": "Contract Sales Organization (CSO)",
+   "description": "Outsourced field sales forces and inside sales.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/hub-patient-services",
+   "@type": "Service Category",
+   "name": "Hub & Patient Services Providers",
+   "description": "Hub operations, BV/PA, copay administration, nurse educators.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/3pl-logistics",
+   "@type": "Service Category",
+   "name": "3PL & Specialty Logistics",
+   "description": "Warehousing, order-to-cash, cold chain and DSCSA serialisation.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/gtn-channel-data",
+   "@type": "Service Category",
+   "name": "GTN, Contracting & Channel Data Management",
+   "description": "Contract management, chargebacks, rebates, government pricing, and aggregation of 867/852/SP feeds.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/market-access-heor",
+   "@type": "Service Category",
+   "name": "Market Access, Pricing & HEOR",
+   "description": "Value dossiers, pricing strategy, HEOR and RWE studies.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/regulatory-pv",
+   "@type": "Service Category",
+   "name": "Regulatory & Pharmacovigilance Outsourcing",
+   "description": "Submission publishing, AE case processing and signal detection.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/medcomms-agencies",
+   "@type": "Service Category",
+   "name": "Medical Communications & Healthcare Marketing Agencies",
+   "description": "Publications, medical information, HCP/DTC creative and media.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/categories/compliance-transparency",
+   "@type": "Service Category",
+   "name": "Compliance & Transparency Services",
+   "description": "Open Payments aggregate spend, speaker-programme management, state reporting.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/engagement-models",
+   "@type": "Concept",
+   "name": "Service Engagement Models",
+   "description": "How pharma buys services: FSP, full-service outsourcing, SaaS subscription, data licence, managed services/offshore delivery and project consulting.",
+   "keywords": [
+    "service-provider"
+   ]
+  },
+  {
+   "@id": "okf:service-providers/vendors/iqvia",
+   "@type": "Vendor",
+   "name": "IQVIA",
+   "description": "Largest provider of pharma data (Xponent, NPA, DDD, LAAD, OneKey), analytics, CRO and CSO services.",
+   "keywords": [
+    "vendor"
+   ],
+   "rel:provides": [
+    {
+     "@id": "okf:data-assets/rx-audit/iqvia-xponent"
+    },
+    {
+     "@id": "okf:data-assets/patient-claims/iqvia-laad"
+    },
+    {
+     "@id": "okf:data-assets/sales-distribution/iqvia-ddd"
+    }
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:service-providers/categories/commercial-data-provider"
+    }
+   ]
+  },
+  {
+   "@id": "okf:service-providers/vendors/komodo-health",
+   "@type": "Vendor",
+   "name": "Komodo Health",
+   "description": "Healthcare data and analytics company whose Healthcare Map links open and closed claims for 330M+ patients.",
+   "keywords": [
+    "vendor"
+   ],
+   "rel:provides": [
+    {
+     "@id": "okf:data-assets/patient-claims/komodo-healthcare-map"
+    }
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:service-providers/categories/commercial-data-provider"
+    }
+   ]
+  },
+  {
+   "@id": "okf:service-providers/vendors/symphony-health",
+   "@type": "Vendor",
+   "name": "Symphony Health (ICON)",
+   "description": "Rx and claims data provider owned by ICON.",
+   "keywords": [
+    "vendor"
+   ],
+   "rel:provides": [
+    {
+     "@id": "okf:data-assets/patient-claims/symphony-idv"
+    }
+   ]
+  },
+  {
+   "@id": "okf:service-providers/vendors/veeva",
+   "@type": "Vendor",
+   "name": "Veeva Systems",
+   "description": "CRM, OpenData/Network MDM and Vault applications for life sciences.",
+   "keywords": [
+    "vendor"
+   ],
+   "rel:provides": [
+    {
+     "@id": "okf:data-assets/reference/veeva-opendata"
+    }
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:service-providers/categories/crm-software"
+    }
+   ]
+  },
+  {
+   "@id": "okf:service-providers/vendors/surescripts",
+   "@type": "Vendor",
+   "name": "Surescripts",
+   "description": "Dominant US e-prescribing network (eRx, EPCS, RTPB, medication history, ePA).",
+   "keywords": [
+    "vendor"
+   ],
+   "rel:provides": [
+    {
+     "@id": "okf:prescriptions/e-prescribing"
+    }
+   ]
+  },
+  {
+   "@id": "okf:service-providers/vendors/datavant",
+   "@type": "Vendor",
+   "name": "Datavant",
+   "description": "Patient tokenisation and data-linking network.",
+   "keywords": [
+    "vendor"
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:service-providers/categories/tokenization-privacy"
+    }
+   ]
+  },
+  {
+   "@id": "okf:service-providers/vendors/integrichain",
+   "@type": "Vendor",
+   "name": "IntegriChain",
+   "description": "Channel data management (867/852/SP aggregation), contracting and GTN platforms.",
+   "keywords": [
+    "vendor"
+   ],
+   "rel:is_a": [
+    {
+     "@id": "okf:service-providers/categories/gtn-channel-data"
+    }
+   ]
+  },
+  {
+   "@id": "okf:service-providers/vendors/mmit",
+   "@type": "Vendor",
+   "name": "MMIT",
+   "description": "Formulary, policy and payer-lives data.",
+   "keywords": [
+    "vendor"
+   ],
+   "rel:provides": [
+    {
+     "@id": "okf:data-assets/access/formulary-data"
+    }
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/market-share",
+   "@type": "Metric",
+   "name": "Market Share",
+   "description": "Brand TRx/NRx/NBRx, units or $ divided by the market basket total for the same dataset and period.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/persistence",
+   "@type": "Metric",
+   "name": "Persistence",
+   "description": "Share of patients still on therapy N days after start (allowing a gap), from patient-level claims.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/adherence-pdc",
+   "@type": "Metric",
+   "name": "Adherence (PDC / MPR)",
+   "description": "Proportion of days covered or medication possession ratio over a period.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/lines-of-therapy",
+   "@type": "Metric",
+   "name": "Lines of Therapy",
+   "description": "Sequencing of regimens per patient using claims rules (gap, add-on, switch).",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/patient-journey",
+   "@type": "Metric",
+   "name": "Patient Journey",
+   "description": "Diagnosis \u2192 referral \u2192 Rx \u2192 PA \u2192 dispense/administration \u2192 persistence, built from linked claims and hub/SP data.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/time-to-therapy",
+   "@type": "Metric",
+   "name": "Time to Therapy",
+   "description": "Days from referral/written date to first dispense or administration.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/approval-rejection-rates",
+   "@type": "Metric",
+   "name": "Approval, Rejection & Abandonment Rates",
+   "description": "Initial vs final claim outcomes from lifecycle claims (LAAD/FIA).",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/payer-mix",
+   "@type": "Metric",
+   "name": "Payer Mix",
+   "description": "Distribution of a brand's volume by channel (commercial, Part D, Medicaid, cash).",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/reach-frequency",
+   "@type": "Metric",
+   "name": "Reach & Frequency",
+   "description": "Share of targets called and average calls per target per period, from CRM.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/promotion-response",
+   "@type": "Metric",
+   "name": "Promotion Response",
+   "description": "Statistical lift in Rx/sales attributable to calls, samples and digital touches.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/launch-tracking",
+   "@type": "Metric",
+   "name": "Launch Tracking",
+   "description": "Early indicators for new brands: trial prescribers, NBRx, access, time to therapy.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/loe-erosion",
+   "@type": "Metric",
+   "name": "Loss of Exclusivity & Generic Erosion",
+   "description": "Volume and price decline after generic/biosimilar entry.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/gtn-rate",
+   "@type": "Metric",
+   "name": "GTN Rate",
+   "description": "Total deductions \u00f7 gross sales.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/channel-inventory",
+   "@type": "Metric",
+   "name": "Channel Inventory / Days on Hand",
+   "description": "Ex-factory sell-in minus 867 sell-through, or 852 on-hand \u00f7 daily demand.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:analytics-kpis/forecasting",
+   "@type": "Metric",
+   "name": "Forecasting",
+   "description": "Patient- or trend-based demand and revenue projections.",
+   "keywords": [
+    "kpi"
+   ]
+  },
+  {
+   "@id": "okf:data-flows/rx-to-pharmacy-claim",
+   "@type": "Data Flow",
+   "name": "Prescription to Pharmacy Claim (hop by hop)",
+   "description": "From the HCP's order to PBM rebate invoices, with the dataset captured at each hop.",
+   "keywords": [
+    "flow"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:claims/pharmacy/pharmacy-claim-flow"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/rx-audit/iqvia-xponent"
+    },
+    {
+     "@id": "okf:data-assets/patient-claims/iqvia-laad"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-flows/iv-drug-to-medical-claim",
+   "@type": "Data Flow",
+   "name": "Physician-Administered (IV) Drug Flow",
+   "description": "Manufacturer \u2192 3PL/specialty distributor \u2192 clinic/hospital (867) \u2192 administration \u2192 837 medical claim (J-code) \u2192 Komodo/LAAD Mx claims.",
+   "keywords": [
+    "flow",
+    "specialty"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ics-867"
+    },
+    {
+     "@id": "okf:data-assets/patient-claims/komodo-claims"
+    }
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:claims/medical/buy-and-bill"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-flows/medical-claim",
+   "@type": "Data Flow",
+   "name": "Medical Claim Data Flow",
+   "description": "Provider \u2192 clearinghouse \u2192 payer \u2192 835; captured as open claims (clearinghouse) and closed claims (payer).",
+   "keywords": [
+    "flow"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:claims/medical/medical-claim-flow"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-flows/product-and-trade",
+   "@type": "Data Flow",
+   "name": "Product, Trade & Chargeback Flow",
+   "description": "Ex-factory \u2192 3PL \u2192 wholesaler \u2192 account with 867/852/844 data and contract pricing.",
+   "keywords": [
+    "flow"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:distribution-edi/product-trade-flow"
+    }
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:data-assets/finance/edi-844-849-chargebacks"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-flows/money-flow",
+   "@type": "Data Flow",
+   "name": "Money Flow",
+   "description": "Wholesaler pays WAC; PBM reimburses pharmacy; plan pays PBM; manufacturer pays chargebacks, rebates, Medicaid/Part D discounts and copay.",
+   "keywords": [
+    "flow",
+    "pricing"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:pricing-gtn/gross-to-net"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/hcp",
+   "@type": "Entity",
+   "name": "HCP",
+   "description": "Individual prescriber.",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:affiliated_with": [
+    {
+     "@id": "okf:data-model/entities/hco"
+    }
+   ],
+   "rel:aligned_to": [
+    {
+     "@id": "okf:data-model/entities/territory"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/hco",
+   "@type": "Entity",
+   "name": "HCO",
+   "description": "Organisation/account (dim_hco).",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:actors/providers/idn"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/patient",
+   "@type": "Entity",
+   "name": "Patient",
+   "description": "De-identified patient.",
+   "keywords": [
+    "data-model"
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/product",
+   "@type": "Entity",
+   "name": "Product",
+   "description": "Drug package and its hierarchy.",
+   "keywords": [
+    "data-model"
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/prescription",
+   "@type": "Entity",
+   "name": "Prescription",
+   "description": "Order and its fills.",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:prescribes": [
+    {
+     "@id": "okf:data-model/entities/hcp"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/pharmacy-claim",
+   "@type": "Entity",
+   "name": "Pharmacy Claim",
+   "description": "NCPDP transaction / final fill.",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:adjudicated_by": [
+    {
+     "@id": "okf:data-model/entities/pbm"
+    }
+   ],
+   "rel:identified_by": [
+    {
+     "@id": "okf:identifiers/payer/bin-pcn-group"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/medical-claim",
+   "@type": "Entity",
+   "name": "Medical Claim",
+   "description": "837 claim and lines.",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:data-model/entities/hco"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/payer-plan",
+   "@type": "Entity",
+   "name": "Payer / Plan",
+   "description": "Benefit plan.",
+   "keywords": [
+    "data-model"
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/pbm",
+   "@type": "Entity",
+   "name": "PBM",
+   "description": "Pharmacy benefit manager.",
+   "keywords": [
+    "data-model"
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/pharmacy",
+   "@type": "Entity",
+   "name": "Pharmacy",
+   "description": "Dispensing location.",
+   "keywords": [
+    "data-model"
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/territory",
+   "@type": "Entity",
+   "name": "Territory",
+   "description": "Sales geography (effective-dated).",
+   "keywords": [
+    "data-model"
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/rep",
+   "@type": "Entity",
+   "name": "Rep",
+   "description": "Field user.",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:aligned_to": [
+    {
+     "@id": "okf:data-model/entities/territory"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/call",
+   "@type": "Entity",
+   "name": "Call",
+   "description": "CRM interaction.",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:data-model/entities/hcp"
+    },
+    {
+     "@id": "okf:data-model/entities/rep"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/sample",
+   "@type": "Entity",
+   "name": "Sample",
+   "description": "Sample disbursement.",
+   "keywords": [
+    "data-model"
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/shipment",
+   "@type": "Entity",
+   "name": "Shipment / Sale Line",
+   "description": "867 or ex-factory line.",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:ships_to": [
+    {
+     "@id": "okf:data-model/entities/hco"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/contract",
+   "@type": "Entity",
+   "name": "Contract",
+   "description": "Pricing agreement.",
+   "keywords": [
+    "data-model"
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/chargeback",
+   "@type": "Entity",
+   "name": "Chargeback",
+   "description": "844 line.",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:part_of": [
+    {
+     "@id": "okf:data-model/entities/contract"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/rebate",
+   "@type": "Entity",
+   "name": "Rebate",
+   "description": "Rebate invoice line.",
+   "keywords": [
+    "data-model"
+   ]
+  },
+  {
+   "@id": "okf:data-model/entities/payment",
+   "@type": "Entity",
+   "name": "Transfer of Value",
+   "description": "Open Payments record.",
+   "keywords": [
+    "data-model"
+   ],
+   "rel:related_to": [
+    {
+     "@id": "okf:data-model/entities/hcp"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/joins/xponent-to-hcp",
+   "@type": "Join Path",
+   "name": "Xponent \u2192 HCP \u2192 Territory",
+   "description": "Map IMS_PRESCRIBER_ID/NPI_ID to the master HCP, then HCP zip \u2192 ZTT territory.",
+   "keywords": [
+    "join"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:data-assets/rx-audit/iqvia-xponent"
+    },
+    {
+     "@id": "okf:data-model/entities/hcp"
+    },
+    {
+     "@id": "okf:data-assets/reference/zip-to-territory"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/joins/claims-to-product",
+   "@type": "Join Path",
+   "name": "Claims \u2192 Product",
+   "description": "Normalise NDC to 11 digits \u2192 drug mapping/product master \u2192 NDC-9 roll-up; for medical lines use HCPCS \u2192 NDC crosswalk with unit conversion.",
+   "keywords": [
+    "join"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:data-assets/reference/drug-mapping"
+    },
+    {
+     "@id": "okf:reference-data/ndc-hcpcs-crosswalk"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/joins/867-to-hco",
+   "@type": "Join Path",
+   "name": "867 \u2192 HCO \u2192 System",
+   "description": "Ship-to DEA/HIN/custom key \u2192 Veeva custom-key crosswalk \u2192 ORG_VID \u2192 SYS_VID; then account/zip alignment.",
+   "keywords": [
+    "join"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ics-867"
+    },
+    {
+     "@id": "okf:data-assets/reference/veeva-opendata"
+    },
+    {
+     "@id": "okf:data-assets/reference/account-alignment"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/joins/claims-to-plan",
+   "@type": "Join Path",
+   "name": "Pharmacy Claim \u2192 Plan \u2192 Formulary",
+   "description": "BIN+PCN+Group or PLAN_ID \u2192 plan master \u2192 formulary status at date of service.",
+   "keywords": [
+    "join"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:data-assets/access/formulary-data"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/joins/patient-linkage",
+   "@type": "Join Path",
+   "name": "Patient Linkage Across Sources",
+   "description": "Token-to-token linkage across LAAD, Komodo, EHR, lab, hub/SP \u2014 only under expert determination and licence.",
+   "keywords": [
+    "join"
+   ],
+   "rel:restricted_by": [
+    {
+     "@id": "okf:regulation/privacy/hipaa-deidentification"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/joins/crm-to-rx",
+   "@type": "Join Path",
+   "name": "CRM Calls \u2192 Rx / Claims Volume",
+   "description": "HCP_VID (or NPI_VOD) joins calls to Xponent and Komodo-by-provider; analyse with a lagged response window.",
+   "keywords": [
+    "join"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:data-assets/promotion/crm-calls"
+    },
+    {
+     "@id": "okf:data-assets/provider-aggregates/komodo-claims-by-provider"
+    }
+   ]
+  },
+  {
+   "@id": "okf:data-model/joins/867-to-komodo",
+   "@type": "Join Path",
+   "name": "867 Sales \u2194 Komodo Claims (IV drugs)",
+   "description": "Join at HCO/system level: fct_ics_867.ORG_VID/SYS_VID = AFFILIATED_ORG_VID/AFFILIATED_SYSTEM_VID (cast DOUBLE VIDs to string first) to compare purchases vs administrations.",
+   "keywords": [
+    "join"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ics-867"
+    },
+    {
+     "@id": "okf:data-assets/provider-aggregates/komodo-claims-by-provider"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/bronze-raw-ics-867",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.raw_ics_867",
+   "description": "Raw landing of ICS 867 EDI/sales files.",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ics-867"
+    }
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/bronze-stg-ics-867"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/bronze-stg-ics-867",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.stg_ics_867",
+   "description": "Typed, de-duplicated ICS 867 staging rows from the raw_to_stg task.",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ics-867"
+    }
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/silver-fct-ics-867"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/silver-fct-ics-867",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.silver.fct_ics_867",
+   "description": "Curated ICS 867 invoice-line fact enriched with HCO/system VIDs, customer data and two territory alignments.",
+   "keywords": [
+    "warehouse",
+    "silver"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/sales-distribution/ics-867"
+    }
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:warehouse/tables/bronze-stg-ics-867"
+    },
+    {
+     "@id": "okf:warehouse/tables/silver-dim-hco"
+    },
+    {
+     "@id": "okf:warehouse/tables/silver-curr-ztt"
+    },
+    {
+     "@id": "okf:warehouse/tables/silver-network-all-dim-alignment"
+    }
+   ],
+   "rel:feeds": [
+    {
+     "@id": "okf:warehouse/tables/gold-bi-account-sales"
+    }
+   ],
+   "rel:implements": [
+    {
+     "@id": "okf:data-model/entities/shipment"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/gold-bi-account-sales",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.gold.bi_account_sales",
+   "description": "Gold BI mart rolling fct_ics_867 up to organisation/product.",
+   "keywords": [
+    "warehouse",
+    "gold"
+   ],
+   "rel:derived_from": [
+    {
+     "@id": "okf:warehouse/tables/silver-fct-ics-867"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/silver-dim-hco",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.silver.dim_hco",
+   "description": "Curated HCO master dimension keyed by ORG_VID.",
+   "keywords": [
+    "warehouse",
+    "silver"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/reference/veeva-opendata"
+    }
+   ],
+   "rel:implements": [
+    {
+     "@id": "okf:data-model/entities/hco"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/silver-curr-ztt",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.silver.curr_ztt",
+   "description": "Current zip \u2192 territory/team snapshot.",
+   "keywords": [
+    "warehouse",
+    "silver"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/reference/zip-to-territory"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/silver-network-all-dim-alignment",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.silver.network_all_dim_alignment",
+   "description": "Account (VID) territory/region/national alignment.",
+   "keywords": [
+    "warehouse",
+    "silver"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/reference/account-alignment"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/silver-fct-time",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.silver.fct_time",
+   "description": "Canonical calendar dimension.",
+   "keywords": [
+    "warehouse",
+    "silver"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/reference/time-dimension"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/gold-rx-mx-claims",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.gold.rx_mx_claims",
+   "description": "Uploaded patient-level Rx + Mx claims table in IQVIA LAAD layout (claim status, reject codes, copay card, NBRx, Dx/Px codes).",
+   "keywords": [
+    "warehouse",
+    "gold"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/patient-claims/iqvia-laad"
+    }
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:warehouse/tables/raw-iqvia-claims-drug-mapping"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/gold-komodo-monoferric-claims-by-provider",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.gold.pharm_cosm_komodo_monoferric_fact_claims_by_provider_20260616",
+   "description": "Komodo claims for Monoferric (IV iron) aggregated by HCP with affiliated org/system, rolling windows and hemodialysis split.",
+   "keywords": [
+    "warehouse",
+    "gold"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/provider-aggregates/komodo-claims-by-provider"
+    }
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:warehouse/tables/bronze-raw-veeva-calls"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/bronze-raw-xponent",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.raw_xponent",
+   "description": "Raw IQVIA Xponent delivery (prescriber \u00d7 product group \u00d7 plan, wide weekly measures).",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/rx-audit/iqvia-xponent"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/raw-ddd",
+   "@type": "Warehouse Table",
+   "name": "intelliegencedatacatalog.ddd_sales.raw_ddd",
+   "description": "Raw IQVIA DDD delivery in wide format (one column per week, Sep 2024 \u2013 Jan 2026).",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/sales-distribution/iqvia-ddd"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/bronze-raw-snr-sales",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.raw_snr_sales",
+   "description": "SNR market \u00d7 product weekly sales with 340B flag, WAC $, AWP and units.",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/sales-distribution/snr-sales"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/bronze-raw-veeva-calls",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.raw_veeva_calls",
+   "description": "Raw Veeva CRM calls/RTE with HCP/HCO/system VIDs, segments, deciles and KOL flags for Monoferric and Cosela.",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/promotion/crm-calls"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/raw-npi-info",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.raw_npi_info",
+   "description": "NPI reference extract.",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/reference/nppes"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/raw-npi-hco-mapping",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.raw_npi_hco_mapping",
+   "description": "NPI \u2192 HCO affiliation mapping.",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/reference/hcp-hco-affiliation"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/raw-onekey",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.raw_onekey",
+   "description": "IQVIA OneKey reference extract.",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/reference/iqvia-onekey"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/raw-iqvia-claims-drug-mapping",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.raw_iqvia_claims_drug_mapping",
+   "description": "NDC11/USC \u2192 product attributes lookup for claims.",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:data-assets/reference/drug-mapping"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/raw-market-basket-treatments",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.raw_market_basket_treatments",
+   "description": "Market basket definition of competing treatments.",
+   "keywords": [
+    "warehouse",
+    "bronze"
+   ],
+   "rel:instance_of": [
+    {
+     "@id": "okf:reference-data/market-basket"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/pharm-cosm-sales-all-fact-daily-orders",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.gold.pharm_cosm_sales_all_fact_daily_orders_20260616",
+   "description": "Daily order-level sales fact (shares CONTRACT_ID / INVOICE_ID / NDC_QUALIFIER with fct_ics_867).",
+   "keywords": [
+    "warehouse",
+    "gold"
+   ],
+   "rel:joins_to": [
+    {
+     "@id": "okf:warehouse/tables/silver-fct-ics-867"
+    }
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/logs-bronze-layer",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.logs.bronze_layer_logs",
+   "description": "Run/audit events for bronze ingestion.",
+   "keywords": [
+    "warehouse",
+    "operational"
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/logs-gold-layer",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.logs.gold_layer_logs",
+   "description": "Run-level audit rows for the gold BI refresh.",
+   "keywords": [
+    "warehouse",
+    "operational"
+   ]
+  },
+  {
+   "@id": "okf:warehouse/tables/bronze-comm-table-log",
+   "@type": "Warehouse Table",
+   "name": "nexora_poc_catalog.bronze.comm_table_log",
+   "description": "One row per source file processed by ICS ingestion.",
+   "keywords": [
+    "warehouse",
+    "operational"
+   ]
+  },
+  {
+   "@id": "okf:warehouse/pipelines/ics-sales-ingestion",
+   "@type": "Pipeline",
+   "name": "ics_sales_ingestion (Databricks job 572339974626818)",
+   "description": "Multi-task job ingesting ICS 867 files through bronze \u2192 silver \u2192 gold and writing run logs.",
+   "keywords": [
+    "warehouse",
+    "pipeline"
+   ],
+   "rel:generates_data": [
+    {
+     "@id": "okf:warehouse/tables/bronze-raw-ics-867"
+    },
+    {
+     "@id": "okf:warehouse/tables/bronze-stg-ics-867"
+    },
+    {
+     "@id": "okf:warehouse/tables/silver-fct-ics-867"
+    },
+    {
+     "@id": "okf:warehouse/tables/gold-bi-account-sales"
+    },
+    {
+     "@id": "okf:warehouse/tables/silver-network-all-dim-alignment"
+    },
+    {
+     "@id": "okf:warehouse/tables/logs-bronze-layer"
+    },
+    {
+     "@id": "okf:warehouse/tables/logs-gold-layer"
+    },
+    {
+     "@id": "okf:warehouse/tables/bronze-comm-table-log"
+    }
+   ]
+  }
+ ]
+}

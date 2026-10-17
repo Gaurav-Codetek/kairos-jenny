@@ -1,0 +1,87 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: kairos-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kairos
+      POSTGRES_PASSWORD: kairos_dev
+      POSTGRES_DB: kairos
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kairos"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      args:
+        INSTALL_DEV: "true"   # pytest & co, for `test.bat`
+    container_name: kairos-api
+    restart: unless-stopped
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    ports:
+      - "8888:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    # No --reload on purpose. Enrichment runs are long-lived in-process
+    # asyncio tasks; a reload kills them mid-entity and leaves the work item
+    # stranded. Restart explicitly after code changes:
+    #   docker compose restart api
+    command: >
+      sh -c "alembic upgrade head && uvicorn kairos_kb.main:app --host 0.0.0.0 --port 8000"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: kairos-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@kairos.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_LISTEN_PORT: 5050
+    ports:
+      - "5051:5050"
+    depends_on:
+      - db
+
+  # Jenny's voice: Kokoro-82M (Apache 2.0), open-source text to speech that runs on a CPU.
+  # The API reaches it at http://voice:8880 (KAIROS_VOICE_URL); the screen asks the API, never this directly.
+  voice:
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+    container_name: kairos-voice
+    restart: unless-stopped
+    ports:
+      - "8880:8880"
+
+  # Jenny's body in Google Meet: a Chromium window that joins a meeting as "Jenny (Kairos)", speaks with her voice,
+  # shows her Stage on its camera and hears the meeting through its captions. The API sends it to a meeting
+  # (http://jenny-meet:7070) and it talks back over ws://api:8000. Smoke test: docker compose exec jenny-meet
+  #   xvfb-run -a node src/smoke.js   (camera screenshots in meet/out/)
+  jenny-meet:
+    build: ./meet
+    container_name: kairos-meet
+    restart: unless-stopped
+    init: true        # xvfb-run hangs as PID 1 (it waits for a signal PID 1 never gets)
+    shm_size: "1gb"   # Chromium needs more shared memory than Docker's default
+    ports:
+      - "7070:7070"
+      - "127.0.0.1:6080:6080"   # the one-time sign-in screen (noVNC): only reachable from this computer
+    volumes:
+      - ./meet/out:/app/out
+      - jenny_profile:/app/profile   # her signed-in Google account (cookies): private to this volume
+    environment:
+      KAIROS_API: http://api:8000
+
+volumes:
+  pgdata:
+  jenny_profile:
