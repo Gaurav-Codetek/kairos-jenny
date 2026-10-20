@@ -10,7 +10,7 @@ knows the business through **Kairos**, the context layer between your data and e
 Built for the **Nebius x NVIDIA Global AI Hackathon** · Track: **Best Apps and Agents**
 
 - 🎬 Demo video (under 3 minutes): https://youtu.be/gE65uxomFlo
-- 📄 Devpost: _submission link_
+- 📄 Devpost: [_submission link_](https://devpost.com/software/kairos-awqno4)
 
 ![Jenny's stage: GMV by city, from a live Google Meet](docs/screens/5-jenny-stage.jpg)
 
