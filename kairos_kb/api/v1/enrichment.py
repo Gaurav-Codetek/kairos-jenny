@@ -624,30 +624,34 @@ async def get_profile_yaml(
 @router.get("/discovered")
 async def list_discovered(
     limit: int = Query(200, ge=1, le=1000),
+    workspace_id: Optional[List[uuid.UUID]] = Query(None, description="Only these workspaces (repeatable)"),
     db: AsyncSession = Depends(get_db),
 ):
     """Everything the agent has added to the map that the sync never knew about."""
+    def scoped(query, model):
+        return query.where(model.workspace_id.in_(workspace_id)) if workspace_id else query
+
     relations = (
         await db.execute(
-            select(DiscoveredRelation).order_by(DiscoveredRelation.observed_at.desc()).limit(limit)
+            scoped(select(DiscoveredRelation), DiscoveredRelation).order_by(DiscoveredRelation.observed_at.desc()).limit(limit)
         )
     ).scalars().all()
     entities = (
         await db.execute(
-            select(DiscoveredEntity).order_by(DiscoveredEntity.first_seen_at.desc()).limit(limit)
+            scoped(select(DiscoveredEntity), DiscoveredEntity).order_by(DiscoveredEntity.first_seen_at.desc()).limit(limit)
         )
     ).scalars().all()
 
     by_type = (
         await db.execute(
-            select(DiscoveredRelation.relation_type, func.count())
+            scoped(select(DiscoveredRelation.relation_type, func.count()), DiscoveredRelation)
             .group_by(DiscoveredRelation.relation_type)
             .order_by(func.count().desc())
         )
     ).all()
     by_kind = (
         await db.execute(
-            select(DiscoveredEntity.kind, func.count())
+            scoped(select(DiscoveredEntity.kind, func.count()), DiscoveredEntity)
             .group_by(DiscoveredEntity.kind)
             .order_by(func.count().desc())
         )

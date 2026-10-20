@@ -50,7 +50,7 @@ coverage.xml
 
 # MyPy
 .mypy_cache/
-
+video
 # Logs
 logs/
 *.log

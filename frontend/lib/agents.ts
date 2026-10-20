@@ -183,6 +183,8 @@ export interface ContextHealth {
     tables_indexed: number;
     tables_profiled: number;
     tables_verified: number;
+    /** Profiles written for this workspace, by kind (catalog, schema, table). */
+    profiles_by_kind?: Record<string, number>;
     documents: number;
     documents_embedded: number;
     open_feedback: number;

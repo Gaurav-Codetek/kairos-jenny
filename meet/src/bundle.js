@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { PAGE } from "./selectors.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const SCRIPTS = ["cues.js", "camera.js", "media.js", "ears.js"]
+const SCRIPTS = ["cues.js", "camera.js", "media.js", "ears.js", "hearing.js"]
   .map((f) => fs.readFileSync(path.join(here, "inject", f), "utf8"))
   .join("\n;\n");
 

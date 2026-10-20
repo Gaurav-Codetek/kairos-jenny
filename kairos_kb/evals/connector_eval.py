@@ -141,7 +141,8 @@ def _client():
 
     client = async_client()
     if client is None:
-        raise RuntimeError("No LLM service is configured: set OPENAI_API_KEY (or the AZURE_OPENAI_* settings).")
+        raise RuntimeError("No LLM service is configured: set the AZURE_OPENAI_* settings, OPENAI_API_KEY, or NEBIUS_API_KEY "
+                           "(with LLM_PROVIDER to match).")
     return client
 
 

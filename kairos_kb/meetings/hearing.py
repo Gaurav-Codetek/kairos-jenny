@@ -2,8 +2,10 @@
 
 Meet shows live captions in blocks, one per speaker turn, each carrying the speaker's name. A block keeps changing
 while the person talks — the last few words are rewritten as recognition settles — and the same block grows again if
-they pick up after a short pause. So a block's words count as said only once it has been still for FINAL_S, and only
-the words beyond what was already taken from that block become a new utterance.
+they pick up after a short pause. So a block's words count as said only once it has been still for FINAL_S — or the
+shorter ENDED_S when it ends a sentence, so a finished question isn't left hanging — and only the words beyond what
+was already taken from that block become a new utterance. (Someone who carries on after a full stop is still heard:
+an unfinished thought is held for the rest by the session.)
 
 Her own speech is captioned too (as "You", or her name): never treated as someone else talking.
 """
@@ -15,6 +17,8 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
 FINAL_S = 1.2           # a block still for this long: its words are settled
+ENDED_S = 0.7           # ...or this long when it ends a sentence (Meet punctuates a phrase once it's recognised)
+_ENDS = re.compile(r"[.?!]\W*$")
 BARGE_WORDS = 3         # someone else saying this many new words while she speaks: they're talking over her
 SELF = {"you", "jenny", "jenny (kairos)", "jenny kairos"}
 
@@ -64,12 +68,22 @@ class Hearing:
         out: List[Tuple[float, Utterance]] = []
         for bid, b in list(self.blocks.items()):
             ws = words(b.text)
-            if now - b.changed >= FINAL_S and len(ws) > b.taken:
+            settle = ENDED_S if _ENDS.search(b.text) else FINAL_S  # mid-sentence ("how did") waits longer
+            if now - b.changed >= settle and len(ws) > b.taken:
                 out.append((b.changed, Utterance(b.speaker, " ".join(ws[b.taken:]), b.changed)))
                 b.taken = len(ws)
             if now - b.changed > 120:  # long gone from the screen
                 self.blocks.pop(bid, None)
         return [u for _, u in sorted(out, key=lambda x: x[0])]
+
+    def latest_speaker(self, now: float, within: float = 10.0) -> Optional[str]:
+        """Whoever's caption changed last (recently): the person talking now, or who just stopped."""
+        recent = [b for b in self.blocks.values() if now - b.changed <= within and b.speaker]
+        return max(recent, key=lambda b: b.changed).speaker if recent else None
+
+    def active(self, speaker: str, now: float, within: float = 0.8) -> bool:
+        """The speaker's caption is still changing: they're talking right now."""
+        return any(b.speaker == speaker.strip() and now - b.changed < within for b in self.blocks.values())
 
     def she_starts_speaking(self) -> None:
         """Mark what's already been said, so only new words count as talking over her."""
@@ -91,6 +105,25 @@ NAME = re.compile(r"\b(jenny|jenni|jennie|jeni|genny|jenny's)\b", re.I)
 def mentions_jenny(text: str) -> bool:
     """Her name in the words, as captions write it (they often get it slightly wrong)."""
     return bool(NAME.search(text or ""))
+
+
+_NAME = r"(jenny|jenni|jennie|jeni|genny)"
+_LEAD = r"^\W*((hey|hi|hello|ok|okay|so|and|well|yeah|yes|right|um|uh|oh)\W+){0,3}"
+# Her name said TO her: opening the words ("Hey, Jenny…", "Jenny, …") or closing a question ("…, right Jenny?").
+TO_JENNY = re.compile(_LEAD + _NAME + r"\b|\b" + _NAME + r"\W*$", re.I)
+GREETING = {"hey", "hi", "hello", "ok", "okay", "so", "yeah", "yes", "um", "uh", "oh", "there", "are", "you"}
+
+
+def named_to_her(text: str) -> bool:
+    """Her name used to address her ("Hey, Jenny. How are you?"), not mentioned ("as Jenny said")."""
+    return bool(TO_JENNY.search(text or ""))
+
+
+def just_calling(text: str) -> bool:
+    """Only her name and a greeting ("Hey, Jenny.", "Jenny?", "Hi Jenny, you there?"): getting her attention before
+    the question."""
+    rest = [w for w in re.findall(r"[a-z']+", NAME.sub(" ", text or "").lower()) if w not in GREETING]
+    return named_to_her(text) and not rest
 
 
 def split_at_name(text: str) -> Tuple[str, str]:

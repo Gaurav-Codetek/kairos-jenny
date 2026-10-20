@@ -31,6 +31,10 @@ services:
       - "8888:8000"
     env_file:
       - .env
+    environment:
+      # A crash in native code (a C extension) prints the Python stack that led to it, instead of only
+      # "Segmentation fault".
+      PYTHONFAULTHANDLER: "1"
     depends_on:
       db:
         condition: service_healthy

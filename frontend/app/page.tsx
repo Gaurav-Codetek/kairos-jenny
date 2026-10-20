@@ -62,6 +62,10 @@ export default function OverviewPage() {
       .catch(() => undefined);
   }, []);
 
+  // Profiles on the connections shown (the profile list is capped, so it can't be counted from there).
+  const profileCount = health.length
+    ? health.reduce((n, w) => n + Object.values(w.profiles_by_kind ?? {}).reduce((a, b) => a + b, 0), 0)
+    : profiles;
   const tables = health.reduce((n, w) => n + w.tables, 0);
   const profiled = health.reduce((n, w) => n + w.tables_profiled, 0);
   const verified = health.reduce((n, w) => n + w.tables_verified, 0);
@@ -92,13 +96,13 @@ export default function OverviewPage() {
               label="Entities mapped"
               value={map?.totals.entities}
               hint={map ? `${map.totals.lineage_edges.toLocaleString()} lineage edges` : undefined}
-              href="/catalog"
+              href="/graph"
             />
             <Stat
               index={1}
               icon={Sparkles}
               label="Semantic profiles"
-              value={profiles}
+              value={profileCount}
               hint={`${verified.toLocaleString()} tables verified`}
               href="/enrichment"
             />

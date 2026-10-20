@@ -146,6 +146,51 @@ def test_over_the_line_at_midnight_carries_into_the_new_day():
     assert nxt["state"] == "crossed" and nxt["episodes"][0]["from"] == "00:00" and nxt["episodes"][0]["told"]
 
 
+def feed_n(f, readings, start=datetime(2026, 10, 17, 20, 0, tzinfo=timezone.utc), gap_min=5):
+    """readings: [(clock, value, n)] — a rate with the orders it's taken over."""
+    return [desk.step(f, v, f"{v * 100:.1f}%", clock, start + timedelta(minutes=gap_min * i), n)
+            for i, (clock, v, n) in enumerate(readings)]
+
+
+def test_a_rate_hovering_at_the_line_neither_crosses_nor_comes_back():
+    # 17–18 Oct: "below 6.5%" alerted at 6.7% / 6.4% on ~125 orders, and Chennai "above 9%" at 9.2% then 9.0%.
+    f = watch_day("below", 0.065)
+    assert feed_n(f, [("03:00", 0.064, 125), ("03:05", 0.064, 130), ("03:10", 0.067, 140), ("03:15", 0.063, 2600),
+                      ("03:20", 0.064, 2600)]) == [[], [], [], [], []]
+    chennai = watch_day("above", 0.09)
+    assert feed_n(chennai, [("10:58", 0.092, 189), ("11:03", 0.092, 190), ("11:13", 0.090, 192)]) == [[], [], []]
+    assert f["episodes"] == [] and chennai["episodes"] == []
+
+
+def test_a_real_excursion_on_a_rate_still_crosses_and_comes_back():
+    f = watch_day("above", 0.09)
+    ev = feed_n(f, [("12:00", 0.108, 600), ("12:05", 0.110, 620), ("13:00", 0.095, 700), ("15:00", 0.07, 900),
+                    ("15:05", 0.068, 920)])
+    assert ev == [[], ["cross"], [], [], ["back"]]
+
+
+def test_a_rate_on_a_handful_of_orders_doesnt_move_the_watch_or_the_summary():
+    f = watch_day("below", 0.065)
+    assert feed_n(f, [("00:06", 0.0, 4), ("00:08", 0.0, 6), ("00:12", 0.182, 11)]) == [[], [], []]
+    assert f["state"] == "clear" and all(r["thin"] for r in f["history"])
+    feed_n(f, [("09:00", 0.07, 900), ("12:00", 0.068, 2000)])
+    assert "closest was 6.8% at 12:00" in desk.summarize(f, "x", "Sat")
+
+
+def test_the_count_behind_a_rate_is_its_denominator():
+    model = {"metrics": [
+        {"name": "orders", "additive": True, "unit": "count", "base_table": "T", "expression": "COUNT(f.order_id)"},
+        {"name": "cancellations", "additive": True, "unit": "count", "base_table": "T",
+         "expression": "COUNT_IF(f.order_status = 'Cancelled')"},
+        {"name": "cancel_rate", "additive": False, "unit": "ratio", "base_table": "T",
+         "expression": "DIV0(COUNT_IF(f.order_status = 'Cancelled'), COUNT(f.order_id))"},
+        {"name": "aov", "additive": False, "unit": "currency", "base_table": "T",
+         "expression": "DIV0(SUM(f.amount), COUNT_IF(f.is_delivered))"}]}
+    by = {m["name"]: m for m in model["metrics"]}
+    assert desk.volume_metric(model, by["cancel_rate"]) == "orders"
+    assert desk.volume_metric(model, by["aov"]) is None and desk.volume_metric(model, by["orders"]) is None
+
+
 # ── offers: Yes / No when she ends by asking to do something ──
 
 async def test_only_a_closing_question_can_be_an_offer(monkeypatch):

@@ -7,6 +7,7 @@ they connect, and how to walk between them at any grain.
 from __future__ import annotations
 
 import logging
+import uuid
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -64,7 +65,10 @@ def _parse_groups(groups: Optional[str]) -> List[str]:
 
 
 @router.get("/map")
-async def get_entity_map(db: AsyncSession = Depends(get_db)):
+async def get_entity_map(
+    workspace_id: Optional[List[uuid.UUID]] = Query(None, description="Count only these workspaces (repeatable)"),
+    db: AsyncSession = Depends(get_db),
+):
     """The entity map: every kind, every relationship, with live row counts.
 
     An agent should read this first — it describes the terrain before any
@@ -72,17 +76,25 @@ async def get_entity_map(db: AsyncSession = Depends(get_db)):
     """
     document = entity_map_document()
 
+    def scoped(query, model):
+        if not workspace_id:
+            return query
+        column = model.id if model is Workspace else model.workspace_id
+        return query.where(column.in_(workspace_id))
+
     counts: Dict[str, int] = {}
     for kind, model in COUNT_MODELS.items():
-        counts[kind] = (await db.execute(select(func.count()).select_from(model))).scalar() or 0
+        counts[kind] = (await db.execute(scoped(select(func.count()).select_from(model), model))).scalar() or 0
 
     for kind_entry in document["kinds"]:
         kind_entry["count"] = counts.get(kind_entry["kind"], 0)
 
-    lineage_total = (await db.execute(select(func.count()).select_from(LineageEdge))).scalar() or 0
+    lineage_total = (
+        await db.execute(scoped(select(func.count()).select_from(LineageEdge), LineageEdge))
+    ).scalar() or 0
     table_lineage = (
         await db.execute(
-            select(func.count()).select_from(LineageEdge).where(LineageEdge.source_type == "TABLE")
+            scoped(select(func.count()).select_from(LineageEdge), LineageEdge).where(LineageEdge.source_type == "TABLE")
         )
     ).scalar() or 0
 

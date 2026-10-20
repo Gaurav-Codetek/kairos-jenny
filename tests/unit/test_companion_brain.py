@@ -63,6 +63,46 @@ def test_quick_only_when_nothing_needs_looking_up():
     assert not brain.quick(read(move={"choice": "answer_deep", "confidence": 0.8}, needs_data=0.1))
 
 
+def test_a_request_jev_cant_place_is_still_answered_with_a_look():
+    # Jenny's read of "okay up the tell me whether the field has started again or not" (17 Oct, a misheard "feed"):
+    # no kind confident, "acknowledge" at .78, needs_data .15 — she answered "Let me pull…" with no tools at all.
+    garbled = read(turn_kind={"choice": "question", "confidence": 0.17, "probabilities": {
+                       "question": 0.27, "follow_up": 0.03, "reaction": 0.17, "correction": 0.0, "instruction": 0.22,
+                       "small_talk": 0.05, "closing": 0.23, "unclear": 0.03}},
+                   move={"choice": "acknowledge", "confidence": 0.75}, needs_data=0.15)
+    assert brain.asks(garbled) >= brain.ASKS
+    assert brain.decide(garbled)["move"] == "answer_brief"
+    assert not brain.quick(garbled)
+    # The thank-you that came just before it stays a quick, tool-free reply.
+    thanks = read(turn_kind={"choice": "small_talk", "confidence": 0.6, "probabilities": {
+                      "question": 0.0, "follow_up": 0.0, "reaction": 0.15, "instruction": 0.0, "small_talk": 0.65,
+                      "closing": 0.2}},
+                  move={"choice": "acknowledge", "confidence": 0.86}, needs_data=0.25)
+    assert brain.quick(thanks) and brain.decide(thanks)["move"] == "acknowledge"
+
+
+def test_saying_she_will_look_is_noticed():
+    assert brain.announces_lookup("Let me pull the latest feed status to see if any new records have come in.")
+    assert brain.announces_lookup("[warm] One sec — I'll quickly check that.")
+    assert not brain.announces_lookup("You are very welcome. I will keep watching the feed for you.")
+    assert not brain.announces_lookup("I'll let you know as soon as it moves.")
+
+
+def test_a_line_that_only_announces_a_lookup_is_recognised():
+    assert brain.opens_with_lookup("Let me check cancellation rates for Bikaner, Noida, and Ambala today.")
+    assert brain.opens_with_lookup("[thoughtful] Okay, let me pull the top items.")
+    assert not brain.opens_with_lookup("Bikaner is at nine percent; let me check Noida next.")
+    # the line said after "mm-hm, sure, let me see" in the 18 Oct take
+    assert brain.opens_with_lookup("Let me take a look at the cancellations across cities and restaurants.")
+    assert brain.opens_with_lookup("Let's have a quick look at Delhi.")
+
+
+def test_being_told_to_stop_only_wins_over_a_clear_request_when_it_outweighs_it():
+    assert brain.dismissed({"addressed": 0.37, "dismisses": 0.61})
+    assert not brain.dismissed({"addressed": 0.86, "dismisses": 0.61})
+    assert not brain.dismissed({"addressed": 0.1, "dismisses": 0.4})
+
+
 def test_an_opener_is_said_once():
     assert brain.drop_repeated_opener("Fair enough — I'll check cancellations.",
                                       "[warm] Fair enough — they aren't high.") == "[warm] they aren't high."

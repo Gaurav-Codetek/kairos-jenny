@@ -44,6 +44,7 @@ logger = logging.getLogger(__name__)
 
 LIVE_WINDOW = timedelta(hours=36)
 STALL_MINUTES = 20
+RECOVERED_TOLD = 7  # a stream coming back after she told the owner it stopped: raised (initiative.RAISE_AT and up)
 # Not live: still looked at every half hour (JENNY_IDLE_INTERVAL_S), so a stream that comes back is noticed soon.
 NOT_LIVE_INTERVAL = int(os.getenv("JENNY_IDLE_INTERVAL_S", str(30 * 60)))
 # The headline carries today's running numbers, so it is rewritten on every live look.
@@ -562,7 +563,10 @@ async def pulse(db: AsyncSession, ws: Workspace, st: CompanionState, *, force: b
             prior = await db.get(AgentNote, mem["stall"].pop(pid))
             if prior and prior.status == "open":
                 prior.status = "resolved"
-                db.add(_note(ws, utc, today, product_id=pid, kind="data_issue", signal="flowing", importance=3, confidence=0.9,
+                # Told the stream stopped, the owner is waiting to hear it's back ("I say when a data stream stops or
+                # comes back"): worth raising on a call and in a voice note. Never told, it's only worth a mention.
+                db.add(_note(ws, utc, today, product_id=pid, kind="data_issue", signal="flowing",
+                             importance=RECOVERED_TOLD if prior.seen else 3, confidence=0.9,
                              supersedes_id=prior.id, title=f"{products[pid].name}: data is flowing again",
                              body="New events are arriving again; today's numbers are catching up.",
                              facts={"resolves": str(prior.id)}))

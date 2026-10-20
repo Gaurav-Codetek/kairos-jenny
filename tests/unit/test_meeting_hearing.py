@@ -1,6 +1,6 @@
 """Hearing a meeting through Meet's captions: settled words become utterances, once each."""
 
-from kairos_kb.meetings.hearing import FINAL_S, Hearing, mentions_jenny, refers_to_her, split_at_name
+from kairos_kb.meetings.hearing import ENDED_S, FINAL_S, Hearing, mentions_jenny, refers_to_her, split_at_name
 
 
 def test_a_caption_counts_once_it_has_settled():
@@ -11,6 +11,14 @@ def test_a_caption_counts_once_it_has_settled():
     out = h.due(0.4 + FINAL_S)
     assert [(u.speaker, u.text) for u in out] == [("Priya", "Jenny, how did Pune do")]
     assert h.due(5.0) == []                      # taken once
+
+
+def test_a_finished_sentence_settles_sooner_than_one_still_going():
+    h = Hearing()
+    h.caption("b1", "Priya", "Jenny, how did Pune do?", 0.0)
+    h.caption("b2", "Rahul", "and what about the", 0.0)
+    assert [u.text for u in h.due(ENDED_S)] == ["Jenny, how did Pune do?"]
+    assert [u.text for u in h.due(FINAL_S)] == ["and what about the"]
 
 
 def test_rewrites_of_the_last_words_before_settling_are_fine():

@@ -5,13 +5,16 @@
 (() => {
   const W = 1280;
   const H = 720;
+  const SAFE = 0.74; // a scene's 720 rows drawn into the middle ~530: what survives Meet's crop of a wide tile
+  // Kairos's light theme (frontend/app/globals.css): white surface, ink text, indigo brand.
   const C = {
-    bg: "#101218", panel: "#171A22", ink: "#ECEEF4", ink2: "#B8BCC8", muted: "#8A8F9C", hair: "#2A2E39",
-    brand: "#8D86F6", deep: "#5148E0", context: "#4D4893", band: "rgba(141,134,246,0.16)", warn: "#E3B158",
+    bg: "#FFFFFF", panel: "#F3F4F6", ink: "#1A1D24", ink2: "#4A4F59", muted: "#737780", hair: "#E4E6EA",
+    brand: "#5148E0", deep: "#3F37C9", context: "#CFCCF7", band: "rgba(81,72,224,0.10)", warn: "#93650A",
+    glow: "rgba(81,72,224,0.14)", note: "#E7E5FC",
   };
-  // categorical, in fixed order (validated for colour-blindness on a dark surface); sequential = one hue
-  const SERIES = ["#9085e9", "#d95926", "#199e70", "#c98500"];
-  const OTHER = "#5A5F6B";
+  // categorical, in fixed order (deep enough to read on white, distinct for colour-blind viewers); sequential = one hue
+  const SERIES = ["#5148E0", "#C9501C", "#14805C", "#A86F00"];
+  const OTHER = "#9A9EA6";
   const FONT = '"Segoe UI", "Helvetica Neue", Arial, sans-serif';
   const ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
   const now = () => performance.now() / 1000;
@@ -52,7 +55,7 @@
     if (level > 0.02) {
       g.beginPath();
       g.arc(cx, cy, r + 10 + level * 26, 0, Math.PI * 2);
-      g.fillStyle = "rgba(141,134,246,0.18)";
+      g.fillStyle = C.glow;
       g.fill();
     }
     const grad = g.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
@@ -85,8 +88,8 @@
   }
 
   function badge(level) {
-    avatar(1196, 640, 34, level);
-    text("Jenny", 1146, 650, 24, C.ink2, 600, "right");
+    avatar(1214, 560, 30, level);
+    text("Jenny", 1170, 568, 22, C.ink2, 600, "right");
   }
 
   // ── scenes ──
@@ -108,7 +111,7 @@
     g.font = `600 20px ${FONT}`;
     const w = g.measureText(a.text).width + 28;
     rrect(x, y - 24, w, 34, 17);
-    g.fillStyle = "rgba(141,134,246,0.22)";
+    g.fillStyle = C.note;
     g.fill();
     text(a.text, x + 14, y - 1, 20, C.ink, 600);
     g.globalAlpha = 1;
@@ -130,7 +133,7 @@
   }
 
   function breakdown(s, t) {
-    const rows = (s.data.rows || []).slice(0, 8);
+    const rows = (s.data.rows || []).slice(0, 7); // Meet crops a tile's edges: seven rows stay clear of them
     const max = Math.max(...rows.map((r) => Math.max(r.value || 0, r.usual || 0)), 1e-9) * 1.1;
     const on = focusKeys(s);
     const any = on.size > 0;
@@ -162,7 +165,8 @@
       }
       if (t > 0.6) {
         g.globalAlpha = ease((t - 0.6) / 0.3);
-        const vx = x0 + w + 16;
+        // the value sits past the bar — and past its usual mark when the bar falls short of it
+        const vx = Math.max(x0 + w, r.usual != null ? x0 + span * (r.usual / max) : 0) + 16;
         const vw = text(r.display || fmt(r.value), vx, y + rowH * 0.62, 24, hot ? C.ink : C.muted, 600);
         if (r.usual_display) text(`usual ${r.usual_display}`, vx + vw + 12, y + rowH * 0.62, 18, C.muted, 400);
         g.globalAlpha = 1;
@@ -264,7 +268,8 @@
 
   const short = (v) =>
     v == null ? "–" : Math.abs(v) >= 1e5 ? `${(v / 1e5).toFixed(1)}L` : Math.abs(v) >= 1000 ? Math.round(v).toLocaleString()
-      : Math.abs(v) < 1 && v !== 0 ? `${(v * 100).toFixed(1)}%` : `${+(+v).toFixed(2)}`;
+      : Math.abs(v) >= 10 ? `${Math.round(v)}`
+        : Math.abs(v) < 1 && v !== 0 ? `${(v * 100).toFixed(1)}%` : `${+(+v).toFixed(2)}`;
 
   // label positions pushed apart so none overlaps (keeps their order)
   function spread(ys, gap) {
@@ -358,10 +363,10 @@
     });
   }
 
-  // a pattern in a grid: one hue, light to dark; hatched where nothing was recorded
+  // a pattern in a grid: one hue, light (less) to deep indigo (more); hatched where nothing was recorded
   function heat(v) {
-    const a = [40, 38, 78];
-    const b = [176, 168, 255];
+    const a = [238, 240, 253];
+    const b = [63, 55, 201];
     return `rgb(${a.map((c, i) => Math.round(c + (b[i] - c) * v)).join(",")})`;
   }
 
@@ -514,7 +519,7 @@
       g.globalAlpha = !on.size || on.has(p.key) ? 1 : 0.3;
       g.fillStyle = color(p, i);
       g.fillRect(at, 200, Math.max(w - 3, 0), 90);
-      if (w > 90 && k >= 1) text(`${(p.share * 100).toFixed(0)}%`, at + 16, 256, 26, p.key === "Other" ? C.ink : "#101218", 700);
+      if (w > 90 && k >= 1) text(`${(p.share * 100).toFixed(0)}%`, at + 16, 256, 26, p.key === "Other" ? C.ink : "#FFFFFF", 700);
       at += w;
       g.globalAlpha = 1;
     });
@@ -578,7 +583,15 @@
     g.fillRect(0, 0, W, H);
     const fresh = scene && (now() - sceneAt < 90 || now() - spokeAt < 30);
     if (fresh) {
+      // Meet fills a wide stage tile by cropping the top and bottom of her video (on a 2.7:1 stage only rows ~120–600
+      // show), which cut off the title and axes and blew up the middle. So the scene is drawn smaller, centred in that
+      // band: whole on a wide stage, with white margins on a 16:9 tile.
+      g.save();
+      g.translate(W / 2, H / 2);
+      g.scale(SAFE, SAFE);
+      g.translate(-W / 2, -H / 2);
       draw(scene, now() - sceneAt);
+      g.restore();
       badge(level);
     } else {
       idle(level);

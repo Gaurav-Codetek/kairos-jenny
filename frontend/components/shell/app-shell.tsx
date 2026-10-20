@@ -2,20 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Activity,
-  BookOpen,
-  Bot,
-  Database,
-  FlaskConical,
-  GitBranch,
-  Layers,
-  Radar,
-  MessagesSquare,
-  Plug,
-  Sparkles,
-  type LucideIcon,
-} from "lucide-react";
+import { Activity, Bot, GitBranch, Layers, Plug, Radar, Sparkles, type LucideIcon } from "lucide-react";
 
 import { KairosMark } from "@/components/kairos/ds";
 import { VoiceNotesPill } from "@/components/living/voice-notes";
@@ -35,15 +22,11 @@ const NAV: NavItem[] = [
   { href: "/", label: "Overview", icon: Activity, section: "Platform" },
   { href: "/connections", label: "Connections", icon: Plug, section: "Platform" },
   { href: "/agents", label: "Agents", icon: Bot, section: "Platform" },
-  { href: "/evals", label: "Evaluations", icon: FlaskConical, section: "Platform" },
-  { href: "/test", label: "Test", icon: MessagesSquare, section: "Platform" },
-  { href: "/graph", label: "Lineage", icon: GitBranch, section: "Explore" },
-  { href: "/catalog", label: "Catalog", icon: Database, section: "Explore" },
+  { href: "/graph", label: "Map", icon: GitBranch, section: "Intelligence" },
   { href: "/enrichment", label: "Enrichment", icon: Sparkles, section: "Intelligence" },
-  { href: "/knowledge", label: "Knowledge", icon: BookOpen, section: "Intelligence" },
   { href: "/products", label: "Data Products", icon: Layers, section: "Intelligence" },
-  { href: "/living", label: "Living Agent", icon: Radar, section: "Intelligence" },
-  // Incidents is hidden from the sidebar for now; /incidents still works.
+  { href: "/living", label: "Jenny", icon: Radar, section: "Intelligence" },
+  // Hidden from the sidebar for now (the pages still work by URL): /evals, /test, /catalog, /knowledge, /incidents.
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

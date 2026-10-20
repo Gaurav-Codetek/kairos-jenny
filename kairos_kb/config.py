@@ -10,7 +10,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import List
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -72,6 +72,26 @@ class Settings(BaseSettings):
     # them: search then falls back to keyword and name matching.
     azure_openai_embedding_deployment: str = "text-embedding-3-large"
     embedding_dimensions: int = 1536
+
+    # ── Nebius Token Factory (NVIDIA Nemotron, OpenAI-compatible) ────────
+    # LLM_PROVIDER=nebius runs Kairos's reasoning on Nemotron; COMPANION_LLM=nebius runs Jenny's turns on it.
+    # Embeddings stay on Azure/OpenAI (EMBEDDING_PROVIDER), so stored vectors stay valid.
+    nebius_api_key: str = ""
+    nebius_base_url: str = "https://api.tokenfactory.nebius.com/v1/"
+    # The heavy model (multi-step reasoning: enrichment, data products, RCA, evals). Chosen by test on 20 Oct 2026:
+    # the only Nemotron that planned every lookup a profiling question needed in one turn (1.1 s, thinking on).
+    nebius_model: str = "nvidia/Nemotron-3.5-Super-VL"
+    # The fast model (Jenny's spoken turns, where the first word must come in about a second): first token ~1.0 s and
+    # it calls her tools reliably. (Nemotron 3 Super 120B asked for clarification instead; 3 Nano took ~40 s.)
+    nebius_fast_model: str = "nvidia/Nemotron-3_5-Lightning"
+    # Where embeddings come from: "" follows LLM_PROVIDER, except nebius, which keeps Azure (or OpenAI).
+    embedding_provider: str = ""
+
+    # ── Tavily (Jenny's outside_context tool: news and events the data can't see) ──
+    # Off by default: web results invite guesses about causes the data can't back. JENNY_WEB_SEARCH=1 (with a key) turns it on.
+    jenny_web_search: bool = False
+    tavily_api_key: str = ""
+    tavily_days: int = 3
 
     # ── Agent access (MCP + REST context API) ────────────────────────────
     # off: no keys checked. optional: a key identifies the agent, but calls
@@ -151,6 +171,14 @@ class Settings(BaseSettings):
     # ── Sync Settings ────────────────────────────────────────────────────
     sync_default_run_history_limit: int = 25
     sync_initial_lookback_hours: int = 24
+
+    @field_validator("nebius_base_url", "nebius_model", "nebius_fast_model", mode="before")
+    @classmethod
+    def _blank_means_default(cls, value, info):
+        """`NEBIUS_MODEL=` left blank in .env means the default, not "no model"."""
+        if value is None or (isinstance(value, str) and not value.strip()):
+            return cls.model_fields[info.field_name].default
+        return value
 
 
 @lru_cache

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The Living Agent: the business's companion. Pulse is its live view — every vital today against
+ * Jenny, the business's companion (the Living Agent). Pulse is its live view — every vital today against
  * a normal day at this time, the moments it noticed, and a conversation grounded in live data.
  * Notebook is its slower monthly reading: it waits for numbers to settle and remembers.
  */
@@ -15,7 +15,7 @@ import { PageHeader } from "@/components/shell/app-shell";
 import { NoteCard } from "@/components/living/note-card";
 import { CompanionChat } from "@/components/living/companion-chat";
 import { PulseView } from "@/components/living/pulse-view";
-import { DeskPanel } from "@/components/living/desk-panel";
+import { DeskButton } from "@/components/living/desk-panel";
 import { Stage } from "@/components/stage/stage";
 import { useStage } from "@/lib/stage";
 import { Sparkline } from "@/components/living/sparkline";
@@ -170,7 +170,7 @@ export default function LivingPage() {
   return (
     <>
       <PageHeader
-        title="Living Agent"
+        title="Jenny"
         description="Jenny, your business companion: watches the live numbers all day, tells you what matters, and talks it through with you"
         actions={
           <div className="flex items-center gap-3">
@@ -224,6 +224,9 @@ export default function LivingPage() {
                 {pulseView === "stage" && (
                   <span className="text-k-caption text-ink-muted">What Jenny is showing you as she talks</span>
                 )}
+                <div className="ml-auto">
+                  <DeskButton workspaceId={workspaceId} />
+                </div>
               </div>
             )}
             {tab === "pulse" && pulseView === "stage" ? (
@@ -244,9 +247,7 @@ export default function LivingPage() {
                 onMomentChanged={(m) => setCompanion((c) => (c ? { ...c, notes: c.notes.map((x) => (x.id === m.id ? m : x)) } : c))}
               />
             ) : null}
-            {tab === "pulse" && pulseView === "stage" ? null : tab === "pulse" ? (
-              <DeskPanel workspaceId={workspaceId} />
-            ) : tab === "now" ? (
+            {tab === "pulse" ? null : tab === "now" ? (
               state === null ? (
                 <p className="flex items-center gap-2 text-k-body text-ink-muted">
                   <Spinner /> Loading…

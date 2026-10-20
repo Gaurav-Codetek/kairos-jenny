@@ -34,7 +34,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 from sqlalchemy import func, select
 
-from kairos_kb.companion import brain, claims, desk, scenes
+from kairos_kb.companion import brain, claims, desk, scenes, web
 from kairos_kb.db.engine import async_session_factory
 from kairos_kb.exceptions import KairosException
 from kairos_kb.models.companion import CompanionConversation, CompanionMessage, CompanionState
@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 MAX_STEPS = 8
 VISUAL = 0.5  # visual_helps at or above: the stage is offered this turn
 AUTO_STAGE = VISUAL  # her brain judges a picture helps: the first lookup that makes one is put on the stage
-VOICE_STEPS = 4
+VOICE_STEPS = int(os.getenv("JENNY_VOICE_STEPS", "4"))  # lookups a spoken answer may take
 VOICE_EFFORT = os.getenv("COMPANION_VOICE_EFFORT", "low")  # how long the model thinks before speaking on a call
 NAME = "Jenny"
 RESULT_CHARS = 20000
@@ -140,6 +140,23 @@ SHOW = _fn("show", "Put a chart on the stage beside our conversation, built from
            ["scene"])
 TOOLS = TOOLS + desk.TOOLS + [SHOW]
 LOOKUPS = {"pulse_now", "moments", "compare_to_normal", "list_products", "query", "notebook"}  # each gets a lookup_id
+
+# With TAVILY_API_KEY: what's happening outside the data (weather, festivals, outages, news) — a lead, never a cause.
+OUTSIDE = _fn("outside_context",
+              "Recent news and events outside the business's data that might explain a change you already found in "
+              "it: weather, a festival or holiday, a city-wide outage, a strike, a big match. Use it only after "
+              "you've looked at the data and only when the owner asks why, or the cause isn't in the data. Say it's "
+              "from the web and name the source; offer it as a possible reason, never as the cause.",
+              {"query": {"type": "string", "description": "What to look for, e.g. 'heavy rain or flooding' or "
+                                                          "'food delivery app outage'."},
+               "place": {"type": "string", "description": "The city or area, e.g. 'Delhi'."},
+               "days": {"type": "integer", "description": "How recent, in days (default 3)."}},
+              ["query"])
+if web.enabled():
+    TOOLS = TOOLS + [OUTSIDE]
+    LOOK_TOOLS = LOOK_TOOLS + [OUTSIDE]
+    ABILITIES = ABILITIES + ["look up recent news and events outside the data (weather, festivals, outages) as a "
+                             "possible reason for a change"]
 
 SYSTEM = """You are Jenny, the companion of {workspace}. You watch this business live through its data and talk it
 through with the owner — "you" — as "I".
@@ -397,6 +414,9 @@ async def call_tool(workspace_id, name: str, args: Dict[str, Any]) -> Dict[str, 
 
     if name == "show":
         return await _show(workspace_id, args)
+    if name == "outside_context":
+        return await web.outside_context(str(args.get("query") or ""), str(args.get("place") or ""),
+                                         int(args["days"]) if str(args.get("days") or "").isdigit() else None)
     if name in desk.NAMES:
         turn = _TURN.get()
         res = await desk.call(workspace_id, name, args, {"question": turn["question"]} if turn else None)
@@ -519,12 +539,28 @@ Everything you write is spoken the moment you write it, sentence by sentence, in
   times", "cancellations", "GMV"."""
 
 
+# Nemotron follows instructions best when they come last: on a voice turn the rules that matter most, again, at the end.
+NEMOTRON_VOICE = """
+
+# Before you answer (spoken aloud)
+- Answer exactly what was asked, first: asked which cities, name them. Two or three short sentences, under fifty
+  words. Name the top two or three only, then offer the rest.
+- A lookup that failed, or covered more than was asked (all cities when one was named), isn't the answer: look again
+  with the fix or the filter. Only when you can't look again, say what you found and what's missing.
+- Plain speech: no lists, tables, bullets, bold or headings. Numbers rounded and spelled out as people say them.
+- Each number is only about what its lookup was filtered to. Asked about one restaurant, brand, cuisine or city and no
+  lookup filtered to it, you don't have its number: say so plainly, and never give a wider number as if it were its.
+- The answer itself, never a promise to look."""
+
+
 MEETING_MODE = """
 
 # You're in a meeting
 You're in a Google Meet with several people, not a one-to-one with your owner. Everyone hears you.
-- Answer the person who asked — by name when it's natural — in two or three short sentences. No small talk, no
-  offer at the end unless asked, and "partner" is only for your owner.
+- Answer the person who asked — by name when it's natural — in two or three short sentences, under fifty words.
+  Your first sentence answers exactly what they asked (they asked which cities: name the cities first); context
+  comes after, only if it changes the picture. No small talk, no offer at the end unless asked, and "partner" is only
+  for your owner.
 - You hear the meeting through its captions, so a name or a number can be misheard: if a request is unclear, ask one
   short question rather than guess.
 - A chart appears on your video tile only when a lookup result says what's on_screen. Talk about what it shows,
@@ -536,11 +572,16 @@ You're in a Google Meet with several people, not a one-to-one with your owner. E
 # second, against about two for gpt-5-mini. Azure gpt-5-mini backs it up, the way ElevenLabs' agent fell back to gpt-4o:
 # when Gemini fails (a quota, an outage), or hasn't started answering within HEDGE_S, gpt-5-mini is asked too, and
 # whichever starts first gives the answer. COMPANION_LLM=azure turns Gemini off.
+#
+# COMPANION_LLM=nebius (or nebius:<model id>) puts NVIDIA Nemotron on Nebius Token Factory first instead — the fast
+# model (NEBIUS_FAST_MODEL) by default — with the main provider (LLM_PROVIDER) as its backup the same way. When the
+# main provider is Nebius as well, the backup is a second request to the same model, so she never answers on the heavy one.
 GEMINI_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 COMPANION_LLM = os.getenv("COMPANION_LLM", "gemini-3.5-flash" if GEMINI_KEY else "azure").strip()
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 HEDGE_S = float(os.getenv("COMPANION_HEDGE_S", "2.5"))
 _gemini_client = None
+_nebius_client = None
 
 
 def _gemini():
@@ -552,13 +593,36 @@ def _gemini():
     return _gemini_client
 
 
+def _nebius():
+    global _nebius_client
+    if _nebius_client is None:
+        from kairos_kb.llm.provider import nebius_client
+
+        _nebius_client = nebius_client()
+    return _nebius_client
+
+
 def _models(client, model: str, effort: Optional[str]) -> List[Tuple[str, Any, str, Optional[str]]]:
     """Who answers a turn, in order: (label, client, model, reasoning effort)."""
-    azure = ("azure", client, model, effort)
-    if COMPANION_LLM in ("", "azure") or not GEMINI_KEY:
-        return [azure]
+    from kairos_kb.config import get_settings
+    from kairos_kb.llm.provider import provider
+
+    main = (provider(), client, model, effort)
+    choice = COMPANION_LLM.lower()
+    if choice == "nebius" or choice.startswith("nebius:"):
+        nemotron = COMPANION_LLM.split(":", 1)[1].strip() if ":" in COMPANION_LLM else get_settings().nebius_fast_model
+        if _nebius() is None:
+            return [main]
+        if client is _nebius_client:
+            return [("nebius", _nebius(), nemotron, effort)]
+        if provider() == "nebius":
+            # Main is Nebius too: the backup is a second try of her model, never the heavy one (NEBIUS_MODEL).
+            main = ("nebius", client, nemotron, effort)
+        return [("nebius", _nebius(), nemotron, effort), main]
+    if choice in ("", "azure") or not GEMINI_KEY:
+        return [main]
     # Gemini: no thinking on calls and quick turns (it starts in about a second); a little for typed answers.
-    return [("gemini", _gemini(), COMPANION_LLM, "none" if effort in ("minimal", "low") else "low"), azure]
+    return [("gemini", _gemini(), COMPANION_LLM, "none" if effort in ("minimal", "low") else "low"), main]
 
 
 async def _stream_turn(client, model: str, system: str, history: List[Dict[str, Any]], specs: List[Dict[str, Any]],
@@ -624,19 +688,59 @@ async def _stream_turn(client, model: str, system: str, history: List[Dict[str, 
 SKIP_SIGNATURE = "skip_thought_signature_validator"
 
 
+ANSWER_NOW = ("\n\n# Now\nNo more lookups this turn. You have what your lookups returned: answer the question now, in "
+              "your own words, from that — and if part of it is missing, say what you found and what you couldn't get.")
+
+
+BARE = ("You are Jenny, a business's companion, answering the owner's last question. Your lookups for it are done and "
+         "their results are in the conversation. Answer the question now, in words, from those results only.")
+
+
 async def _answer_now(client, model: str, system: str, history: List[Dict[str, Any]], specs: List[Dict[str, Any]],
                       on_text, effort: Optional[str]) -> Dict[str, Any]:
     """The answer, now, from what was looked up: asked again, and if the first model is silent again, the backup."""
-    nudge = system + "\n\n# Now\nYou have what your lookups returned. Answer the question now, in your own words."
+    nudge = system + ANSWER_NOW
     out = await _stream_turn(client, model, nudge, history, specs, True, on_text, effort=effort)
     if (out.get("text") or "").strip():
         return out
+    from kairos_kb.llm.provider import is_nemotron
+
     label, c, m, e = _models(client, model, effort)[-1]
+    if is_nemotron(m):
+        # Its full instructions name every tool, and it can keep reaching for one: the last try has none of that.
+        nudge = BARE + (NEMOTRON_VOICE if VOICE_MODE in system else "")
     backup = await _stream_once(c, m, nudge, history, specs, True, on_text, e, lambda: True)
     if backup is not None:
         backup["model"] = f"{label}:{m}"
         return backup
     return out
+
+
+FOUND_CHARS = 6000  # of each lookup's result, written out for the final answer
+
+
+def _flat(history: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """The conversation with this turn's lookups written out as plain text after the question, not as tool-call
+    messages. For Nemotron's final answer: shown its own tool calls, it tends to write one more (as text) instead of
+    answering, even with no tools offered; with what they returned laid out as notes, it answers from them."""
+    ask = max((i for i, m in enumerate(history) if m.get("role") == "user"), default=-1)
+    if ask < 0:
+        return history
+    called: Dict[str, str] = {}
+    notes: List[str] = []
+    for m in history[ask + 1:]:
+        for tc in m.get("tool_calls") or []:
+            called[tc.get("id")] = f"{tc['function']['name']} {tc['function'].get('arguments') or ''}".strip()
+        if m.get("role") == "tool":
+            notes.append(f"- {called.get(m.get('tool_call_id'), 'lookup')} returned: {str(m.get('content'))[:FOUND_CHARS]}")
+        elif m.get("role") == "assistant" and (m.get("content") or "").strip():
+            notes.append(f"- You said aloud: {m['content'].strip()}")
+    if not notes:
+        return history
+    question = history[ask]
+    return history[:ask] + [{**question, "content": f"{question.get('content') or ''}\n\n(What your lookups this "
+                             "turn returned — notes for you, the owner doesn't see them:\n" + "\n".join(notes)
+                             + "\nNo more lookups now: answer from these, in words.)"}]
 
 
 def _for_model(history: List[Dict[str, Any]], gemini: bool) -> List[Dict[str, Any]]:
@@ -658,37 +762,199 @@ def _for_model(history: List[Dict[str, Any]], gemini: bool) -> List[Dict[str, An
     return out
 
 
+class ThinkFilter:
+    """A streamed reply without what open models sometimes write inline instead of saying: their reasoning
+    (<think>…</think>) and tool calls written as text (<tool_call>…</tool_call>). What's inside either block — or
+    before a lone </think> — is never said; text that might be the start of a block is held back until it's clear."""
+
+    BLOCKS = (("<think>", "</think>"), ("<tool_call>", "</tool_call>"))
+
+    def __init__(self) -> None:
+        self.raw = ""
+        self.visible = ""
+
+    def feed(self, chunk: str) -> None:
+        self.raw += chunk
+        s = self.raw
+        if "</think>" in s and "<think>" not in s.split("</think>", 1)[0]:
+            s = s.split("</think>", 1)[1]  # reasoning before a lone closing tag (thinking prefilled by the template)
+        out, rest = "", s
+        while True:
+            found = [(rest.find(o), o, c) for o, c in self.BLOCKS if rest.find(o) >= 0]
+            if not found:
+                break
+            i, o, c = min(found)
+            out += rest[:i]
+            j = rest.find(c, i)
+            if j < 0:
+                rest = ""  # inside an unfinished block: nothing more to say yet
+                break
+            rest = rest[j + len(c):]
+        out += rest
+        for o, c in self.BLOCKS:  # a stray tag never said
+            out = out.replace(o, "").replace(c, "")
+        # hold back a tail that could be the beginning of a tag
+        for tag in (t for pair in self.BLOCKS for t in pair):
+            for k in range(len(tag) - 1, 0, -1):
+                if out.endswith(tag[:k]):
+                    out = out[:-k]
+                    break
+        self.visible = out.lstrip()
+
+
+_TEXT_CALL = re.compile(r"<tool_call>(.*?)</tool_call>", re.S)
+_XML_FN = re.compile(r"<function=([\w.-]+)>(.*?)</function>", re.S)
+_XML_PARAM = re.compile(r"<parameter=([\w.-]+)>\s*(.*?)\s*</parameter>", re.S)
+
+
+def covers(args: Dict[str, Any]) -> str:
+    """What a lookup's numbers are about, in a line: its filters, or that it has none — so a city's total is never
+    passed off as one restaurant's or brand's."""
+    product = args.get("product") or "the data"
+    kept = []
+    for f in args.get("filters") or []:
+        if isinstance(f, dict) and f.get("dimension") and f.get("dimension") != "event_time":
+            v = f.get("value")
+            kept.append(f"{f['dimension']} {f.get('op') or '='} {', '.join(map(str, v)) if isinstance(v, list) else v}")
+    by = args.get("by") or []
+    split = args.get("dimension") or (", ".join(map(str, by)) if isinstance(by, list) else str(by))
+    line = (f"{product}, only where {'; '.join(kept)}" if kept
+            else f"all of {product}: no restaurant, brand, cuisine or place filter")
+    return line + (f", broken down by {split}" if split else "") + ". These numbers are about this and nothing narrower."
+
+
+def fix_lists(args: Dict[str, Any]) -> Dict[str, Any]:
+    """Arguments with lists a model wrote as text ("[cancel_rate]", "[city, state]") made real lists, so a lookup
+    isn't wasted on a metric named '['."""
+    out = dict(args)
+    for k, v in args.items():
+        s = v.strip() if isinstance(v, str) else ""
+        if len(s) > 1 and s[0] == s[-1] and s[0] in "\"'":  # '"gmv desc"': quoted twice
+            s = out[k] = s[1:-1].strip()
+        if not (s.startswith("[") and s.endswith("]")):
+            continue
+        try:
+            parsed = json.loads(s)
+        except (json.JSONDecodeError, ValueError):
+            parsed = _loose_list(s[1:-1])
+        if isinstance(parsed, list):
+            out[k] = parsed
+    return out
+
+
+def _top_split(s: str) -> List[str]:
+    """Split on commas outside brackets and braces."""
+    parts, depth, cur = [], 0, ""
+    for ch in s:
+        depth += ch in "[{"
+        depth -= ch in "]}"
+        if ch == "," and depth == 0:
+            parts.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    return [p.strip() for p in parts + [cur] if p.strip()]
+
+
+def _loose_value(s: str) -> Any:
+    s = s.strip()
+    if s.startswith("{") and s.endswith("}"):
+        obj = {}
+        for pair in _top_split(s[1:-1]):
+            key, _, value = pair.partition(":")
+            obj[key.strip().strip("'\"")] = _loose_value(value)
+        return obj
+    if s.startswith("[") and s.endswith("]"):
+        return _loose_list(s[1:-1])
+    return s.strip("'\"")
+
+
+def _loose_list(inner: str) -> List[Any]:
+    """A list written loosely ("cancel_rate, gmv" or "{dimension: city, op: =, value: Delhi}"): its items."""
+    return [_loose_value(x) for x in _top_split(inner)]
+
+
+def text_tool_calls(raw: str) -> List[Dict[str, str]]:
+    """Tool calls a model wrote as text instead of making them: <tool_call><function=name><parameter=k>v</parameter>
+    …</function></tool_call>, or <tool_call>{"name": …, "arguments": {…}}</tool_call>. Each as {name, arguments}."""
+    out: List[Dict[str, str]] = []
+    for block in _TEXT_CALL.findall(raw or ""):
+        fn = _XML_FN.search(block)
+        if fn:
+            args: Dict[str, Any] = {}
+            for key, value in _XML_PARAM.findall(fn.group(2)):
+                try:
+                    args[key] = json.loads(value)  # numbers, lists and objects come as JSON
+                except (json.JSONDecodeError, ValueError):
+                    args[key] = value
+            out.append({"name": fn.group(1), "arguments": json.dumps(fix_lists(args))})
+            continue
+        try:
+            obj = json.loads(block.strip())
+        except (json.JSONDecodeError, ValueError):
+            continue
+        if isinstance(obj, dict) and obj.get("name"):
+            a = obj.get("arguments") or obj.get("parameters") or {}
+            out.append({"name": str(obj["name"]), "arguments": a if isinstance(a, str) else json.dumps(a)})
+    return out
+
+
 async def _stream_once(client, model: str, system: str, history: List[Dict[str, Any]], specs: List[Dict[str, Any]],
                        last: bool, on_text, effort: Optional[str], claim) -> Optional[Dict[str, Any]]:
     """One model's streamed turn. `claim()` is asked at its first output: False means another model already has the
     turn, and this one stops (returns None) without saying anything."""
+    from kairos_kb.llm.provider import is_nemotron
+
     gemini = client is _gemini_client and _gemini_client is not None
-    kwargs: Dict[str, Any] = dict(model=model, messages=[{"role": "system", "content": system}, *_for_model(history, gemini)],
-                                  tools=specs, tool_choice="none" if last else "auto", stream=True)
-    if effort:  # reasoning models think before their first word; on a call, less of that
+    nemotron = is_nemotron(model)
+    final_nemotron = last and nemotron
+    if nemotron and VOICE_MODE in system:
+        system += NEMOTRON_VOICE
+    # Nemotron's last step: no tools, and its lookups as notes rather than tool-call messages (see _flat) — shown
+    # either, it sometimes writes one more call as text, nobody hears it, and the turn ends with nothing said.
+    kwargs: Dict[str, Any] = dict(model=model, stream=True, messages=[
+        {"role": "system", "content": system}, *(_flat(history) if final_nemotron else _for_model(history, gemini))])
+    if not final_nemotron:
+        kwargs.update(tools=specs, tool_choice="none" if last else "auto")
+    if nemotron:
+        # Nemotron's own switch: her turns run without a thinking phase (the tool loop does the reasoning), so the
+        # first word comes fast. Its reasoning, if any arrives inline, is kept out of what she says (ThinkFilter).
+        kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+    elif effort:  # reasoning models think before their first word; on a call, less of that
         kwargs["reasoning_effort"] = effort
     try:
         stream = await client.chat.completions.create(**kwargs)
-    except Exception as exc:  # noqa: BLE001 — a model that doesn't reason rejects the setting
-        if not effort or "reasoning" not in str(exc).lower():
+    except Exception as exc:  # noqa: BLE001 — a model that doesn't take the setting rejects it
+        msg = str(exc).lower()
+        if "reasoning_effort" in kwargs and "reasoning" in msg:
+            kwargs.pop("reasoning_effort")
+        elif "extra_body" in kwargs and ("chat_template" in msg or "enable_thinking" in msg):
+            kwargs.pop("extra_body")
+        else:
             raise
-        kwargs.pop("reasoning_effort")
         stream = await client.chat.completions.create(**kwargs)
+    think = ThinkFilter()
     text: List[str] = []
     calls: Dict[int, Dict[str, str]] = {}
     claimed = False
+    finish = None
     async for chunk in stream:
         if not chunk.choices:
             continue
         delta = chunk.choices[0].delta
-        if not claimed and (delta.content or delta.tool_calls):
+        finish = getattr(chunk.choices[0], "finish_reason", None) or finish
+        before = think.visible
+        if delta.content:
+            think.feed(delta.content)
+        said = think.visible != before  # words meant for the owner (not a model's thinking)
+        if not claimed and (said or delta.tool_calls):
             if not claim():
                 await stream.close() if hasattr(stream, "close") else None
                 return None
             claimed = True
-        if delta.content:
-            text.append(delta.content)
-            await on_text("".join(text))
+        if said:
+            text[:] = [think.visible]
+            await on_text(think.visible)
         for tc in delta.tool_calls or []:
             key = tc.index if tc.index is not None else (tc.id or len(calls))  # Gemini: whole calls, no index
             c = calls.setdefault(key, {"id": "", "name": "", "arguments": ""})
@@ -703,6 +969,11 @@ async def _stream_once(client, model: str, system: str, history: List[Dict[str, 
             if tc.function and tc.function.arguments:
                 c["arguments"] += tc.function.arguments
     ordered = [calls[k] for k in calls]  # in the order they came
+    if not ordered:
+        ordered = [{"id": "", **c} for c in text_tool_calls(think.raw)]  # calls written as text: still made
+    if (last or not ordered) and not think.visible.strip():  # on a last step, a call (even as text) is nothing said
+        logger.warning("Companion %s said nothing (last=%s, finish=%s, tools offered=%d): %r", model, last, finish,
+                       len(specs), think.raw[:600])
     for i, c in enumerate(ordered):
         c["id"] = c["id"] or f"call_{i}"
     return {"text": "".join(text), "calls": ordered, "input": 0, "output": 0}
@@ -1054,11 +1325,7 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
                 who = meeting.get("speaker") or "Someone"
                 before = (meeting.get("before") or "").strip()
                 lead = ""
-                if meeting.get("dismissed"):
-                    lead = (f"{who} has just told you the earlier words weren't meant for you. Apologise in a few "
-                            "words, the way a person would (\"Oh, my bad — I thought you were asking me.\"), and say "
-                            "nothing else. ")
-                elif meeting.get("agreement"):
+                if meeting.get("agreement"):
                     lead = (f"{who} is checking something with you: does it hold? If it involves numbers, check them. "
                             "Then say plainly first whether you agree (\"Yes, exactly —\" / \"Not quite —\"), with "
                             "the one fact that backs it. Two sentences at most. ")
@@ -1067,6 +1334,9 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
                             "use it to understand what they mean. Answer the question first; then, only if it adds "
                             "something, link back to what they said in one short clause. Things they said the room "
                             "should do aren't yours to take on — at most offer once. ")
+                if meeting.get("acked"):  # "mm-hm, one sec" was said the moment they finished
+                    lead += (f"You've already said \"{meeting['acked']}\" to {who}. Don't announce your lookup (no "
+                             "\"Let me check…\"): go straight to it, and speak next with the answer. ")
                 content = (f"(In the Google Meet, with {people}. Said just before:\n{lately}\n{lead}"
                            f"{who} is speaking to you.) {text}")
             if pointing and pointing.get("label"):  # what "this" means: what they're pointing at on the stage
@@ -1126,8 +1396,6 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
             # Carrying on an earlier request always keeps her hands: "take your time" isn't small talk here.
             # A yes to her offer is work to do, however short it sounds.
             quick = brain.quick(read, last_reply) and not continues and not (reply_to and answering.get("answer") == "yes")
-            if meeting and meeting.get("dismissed"):
-                quick = True  # "not you, Jenny": a few words, nothing to look up
             # Tell the screen at once whether she'll need a moment (a lookup) — so a call says "hmm, let me see"
             # only then, and a thank-you or a reaction gets just her reply.
             progress.hints = {"looking": not quick, "brain": brain.summary(read)}
@@ -1149,6 +1417,8 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
             answer = prior.text
             meta = {"from_memory": {"answer_id": str(prior.id), "minutes_ago": minutes, "similarity": round(sim, 3)},
                     "brain": progress.hints.get("brain")}
+            if (prior.meta or {}).get("scenes"):  # the chart she showed with it comes back with it
+                meta["scenes"] = prior.meta["scenes"]
             history.append({"role": "user", "content": content})
             history.append({"role": "assistant", "content": answer})
         else:
@@ -1196,9 +1466,12 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
             # Her brain is sure a picture helps: the first lookup that makes one goes on the stage by itself.
             staged = visual and read is not None and (read.get("visual_helps") or 0) >= AUTO_STAGE
             tools = TOOLS if visual else [t for t in TOOLS if t["function"]["name"] != "show"]
-            for step in range(max_steps + 1):
+            step = 0
+            while step <= max_steps:
                 is_last = step == max_steps
-                out = await _stream_turn(client, model, _working(system, progress, voice), history, tools, is_last,
+                # Her last step after lookups: told plainly it's time to answer (she can't look again).
+                out = await _stream_turn(client, model, _working(system, progress, voice)
+                                         + (ANSWER_NOW if is_last and step > 0 else ""), history, tools, is_last,
                                          progress.text, effort=effort)
                 calls = [] if is_last else out["calls"]
                 meta["model"] = out.get("model")
@@ -1219,6 +1492,18 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
                     out = await _answer_now(client, model, _working(system, progress, voice), history, tools,
                                             progress.text, effort)
                     meta["model"] = out.get("model") or meta.get("model")
+                if not calls and quick and not turn_record["lookups"] and brain.announces_lookup(said):
+                    # Read as needing nothing, she still said she'd look ("Let me pull the latest feed status"): that
+                    # line is her plan, and she gets her tools to keep it rather than leave the owner with a promise.
+                    said = await progress.final(said)
+                    await progress.turn_ended(said, True)
+                    progress.narration_log.append({"escalated": said})
+                    progress.hints["looking"] = True
+                    quick, effort = False, (VOICE_EFFORT if voice else None)
+                    max_steps = step + 1 + (VOICE_STEPS if voice else MAX_STEPS)
+                    progress.next_step()
+                    step += 1
+                    continue
                 if not calls:
                     answer = await progress.final(out["text"] or "")
                     if answer:
@@ -1235,6 +1520,7 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
                         args = json.loads(c["arguments"] or "{}")
                     except json.JSONDecodeError:
                         args = {}
+                    args = fix_lists(args) if isinstance(args, dict) else {}
                     key = c["name"] + json.dumps(args, sort_keys=True, default=str)
                     if key in ran:  # exactly this, again: the answer would be the same
                         res = {"error": "You already ran exactly this lookup in this turn and it would return the "
@@ -1263,6 +1549,7 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
                         if auto is not None:
                             progress.hints["scenes"] = [*progress.hints.get("scenes", []), auto]
                         res = {**scenes.public(res), "lookup_id": lid,
+                               **({"covers": covers(args)} if c["name"] in ("query", "compare_to_normal") and ok else {}),
                                **({"on_screen": scenes.describe(auto) + " — beside us now. Talk about what it shows, "
                                                  "not about the chart; show (same lookup) lights up what matters"}
                                   if auto else {})}
@@ -1281,6 +1568,7 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
                 progress.next_step()
                 if not is_last and results:
                     sufficient = asyncio.create_task(brain.enough(text, results[-6:]))
+                step += 1
         async with _lock(conversation_id), async_session_factory() as db:
             m = await db.get(CompanionMessage, answer_id)
             if answer and progress.narration:

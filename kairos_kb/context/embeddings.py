@@ -24,12 +24,12 @@ _client = None
 
 def _get_client():
     global _client
-    from kairos_kb.llm.provider import async_client, embedding_model
+    from kairos_kb.llm.provider import embedding_client, embedding_model
 
     if not embedding_model():
         return None
     if _client is None:
-        _client = async_client()
+        _client = embedding_client()  # its own service (stays Azure when chat runs on Nebius)
     return _client
 
 

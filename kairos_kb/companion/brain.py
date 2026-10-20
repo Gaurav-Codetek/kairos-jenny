@@ -285,6 +285,17 @@ FEELINGS = {
 
 
 SETTLED = 0.6  # thread_settled / jenny_already_said at or above: the matter is closed, or she's said it already
+REQUESTS = ("question", "follow_up", "instruction", "correction")
+ASKS = 0.5    # at or above: the turn more likely asks for something than not
+
+
+def asks(r: Dict[str, Any]) -> float:
+    """How likely the turn asks for something, summed over Jev's turn kinds — so a request it can't place with
+    confidence still counts: "okay up the tell me whether the field has started again" (a misheard "feed") read as
+    question .27 + instruction .22 + follow-up .03, with no single kind confident."""
+    kind = r.get("turn_kind")
+    p = (kind.get("probabilities") or {}) if isinstance(kind, dict) else {}
+    return sum(p.get(k) or 0.0 for k in REQUESTS)
 
 
 def decide(r: Dict[str, Any], last_reply: str = "") -> Dict[str, Optional[str]]:
@@ -299,6 +310,9 @@ def decide(r: Dict[str, Any], last_reply: str = "") -> Dict[str, Optional[str]]:
         move = "acknowledge" if kind in SOCIAL else "answer_brief"
     elif not move:  # the kind of turn, read confidently, settles the move for these
         move = {"small_talk": "small_talk", "reaction": "acknowledge", "unclear": "ask_back"}.get(kind or "")
+    # A request is answered, never just acknowledged — even one Jev couldn't place (garbled speech).
+    if move in ("acknowledge", "small_talk") and kind not in SOCIAL and asks(r) >= ASKS:
+        move = "answer_brief"
     # Ask back only when it's fair: a real question that could mean two things, from someone who isn't already
     # annoyed, and not straight after she asked something herself. A correction has just made things clearer.
     fair = kind in ("question", "follow_up") and mood not in ("frustrated", "impatient") and         not last_reply.rstrip().endswith("?")
@@ -417,6 +431,16 @@ def guidance(r: Optional[Dict[str, Any]], voice: bool, last_reply: str = "") -> 
 _OFFER = re.compile(r"(if you (want|like|'d like)|want me to|shall i|should i|i can (pull|show|check|break|look|dig))", re.I)
 
 
+_LOOKING = re.compile(r"\b(let me|let's|i'?ll|i will|i'?m going to)\s+(just\s+|quickly\s+|now\s+)?"
+                      r"(check|pull|look|see|find|fetch|get|dig|read|(take|have)\s+a\s+(quick\s+)?look)\b", re.I)
+
+
+def announces_lookup(text: str) -> bool:
+    """She says she's about to look something up ("Let me pull the latest feed status") — a promise only a lookup in
+    the same turn keeps."""
+    return bool(_LOOKING.search(text or ""))
+
+
 def ended_with_offer(reply: str) -> bool:
     """Her last reply closed with an offer or a question ("Want me to…?", "If you like, I can…")."""
     tail = re.split(r"(?<=[.!?])\s+", reply.strip())[-1] if reply.strip() else ""
@@ -453,6 +477,9 @@ def quick(r: Optional[Dict[str, Any]], last_reply: str = "") -> bool:
     move = decide(r, last_reply)["move"]
     if move in ("ask_back", "wrap_up"):
         return True
+    if asks(r) >= ASKS:
+        return False  # it asks for something: she may need to look, whatever needs_data says (it said .15 to "has
+                      # the feed started again?")
     if move == "small_talk":
         return (r.get("needs_data") or 1) < 0.5
     return (r.get("needs_data") or 1) < 0.35 and move in ("acknowledge", "small_talk", "wrap_up", "empathise_then_answer",
@@ -643,8 +670,10 @@ def meeting_questions() -> Dict[str, Any]:
             instructions=("In a meeting with several people, are `words` (said by `speaker`) spoken to Jenny — the AI "
                           "assistant in the call — asking her something, asking her to do something, checking "
                           "something with her, or thanking her?"),
-            criteria=NoulCriteria(true="'Jenny, how did Pune do?' / 'And Delhi?' from the person she just answered / "
-                                       "'that's what you mentioned, correct?' right after she answered / 'Thanks, Jenny.'",
+            criteria=NoulCriteria(true="'Jenny, how did Pune do?' / 'Hey Jenny, how are you?' / 'Can you tell me about "
+                                       "cancellations?' right after someone said 'Hey, Jenny' / 'And Delhi?' from the "
+                                       "person she just answered / 'that's what you mentioned, correct?' right after "
+                                       "she answered / 'Thanks, Jenny.'",
                                   false="People talking to each other; mentioning her ('as Jenny said earlier'); "
                                         "reading out a number.")),
         "finished": Noul(
@@ -670,14 +699,21 @@ def meeting_questions() -> Dict[str, Any]:
             criteria=NoulCriteria(true="'Not you, Jenny.' / 'Jenny, we're talking among ourselves.' / 'Jenny, stop.' / "
                                        "'No no, I wasn't asking you.'",
                                   false="A question for her; a correction of her numbers; thanks.")),
+        "needs_look": Noul(
+            instructions=("To answer `words`, would Jenny have to look something up — numbers, a breakdown, a "
+                          "comparison — rather than reply straight away?"),
+            criteria=NoulCriteria(true="'Jenny, how did Pune do?' / 'And which items sell most in the north?' / 'What's "
+                                       "the cancellation rate there?'",
+                                  false="'Hi Jenny, how are you?' / 'Thanks, Jenny.' / 'Right, Jenny?' / 'Jenny, stop.'")),
     }
 
 
 ADDRESSED = 0.6  # at or above: the words are for her, and she answers
 BEARS = 0.6      # what came before bears on the question: she uses it, and may link back to it
 AGREES = 0.6     # they're checking something with her: she confirms or corrects, plainly first
-DISMISSES = 0.6  # "not you": she apologises in a few words and goes quiet
+DISMISSES = 0.6  # "not you" / "stop": she stops, says a word or two and goes quiet — unless it's more a request
 FINISHED = 0.45  # below: they stopped mid-thought — she waits for the rest
+LOOKS = 0.5      # at or above: answering needs a lookup — she says "mm-hm, one sec" the moment they finish
 
 
 async def meeting_read(speaker: str, words: str, before: str, recent: List[str],
@@ -689,7 +725,22 @@ async def meeting_read(speaker: str, words: str, before: str, recent: List[str],
                     "jenny_last_said": jenny_last[-300:] or "(nothing yet)"}, meeting_questions())
     if r is None:
         return None
-    return {k: float(r.get(k) or 0.0) for k in ("addressed", "finished", "bears", "agreement", "dismisses")}
+    return {k: float(r.get(k) or 0.0) for k in ("addressed", "finished", "bears", "agreement", "dismisses", "needs_look")}
+
+
+def dismissed(r: Dict[str, float]) -> bool:
+    """Told to stop, or that it wasn't for her — and that more than it's a request. 'So Jenny, North Indian cities: I
+    want to know what people order most', right after a 'no no, stop', read addressed .86 and dismisses .61: a
+    question, not a dismissal."""
+    return r.get("dismisses", 0.0) >= DISMISSES and r.get("dismisses", 0.0) > r.get("addressed", 0.0)
+
+
+_OPENS_LOOKING = re.compile(r"^\s*(\[[a-z]+\]\s*)?((okay|ok|sure|alright|right|so)[,.]?\s+)?" + _LOOKING.pattern, re.I)
+
+
+def opens_with_lookup(sentence: str) -> bool:
+    """A sentence that only announces a lookup ("Let me check cancellation rates for Bikaner…")."""
+    return bool(_OPENS_LOOKING.match(sentence or ""))
 
 
 # ── an offer at the end: something the owner can answer yes or no ──────

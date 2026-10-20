@@ -88,8 +88,12 @@ function DayChart({ item }: { item: DeskItem }) {
   );
 }
 
-export function DeskPanel({ workspaceId }: { workspaceId: string | null }) {
+const isOpen = (i: DeskItem) => i.status === "open" || i.status === "running";
+
+/** Jenny's desk, one click from her screen: the button says how much she's keeping alive; the desk opens over it. */
+export function DeskButton({ workspaceId }: { workspaceId: string | null }) {
   const [items, setItems] = useState<DeskItem[]>([]);
+  const [shown, setShown] = useState(false);
 
   const load = useCallback(() => {
     if (!workspaceId) return;
@@ -104,11 +108,67 @@ export function DeskPanel({ workspaceId }: { workspaceId: string | null }) {
     return () => window.clearInterval(t);
   }, [load]);
 
-  const open = items.filter((i) => i.status === "open" || i.status === "running");
-  const closed = items.filter((i) => !(i.status === "open" || i.status === "running"));
+  useEffect(() => {
+    if (!shown) return;
+    load();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setShown(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [shown, load]);
+
+  const open = items.filter(isOpen).length;
+  return (
+    <>
+      <button onClick={() => setShown(true)} className="k-btn k-btn-sm" aria-haspopup="dialog">
+        <NotebookPen className="h-3.5 w-3.5 text-brand" />
+        Jenny&apos;s desk
+        {open > 0 && (
+          <span className="rounded-full bg-brand-soft px-1.5 text-[11px] font-semibold tabular-nums text-brand-strong">{open}</span>
+        )}
+      </button>
+      {shown && (
+        <div
+          className="k-page fixed inset-0 z-50 flex items-center justify-center bg-[rgb(26_29_36/0.28)] p-8 backdrop-blur-[3px]"
+          onClick={() => setShown(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Jenny's desk"
+            className="k-pop flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl shadow-[0_24px_60px_-20px_rgb(26_29_36/0.35)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <DeskPanel workspaceId={workspaceId} items={items} onChanged={load} onClose={() => setShown(false)} />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function DeskPanel({ workspaceId, items, onChanged, onClose }: {
+  workspaceId: string | null;
+  items: DeskItem[];
+  onChanged: () => void;
+  onClose: () => void;
+}) {
+  const open = items.filter(isOpen);
+  const closed = items.filter((i) => !isOpen(i));
+  const load = onChanged;
 
   return (
-    <Panel title="Jenny's desk" icon={NotebookPen} meta={open.length ? `${open.length} kept alive` : "nothing promised right now"}>
+    <Panel
+      title="Jenny's desk"
+      icon={NotebookPen}
+      meta={open.length ? `${open.length} kept alive` : "nothing promised right now"}
+      action={
+        <button onClick={onClose} className="k-btn k-btn-ghost k-btn-sm !px-1.5" aria-label="Close">
+          <X className="h-4 w-4" />
+        </button>
+      }
+      className="flex min-h-0 flex-col"
+      bodyClassName="min-h-0 overflow-y-auto"
+    >
       {items.length === 0 ? (
         <p className="px-4 py-4 text-k-body text-ink-muted">
           When Jenny says she&apos;ll keep an eye on something or come back to it, it lands here — and she only says so

@@ -199,7 +199,7 @@ function GraphWorkspace({ modeSwitch }: { modeSwitch: React.ReactNode }) {
   return (
     <>
       <PageHeader
-        title="Lineage"
+        title="Map"
         description={
           rootId
             ? `${graph.nodes.length} entities · ${graph.edges.length} relationships`

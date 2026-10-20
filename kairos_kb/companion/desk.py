@@ -5,8 +5,11 @@ heartbeat runs, and only then may she say it (see claims.py — a promise nothin
 owner). Two kinds of item:
 
   watch   a metric (or one slice of it: cancellations in Bangalore) against a threshold — today's value, or its gap
-          from normal — read on every pulse until it ends, the whole time. It crosses the line only when the condition
-          holds on two checks in a row (one noisy reading isn't news); she looks into it and tells the owner. It keeps
+          from normal — read on every pulse until it ends, the whole time. It crosses the line only when it is clearly
+          past it on two checks in a row (one noisy reading isn't news); she looks into it and tells the owner. Clearly
+          past: a few percent beyond the line, and for a rate, beyond its sampling noise at today's volume (6.4% on 125
+          orders isn't below 6.5%); a rate on too few orders to mean anything (just after midnight) doesn't move the
+          watch at all. Hovering at the line is neither a crossing nor a coming back. It keeps
           watching: when it holds back on the right side she says so (if she'd told them it crossed), a second crossing
           within the hour is noted rather than interrupting again, and at the close of each business day (and when
           the watch ends) she leaves a summary — how often it crossed and when, how long it stayed over, its peak, and
@@ -24,6 +27,8 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
+import re
 from datetime import datetime, time, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
@@ -41,6 +46,8 @@ REALERT_MIN = 60           # a new crossing within this long of the last alert i
 DAY_READINGS = 600         # readings kept for the day (one per pulse)
 MAX_HOURS = 7 * 24         # a watch lasts at most a week
 UNIT_RATIO = 30            # a threshold this many times off the current value is in the wrong units
+MARGIN = 0.03              # a reading counts as past the line (or back) only this far beyond it, relative to the line
+MIN_VOLUME = 100           # a rate on fewer events than this (orders behind a cancellation rate) doesn't move a watch
 
 # What she always does, without anything on the desk: claims about these are true.
 STANDING = [
@@ -157,8 +164,26 @@ async def _state(db, workspace_id) -> Optional[CompanionState]:
 # ── evaluating a watch ───────────────────────────────────────────────
 
 
+_COUNT = re.compile(r"^\s*COUNT\s*\(", re.I)
+
+
+def volume_metric(model: Dict[str, Any], m: Dict[str, Any]) -> Optional[str]:
+    """The count a rate is taken over (orders, behind a cancellation rate): an additive COUNT(...) metric on the same
+    table whose expression is the rate's denominator. None for anything that isn't a ratio, or has no such count."""
+    if m.get("additive") or (m.get("unit") or "") != "ratio":
+        return None
+    expr = (m.get("expression") or "").replace(" ", "").upper()
+    for x in model.get("metrics") or []:
+        own = (x.get("expression") or "").replace(" ", "").upper()
+        if (x is not m and x.get("additive") and x.get("base_table") == m.get("base_table")
+                and _COUNT.match(x.get("expression") or "") and own and own in expr):
+            return x["name"]
+    return None
+
+
 async def evaluate(db, workspace_id, spec: Dict[str, Any], st: CompanionState) -> Dict[str, Any]:
-    """The watched value now: {"value", "display"} or {"error"}."""
+    """The watched value now: {"value", "display"} — and, for a rate, "n": the events it's taken over today — or
+    {"error"}."""
     from kairos_kb.companion import chat
     from kairos_kb.companion.pulse import _between, pace_for, show
     from kairos_kb.companion.vitals import event_column, live_model, num, run
@@ -166,17 +191,18 @@ async def evaluate(db, workspace_id, spec: Dict[str, Any], st: CompanionState) -
     p = await chat._product(db, workspace_id, spec["product"])
     if p is None:
         return {"error": f"No data product '{spec['product']}'."}
+    ev = await event_column(db, p)
+    model = live_model(p, {"table": ev[0], "column": ev[1]}) if ev else None
+    m = next((x for x in (model or {}).get("metrics") or [] if x["name"].lower() == spec["metric"].lower()), None)
+    vol = volume_metric(model, m) if model and m and spec.get("basis", "value") == "value" else None
+    local = _local_now(st)
+    today = _between(datetime.combine(local.date(), time.min), local)
     if spec.get("slice"):
-        ev = await event_column(db, p)
         if not ev:
             return {"error": f"{p.name} isn't live."}
-        model = live_model(p, {"table": ev[0], "column": ev[1]})
-        m = next((x for x in model.get("metrics") or [] if x["name"].lower() == spec["metric"].lower()), None)
         if m is None:
             return {"error": f"No metric '{spec['metric']}' on {p.name}."}
-        local = _local_now(st)
-        r = await run(db, model, [m["name"]], [spec["dimension"]],
-                      filters=_between(datetime.combine(local.date(), time.min), local), limit=3000)
+        r = await run(db, model, [m["name"]] + ([vol] if vol else []), [spec["dimension"]], filters=today, limit=3000)
         if r.get("error"):
             return {"error": r["error"]}
         rows = {str(row[0]).lower(): row for row in r.get("rows") or []}
@@ -185,7 +211,10 @@ async def evaluate(db, workspace_id, spec: Dict[str, Any], st: CompanionState) -
             some = ", ".join(str(x[0]) for x in (r.get("rows") or [])[:8])
             return {"error": f"No '{spec['slice']}' in {spec['dimension']} today. Some values: {some}."}
         value = num(row[1])
-        return {"value": value, "display": show(value, m.get("unit") or "", m["name"]), "slice": str(row[0])}
+        out = {"value": value, "display": show(value, m.get("unit") or "", m["name"]), "slice": str(row[0])}
+        if vol and len(row) > 2 and num(row[2]) is not None:
+            out["n"] = num(row[2])
+        return out
     res = await pace_for(db, p, spec["metric"], st)
     if res.get("error"):
         return {"error": res["error"]}
@@ -194,13 +223,38 @@ async def evaluate(db, workspace_id, spec: Dict[str, Any], st: CompanionState) -
         if dev is None:
             return {"error": "No normal to compare with at this hour yet."}
         return {"value": float(dev), "display": f"{dev:+.1f}% against normal ({res.get('actual_display')})"}
-    return {"value": res.get("actual"), "display": res.get("actual_display") or str(res.get("actual"))}
+    out = {"value": res.get("actual"), "display": res.get("actual_display") or str(res.get("actual"))}
+    if vol:
+        r = await run(db, model, [vol], None, filters=today)
+        rows = r.get("rows") or []
+        if not r.get("error") and rows and num(rows[0][0]) is not None:
+            out["n"] = num(rows[0][0])
+    return out
 
 
-def crossed(spec: Dict[str, Any], value: Optional[float]) -> bool:
+def crossed(spec: Dict[str, Any], value: Optional[float], margin: float = 0.0) -> bool:
+    """Over the line — by at least `margin` when one is given."""
     if value is None:
         return False
-    return value > spec["threshold"] if spec["condition"] == "above" else value < spec["threshold"]
+    t = spec["threshold"]
+    return value > t + margin if spec["condition"] == "above" else value < t - margin
+
+
+def back(spec: Dict[str, Any], value: Optional[float], margin: float = 0.0) -> bool:
+    """On the right side of the line, by at least `margin`."""
+    if value is None:
+        return False
+    t = spec["threshold"]
+    return value < t - margin if spec["condition"] == "above" else value > t + margin
+
+
+def margin(spec: Dict[str, Any], value: float, n: Optional[float] = None) -> float:
+    """How far past the line a reading must be to count: a few percent of the line, and for a rate taken over n
+    events, its sampling noise (one standard error) — 6.4% on 125 orders is 6.5% give or take two points."""
+    out = abs(spec["threshold"]) * MARGIN
+    if n and 0.0 <= value <= 1.0:
+        out = max(out, math.sqrt(value * (1.0 - value) / n))
+    return out
 
 
 # ── the tools ────────────────────────────────────────────────────────
@@ -355,15 +409,23 @@ def _mins(hhmm: str) -> int:
     return int(h) * 60 + int(m)
 
 
-def step(f: Dict[str, Any], value: float, display: str, clock: str, now: datetime) -> List[str]:
-    """One reading of a watch (business-clock "HH:MM"): updates its day in place and returns what happened —
-    "cross" (newly over the line, worth telling), "cross_quiet" (over again within the hour), "back" (back on the
-    right side after a crossing she told the owner about)."""
+def step(f: Dict[str, Any], value: float, display: str, clock: str, now: datetime,
+         n: Optional[float] = None) -> List[str]:
+    """One reading of a watch (business-clock "HH:MM"; n: the events a rate is taken over, when known): updates its
+    day in place and returns what happened — "cross" (newly over the line, worth telling), "cross_quiet" (over again
+    within the hour), "back" (back on the right side after a crossing she told the owner about)."""
     spec = f["spec"]
-    f.setdefault("history", []).append({"t": clock, "v": value, "d": display})
+    reading = {"t": clock, "v": value, "d": display, **({"n": n} if n is not None else {})}
+    f.setdefault("history", []).append(reading)
     f["history"] = f["history"][-DAY_READINGS:]
-    over = crossed(spec, value)
-    f["held"], f["clear_n"] = ((f.get("held") or 0) + 1, 0) if over else (0, (f.get("clear_n") or 0) + 1)
+    if n is not None and n < MIN_VOLUME:
+        reading["thin"] = True  # kept for the record; too few events to say which side of the line it's on
+        return []
+    gap = margin(spec, value, n)
+    over, clear = crossed(spec, value, gap), back(spec, value, gap)
+    # Clearly over, clearly back, or at the line (neither: nothing builds up toward a crossing or a return).
+    f["held"] = (f.get("held") or 0) + 1 if over else 0
+    f["clear_n"] = (f.get("clear_n") or 0) + 1 if clear else 0
     episodes = f.setdefault("episodes", [])
     events: List[str] = []
     if f.get("state", "clear") == "clear" and f["held"] >= HOLD_CHECKS:
@@ -406,7 +468,8 @@ def summarize(f: Dict[str, Any], title: str, day_label: str, closing: bool = Tru
         body = (f"crossed {len(eps)} time{'s' if len(eps) != 1 else ''} ({spans}), {side} the line for about {dur} "
                 f"in all; peak {peak.get('peak_d')} at {peak.get('peak_at')}")
     else:
-        near = max(hist, key=lambda r: r["v"]) if above else min(hist, key=lambda r: r["v"])
+        solid = [r for r in hist if not r.get("thin")] or hist  # a rate on a handful of orders was never close
+        near = max(solid, key=lambda r: r["v"]) if above else min(solid, key=lambda r: r["v"])
         body = f"never crossed; closest was {near['d']} at {near['t']}"
     return f"{title} — {day_label}: {body}; {'closed' if closing else 'now'} at {last['d']}."
 
@@ -464,8 +527,9 @@ async def _review(workspace_id) -> int:
                 f["last"] = {"at": now.isoformat(), "error": r["error"]}
                 n.facts = f
                 continue
-            f["last"] = {"at": now.isoformat(), "value": r["value"], "display": r["display"]}
-            for ev in step(f, r["value"], r["display"], clock, now):
+            f["last"] = {"at": now.isoformat(), "value": r["value"], "display": r["display"],
+                         **({"n": r["n"]} if r.get("n") is not None else {})}
+            for ev in step(f, r["value"], r["display"], clock, now, r.get("n")):
                 if ev in ("cross", "back"):
                     due.append((n.id, ev, n.title, dict(f), None))
             n.facts = f
@@ -497,9 +561,10 @@ async def _fire(workspace_id, note_id, kind: str, title: str, f: Dict[str, Any],
             "it sits, since when, and whether it's spreading or one outlier."))
         moment = ("watch_tripped", 8, f"Watch crossed: {title} (now {last})", findings)
     elif kind == "back":
-        body = (f"No longer {title}: it's now {last}. It held from {ep.get('from')} to {ep.get('to')}, at its furthest "
-                f"{ep.get('peak_d')} at {ep.get('peak_at')}. I'm still watching it.")
-        moment = ("watch_recovered", 6, f"No longer {title} (now {last})", body)
+        body = (f"Back on the other side of the line: {title} no longer holds — it's now {last}. It held from "
+                f"{ep.get('from')} to {ep.get('to')}, at its furthest {ep.get('peak_d')} at {ep.get('peak_at')}. "
+                "I'm still watching it.")
+        moment = ("watch_recovered", 6, f"Watch cleared: {title} no longer holds (now {last})", body)
     elif kind == "summary":
         moment = ("watch_summary", 6, f"Day summary: {title}", text or "")
     else:

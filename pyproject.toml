@@ -3,6 +3,7 @@ name = "kairos-kb"
 version = "0.1.0"
 description = "AI-Native Data Platform Intelligence — Synthetic Warehouse & Evidence-Backed RCA"
 requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",

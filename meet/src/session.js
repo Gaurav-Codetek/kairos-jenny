@@ -1,9 +1,10 @@
 // One meeting: a Chromium window that joins a Google Meet as a guest named "Jenny (Kairos)".
 //
 // Inside the Meet tab (see inject/): her microphone is her voice, her camera is a canvas (her tile: her name, or the
-// scene she's showing), and her ears are Meet's own captions. Kairos drives it over a WebSocket:
-//   events out:  state · caption · chat · participants · spoken
-//   commands in: say · stop · scene · status · chat_send · leave
+// scene she's showing), and her ears are the meeting's audio (sent to Kairos for speech to text, once it asks) with
+// Meet's own captions naming who's speaking. Kairos drives it over a WebSocket:
+//   events out:  state · caption · audio · chat · participants · spoken
+//   commands in: say · stop · scene · status · hearing · chat_send · leave
 import { chromium } from "playwright";
 import WebSocket from "ws";
 
@@ -159,6 +160,13 @@ export class MeetSession {
     if (c.type === "stop") return call("stop");
     if (c.type === "scene") return call("scene", c.scene);
     if (c.type === "status") return call("status", c.status);
+    if (c.type === "hearing") {
+      const tracks = await this.page.evaluate((on) => {
+        window.__jennyHearing?.set(on);
+        return window.__jennyHearing?.tracks() ?? -1;
+      }, !!c.on).catch(() => -1);
+      return console.log(`[${this.id}] hearing through the audio: ${c.on ? "on" : "off"} (${tracks} incoming track(s))`);
+    }
     if (c.type === "chat_send") return this.chat(c.text);
     if (c.type === "leave") return this.leave();
   }

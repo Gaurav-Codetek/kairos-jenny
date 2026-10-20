@@ -208,7 +208,7 @@ export function MeshWorkspace({ modeSwitch }: { modeSwitch: React.ReactNode }) {
   return (
     <>
       <PageHeader
-        title="Lineage"
+        title="Map"
         description={description}
         actions={
           <>

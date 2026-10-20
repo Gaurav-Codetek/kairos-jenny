@@ -60,9 +60,33 @@ TAG = {"warm": "warm", "happy": "warm", "reassuring": "reassuring", "calm": "rea
 PACE = {"concerned": 0.92, "sad": 0.9, "serious": 0.94, "thoughtful": 0.95, "calm": 0.96, "reassuring": 0.96,
         "warm": 1.0, "curious": 1.03, "happy": 1.04, "upbeat": 1.06, "excited": 1.08}
 
+# The little sounds a listener makes, said the instant they fit — before any thinking — so a conversation never
+# hangs in silence: "mm-hm, one sec" as soon as a question needing a lookup ends, "mm, okay" when she's told to stop,
+# "mm-hm?" when someone trails off mid-thought, "oh, sorry" when it wasn't for her. Rotated, never the same twice
+# running.
+BACKCHANNEL = {
+    "look": ["Mm-hm, one sec.", "Sure, let me see.", "Mm, okay — one moment.", "Mm-hm, let me look."],
+    "stop": ["Mm, okay.", "Mm-hm, sure.", "Okay — go on."],
+    "go_on": ["Mm-hm?", "Mm?", "Yeah?"],
+    "sorry": ["Oh — sorry, carry on.", "Oops, my bad."],
+    "here": ["Hi — yes?", "Yes?", "Hey — I'm here."],
+}
+_last_back: Dict[str, str] = {}
+
+
+def backchannel(kind: str) -> Optional[str]:
+    """One of the kind's phrases, not the one said last time."""
+    options = BACKCHANNEL.get(kind) or []
+    if not options:
+        return None
+    last = _last_back.get(kind)
+    pick = options[(options.index(last) + 1) % len(options)] if last in options else options[0]
+    _last_back[kind] = pick
+    return pick
+
+
 # Phrases said in almost every conversation: made when Kairos starts, so they play instantly.
-# Made ahead so they come back instantly. (No stock fillers: while she works, she says what she's doing.)
-COMMON = ["I'm still working on your last question — one moment."]
+COMMON = ["I'm still working on your last question — one moment."] + [p for ps in BACKCHANNEL.values() for p in ps]
 
 _cache: "OrderedDict[tuple, bytes]" = OrderedDict()  # (engine, text, tone or pace) -> MP3
 # Kokoro works through one phrase at a time on a CPU; requests in parallel only slow each other down. Live phrases
@@ -104,7 +128,22 @@ async def available() -> bool:
 
 
 def _clean(text: Optional[str]) -> str:
-    return " ".join((text or "").split())[:600]
+    return " ".join(_plain(text or "").split())[:600]
+
+
+def _plain(text: str) -> str:
+    """What a written reply sounds like said: no markdown. Bold and code marks go, bullets and headings lose their
+    markers, a table row becomes its cells in a phrase and its rule line goes — so none of it is read out."""
+    out = []
+    for line in text.splitlines():
+        s = line.strip()
+        if re.fullmatch(r"\|?[\s:|-]*-{3,}[\s:|-]*", s):
+            continue  # a table's rule line
+        if s.startswith("|"):
+            s = ", ".join(c.strip() for c in s.strip("|").split("|") if c.strip())
+        s = re.sub(r"^(?:#+|[-*•]|\d+[.)])\s+", "", s)
+        out.append(s.replace("**", "").replace("__", "").replace("`", ""))
+    return "\n".join(out)
 
 
 _TAGS = re.compile(r"\[[^\]]*\]")
