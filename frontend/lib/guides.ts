@@ -315,6 +315,7 @@ export const SCREENS: Record<string, Guide> = {
         body:
           "Ask anything about the business: “How are we doing today?”, “Which cities are carrying GMV?”. She looks it " +
           "up in the live data through Kairos and answers in plain numbers, putting a chart on her stage when it helps. " +
+          "Ask about the weather (“Is rain hitting deliveries in Delhi?”) and she checks weather news for that city. " +
           "Her thinking runs on NVIDIA Nemotron 3.5 Super, served by Nebius Token Factory.",
       },
       {

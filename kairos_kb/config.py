@@ -87,7 +87,7 @@ class Settings(BaseSettings):
     # Where embeddings come from: "" follows LLM_PROVIDER, except nebius, which keeps Azure (or OpenAI).
     embedding_provider: str = ""
 
-    # ── Tavily (Jenny's outside_context tool: news and events the data can't see) ──
+    # ── Tavily (Jenny's weather_news tool: weather that might affect deliveries, only when asked) ──
     # Off by default: web results invite guesses about causes the data can't back. JENNY_WEB_SEARCH=1 (with a key) turns it on.
     jenny_web_search: bool = False
     tavily_api_key: str = ""

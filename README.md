@@ -47,6 +47,10 @@ correctly instead of guessing:
   same-weekdays, and says what matters in one line.
 - **Her desk** — things you've asked her to watch ("tell me if cancellations go above seven percent").
 - **Chat and calls** — ask in text or by voice; she looks it up and answers in plain numbers.
+- **Weather that hits deliveries** — ask whether rain, a storm, a heatwave or fog is affecting a city and she checks
+  recent weather news for it through **Tavily**, naming the source and never claiming it caused the numbers. The search
+  is bound to weather and offered only on a question about the weather
+  ([`kairos_kb/companion/web.py`](kairos_kb/companion/web.py)).
 - **In your meeting** — she joins a Google Meet as a participant, hears the room, answers whoever asked, and draws the
   chart on her camera tile as she talks. Every sentence she says is checked against what her lookups returned first.
 
@@ -228,7 +232,7 @@ Everything is set in `.env` (see [`.env.example`](.env.example)). The settings t
 | `JENNY_MEET_HEARING` | `audio` with an ElevenLabs key | `audio` (speech to text) or `captions` (Meet's own captions) |
 | `TYPESAFE_API_KEY` | — | Jev, the fast read of each turn (is it for her, does it need data) |
 | `SNOWFLAKE_*` / `DATABRICKS_*` | — | Warehouse credentials |
-| `JENNY_WEB_SEARCH` | off | Web search (Tavily) for outside context — off by design: next to a spike in the numbers, a headline invites a cause the data can't back |
+| `JENNY_WEB_SEARCH` + `TAVILY_API_KEY` | on with a key | Jenny's weather lookup (Tavily): weather news for a city that might affect deliveries, offered only when a question is about the weather |
 
 Nothing was removed to add Nebius: Azure OpenAI, OpenAI and Gemini remain one setting away.
 

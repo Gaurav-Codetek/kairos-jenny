@@ -69,6 +69,11 @@ services:
         sync: false
       - key: SNOWFLAKE_ROLE
         sync: false
+      # Weather news for a city (Tavily), only when she's asked about the weather
+      - key: JENNY_WEB_SEARCH
+        value: "1"
+      - key: TAVILY_API_KEY
+        sync: false
       # Where it's reached
       - key: FRONTEND_ORIGINS
         value: '["https://kairos-jenny-web.onrender.com"]'

@@ -31,6 +31,7 @@ agent activity and all evaluation runs), checks every text column for any trace 
    - `NEBIUS_API_KEY`
    - `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT` (embeddings; leave empty and search falls back to keywords)
    - `ELEVENLABS_API_KEY`, `TYPESAFE_API_KEY`
+   - `TAVILY_API_KEY` (Jenny's weather lookup)
    - `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, `SNOWFLAKE_TOKEN`, `SNOWFLAKE_WAREHOUSE`, `SNOWFLAKE_ROLE` — use a
      **read-only** role
    - Never the `DATABRICKS_*` values from your local `.env`: they reach the ICS warehouse.

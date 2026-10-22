@@ -141,22 +141,18 @@ SHOW = _fn("show", "Put a chart on the stage beside our conversation, built from
 TOOLS = TOOLS + desk.TOOLS + [SHOW]
 LOOKUPS = {"pulse_now", "moments", "compare_to_normal", "list_products", "query", "notebook"}  # each gets a lookup_id
 
-# With TAVILY_API_KEY: what's happening outside the data (weather, festivals, outages, news) — a lead, never a cause.
-OUTSIDE = _fn("outside_context",
-              "Recent news and events outside the business's data that might explain a change you already found in "
-              "it: weather, a festival or holiday, a city-wide outage, a strike, a big match. Use it only after "
-              "you've looked at the data and only when the owner asks why, or the cause isn't in the data. Say it's "
-              "from the web and name the source; offer it as a possible reason, never as the cause.",
-              {"query": {"type": "string", "description": "What to look for, e.g. 'heavy rain or flooding' or "
-                                                          "'food delivery app outage'."},
-               "place": {"type": "string", "description": "The city or area, e.g. 'Delhi'."},
+# With JENNY_WEB_SEARCH and a Tavily key: weather news for a city that might affect deliveries. Offered only on a turn
+# whose question is about the weather (web.asks_weather), never to her pulse or desk; she names the city, the search
+# is built in web.py, so it can't be used for anything else.
+WEATHER = _fn("weather_news",
+              "Recent weather news, forecasts and alerts for one city (heavy rain, storms, flooding, heatwaves, fog) "
+              "that could affect deliveries. Only for the owner's question about the weather. Say it's from the web "
+              "and name the source; offer it as a possible factor, never as the cause of a change in the numbers.",
+              {"place": {"type": "string", "description": "The city, e.g. 'Delhi'."},
                "days": {"type": "integer", "description": "How recent, in days (default 3)."}},
-              ["query"])
+              ["place"])
 if web.enabled():
-    TOOLS = TOOLS + [OUTSIDE]
-    LOOK_TOOLS = LOOK_TOOLS + [OUTSIDE]
-    ABILITIES = ABILITIES + ["look up recent news and events outside the data (weather, festivals, outages) as a "
-                             "possible reason for a change"]
+    ABILITIES = ABILITIES + ["check recent weather news and forecasts for a city, when asked about the weather"]
 
 SYSTEM = """You are Jenny, the companion of {workspace}. You watch this business live through its data and talk it
 through with the owner — "you" — as "I".
@@ -414,9 +410,12 @@ async def call_tool(workspace_id, name: str, args: Dict[str, Any]) -> Dict[str, 
 
     if name == "show":
         return await _show(workspace_id, args)
-    if name == "outside_context":
-        return await web.outside_context(str(args.get("query") or ""), str(args.get("place") or ""),
-                                         int(args["days"]) if str(args.get("days") or "").isdigit() else None)
+    if name == "weather_news":
+        turn = _TURN.get()
+        if not (turn and web.asks_weather(turn["question"])):
+            return {"error": "The weather lookup is only for a question about the weather."}
+        return await web.weather_news(str(args.get("place") or ""),
+                                      int(args["days"]) if str(args.get("days") or "").isdigit() else None)
     if name in desk.NAMES:
         turn = _TURN.get()
         res = await desk.call(workspace_id, name, args, {"question": turn["question"]} if turn else None)
@@ -1466,6 +1465,8 @@ async def run_turn(conversation_id: uuid.UUID, question_id: uuid.UUID, answer_id
             # Her brain is sure a picture helps: the first lookup that makes one goes on the stage by itself.
             staged = visual and read is not None and (read.get("visual_helps") or 0) >= AUTO_STAGE
             tools = TOOLS if visual else [t for t in TOOLS if t["function"]["name"] != "show"]
+            if web.enabled() and web.asks_weather(text):  # asked about the weather: she may check the news for it
+                tools = tools + [WEATHER]
             step = 0
             while step <= max_steps:
                 is_last = step == max_steps
