@@ -196,13 +196,18 @@ docker compose exec api python -m kairos_kb.llm.nebius_check
 **Tests:**
 
 ```bash
-docker compose exec api python -m pytest tests/unit      # backend (671 tests)
+docker compose exec api python -m pytest tests/unit      # backend (672 tests)
 cd frontend && npm test                                   # frontend
 cd meet && node --test test/cues.test.js                  # the Meet body
 ```
 
 The API is not hot-reloaded (long enrichment runs live in-process): after a code change run
 `docker compose restart api`; after changing `.env` run `docker compose up -d api`.
+
+### Deploy
+
+[`render.yaml`](render.yaml) deploys the database, the API and the app on Render as one Blueprint; the steps, including
+loading data, are in [`deploy/RENDER.md`](deploy/RENDER.md).
 
 ---
 

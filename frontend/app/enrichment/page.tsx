@@ -219,7 +219,7 @@ export default function EnrichmentPage() {
 
       <div className="flex min-h-0 flex-1">
         {/* Scope */}
-        <aside className="flex w-[320px] shrink-0 flex-col border-r border-hairline bg-surface">
+        <aside data-guide="enr:scope" className="flex w-[320px] shrink-0 flex-col border-r border-hairline bg-surface">
           <div className="border-b border-hairline px-4 py-3.5">
             <p className="text-k-title font-semibold text-ink">Scope</p>
             <p className="text-k-caption text-ink-muted">
@@ -273,7 +273,7 @@ export default function EnrichmentPage() {
         </aside>
 
         {/* Live feed */}
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div data-guide="enr:live" className="flex min-w-0 flex-1 flex-col">
           {run && (
             <div className="border-b border-hairline bg-surface px-5 py-3.5">
               <div className="flex items-center gap-3">
@@ -379,7 +379,7 @@ export default function EnrichmentPage() {
         </div>
 
         {/* Discoveries */}
-        <aside className="w-[300px] shrink-0 overflow-y-auto border-l border-hairline bg-surface">
+        <aside data-guide="enr:side" className="w-[300px] shrink-0 overflow-y-auto border-l border-hairline bg-surface">
           <section className="border-b border-hairline p-4">
             <h3 className="mb-3 flex items-center gap-2 text-k-title font-semibold text-ink">
               <Link2 className="h-4 w-4 text-ink-subtle" />

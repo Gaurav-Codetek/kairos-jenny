@@ -230,7 +230,7 @@ export function PulseView({
   const nextIn = state.next_pulse_in_seconds != null ? Math.round(state.next_pulse_in_seconds / 60) : null;
   return (
     <div className="space-y-4">
-      <section className="kairos-panel k-rise overflow-hidden">
+      <section data-guide="jenny:headline" className="kairos-panel k-rise overflow-hidden">
         <div className="flex gap-3.5 px-5 pb-3 pt-4">
           <span className="mt-1 shrink-0">
             <KairosMark size={32} />
@@ -286,7 +286,7 @@ export function PulseView({
       )}
 
       {snap && snap.vitals.length > 0 && (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div data-guide="jenny:vitals" className="grid gap-3 lg:grid-cols-2">
           {snap.vitals.map((v, i) => (
             <VitalCard key={v.key} v={v} index={i} localTime={snap.local_time} />
           ))}

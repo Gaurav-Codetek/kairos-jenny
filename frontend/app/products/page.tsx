@@ -163,19 +163,21 @@ export default function ProductsPage() {
             {workspaces.length > 1 && (
               <Segmented items={workspaces.map((w) => ({ id: w.id, label: w.name }))} value={workspaceId ?? ""} onChange={chooseWorkspace} />
             )}
-            <Segmented
-              items={[
-                { id: "lineage", label: "Lineage" },
-                { id: "semantic", label: "Semantic" },
-              ]}
-              value={mode}
-              onChange={setMode}
-            />
-            <button onClick={() => setStartingEngine(true)} disabled={!workspaceId || busy} className="k-btn">
+            <span data-guide="prod:mode">
+              <Segmented
+                items={[
+                  { id: "lineage", label: "Lineage" },
+                  { id: "semantic", label: "Semantic" },
+                ]}
+                value={mode}
+                onChange={setMode}
+              />
+            </span>
+            <button data-guide="prod:engine" onClick={() => setStartingEngine(true)} disabled={!workspaceId || busy} className="k-btn">
               <Cpu className="h-4 w-4" />
               Run engine
             </button>
-            <button onClick={() => setCreating(true)} disabled={!workspaceId || busy} className="k-btn k-btn-primary">
+            <button data-guide="prod:new" onClick={() => setCreating(true)} disabled={!workspaceId || busy} className="k-btn k-btn-primary">
               <Plus className="h-4 w-4" />
               New data product
             </button>
@@ -183,7 +185,7 @@ export default function ProductsPage() {
         }
       />
 
-      <div className="relative min-h-0 flex-1 overflow-hidden bg-canvas">
+      <div data-guide="prod:graph" className="relative min-h-0 flex-1 overflow-hidden bg-canvas">
         {products === null ? (
           <p className="flex items-center gap-2 px-7 py-6 text-k-body text-ink-muted">
             <Spinner /> Loading data products…

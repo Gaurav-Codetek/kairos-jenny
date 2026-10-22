@@ -44,9 +44,11 @@ function AgentsScreen() {
         title="Agents"
         description="Any agent connects once and understands this data platform — no per-agent setup"
       />
-      <Tabs items={TABS} value={tab} onChange={setTab} />
+      <div data-guide="agents:tabs">
+        <Tabs items={TABS} value={tab} onChange={setTab} />
+      </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div key={tab} className="k-rise mx-auto max-w-6xl px-7 py-6">
+        <div key={tab} data-guide="agents:body" className="k-rise mx-auto max-w-6xl px-7 py-6">
           {tab === "connect" && (
             <ConnectPanel
               onCreateKey={() => {

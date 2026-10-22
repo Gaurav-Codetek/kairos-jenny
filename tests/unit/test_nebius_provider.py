@@ -206,3 +206,10 @@ def test_each_lookup_says_what_its_numbers_cover():
     nothing = chat.covers({"product": "Delivered Orders Index", "metrics": ["restaurants_count"], "by": ["city"],
                            "filters": [{"dimension": "event_time", "op": "between", "value": ["a", "b"]}]})
     assert nothing.startswith("all of Delivered Orders Index: no restaurant, brand") and "by city" in nothing
+
+
+def test_a_hosts_plain_postgres_url_gets_the_async_driver():
+    for given in ("postgres://u:p@dpg-x.render.com/kairos", "postgresql://u:p@dpg-x/kairos"):
+        assert Settings(_env_file=None, database_url=given).database_url.startswith("postgresql+asyncpg://u:p@dpg-x")
+    already = "postgresql+asyncpg://kairos:kairos_dev@db:5432/kairos"
+    assert Settings(_env_file=None, database_url=already).database_url == already

@@ -21,6 +21,20 @@ import {
 } from "@/lib/meetings";
 import { cn } from "@/lib/utils";
 
+/** Whether this deployment has Jenny's Meet body (meet/): NEXT_PUBLIC_MEET=off on one that doesn't, such as a hosted
+ * demo, where a browser that signs in to Google and joins calls can't run. */
+export const MEET_ON = process.env.NEXT_PUBLIC_MEET !== "off";
+
+/** In place of the Meet control where she can't join meetings: what she can do, and where to see it. */
+export function MeetUnavailable() {
+  return (
+    <div data-guide="jenny:meet" className="flex items-center gap-1.5 border-b border-hairline px-4 py-2 text-[12px] text-ink-muted">
+      <Video className="h-3.5 w-3.5 shrink-0" />
+      Jenny joins Google Meet calls when run with her meeting host (see the demo video); here, ask or call her.
+    </div>
+  );
+}
+
 export function MeetingControl({
   workspaceId,
   onMeeting,
@@ -131,7 +145,7 @@ export function MeetingControl({
   if (live && meeting) {
     const waiting = meeting.state === "waiting_to_be_admitted";
     return (
-      <div className="k-pop flex items-center gap-2.5 border-b border-hairline bg-brand-soft/50 px-4 py-2.5">
+      <div data-guide="jenny:meet" className="k-pop flex items-center gap-2.5 border-b border-hairline bg-brand-soft/50 px-4 py-2.5">
         <span className={cn("relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white", waiting ? "bg-warn-dot" : "bg-brand")}>
           <Video className="h-3.5 w-3.5" />
           {meeting.speaking && <span className="k-pulse absolute inset-0 rounded-full border-2 border-brand-border" />}
@@ -154,7 +168,7 @@ export function MeetingControl({
   }
 
   return (
-    <div className="border-b border-hairline px-4 py-2">
+    <div data-guide="jenny:meet" className="border-b border-hairline px-4 py-2">
       {open ? (
         <form onSubmit={send} className="flex items-center gap-2">
           <label htmlFor="meet-url" className="sr-only">

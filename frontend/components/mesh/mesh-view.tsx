@@ -233,10 +233,12 @@ export function MeshWorkspace({ modeSwitch }: { modeSwitch: React.ReactNode }) {
 
       <div className="flex min-h-0 flex-1">
         {index && (
-          <MeshTree index={index} withLineage={withLineage} selected={selected} onPick={reveal} />
+          <div data-guide="map:tree" className="contents">
+            <MeshTree index={index} withLineage={withLineage} selected={selected} onPick={reveal} />
+          </div>
         )}
 
-        <div className="relative min-w-0 flex-1">
+        <div data-guide="map:canvas" className="relative min-w-0 flex-1">
           {focus && selectedBundle && (
             <div className="absolute left-1/2 top-4 z-20 -translate-x-1/2">
               <div className="kairos-panel k-pop flex items-center gap-3 rounded-full py-1.5 pl-3 pr-1.5 shadow-[0_8px_24px_-12px_rgb(81_72_224/0.45)]" style={{ borderColor: "var(--brand-border)" }}>
@@ -252,7 +254,7 @@ export function MeshWorkspace({ modeSwitch }: { modeSwitch: React.ReactNode }) {
             </div>
           )}
 
-          <div className="absolute right-4 top-4 z-20">
+          <div data-guide="map:zoom" className="absolute right-4 top-4 z-20">
             <div className="kairos-panel flex items-center p-0.5">
               <button onClick={() => zoomOut({ duration: 150 })} className="k-btn k-btn-ghost k-btn-sm !h-7 !px-2" title="Zoom out">
                 <Minus className="h-4 w-4" />
@@ -268,7 +270,7 @@ export function MeshWorkspace({ modeSwitch }: { modeSwitch: React.ReactNode }) {
             </div>
           </div>
 
-          <div className="absolute bottom-4 left-4 z-20">
+          <div data-guide="map:legend" className="absolute bottom-4 left-4 z-20">
             <div className="kairos-panel flex items-center gap-4 rounded-full px-4 py-2 text-[11.5px] text-ink-muted">
               <LegendLine label="data flow" group="flow" />
               <LegendLine label="task order" group="depends_on" />

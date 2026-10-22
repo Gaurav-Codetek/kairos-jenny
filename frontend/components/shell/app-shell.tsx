@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Activity, Bot, GitBranch, Layers, Plug, Radar, Sparkles, type LucideIcon } from "lucide-react";
 
+import { GuideProvider, ScreenGuideButton, StarterGuideButton } from "@/components/guide/guide";
 import { KairosMark } from "@/components/kairos/ds";
 import { VoiceNotesPill } from "@/components/living/voice-notes";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, {});
 
   return (
+    <GuideProvider>
     <div className="flex h-screen overflow-hidden bg-canvas">
       <aside className="flex w-[232px] shrink-0 flex-col border-r border-hairline bg-surface">
         <Link href="/" className="flex h-16 shrink-0 items-center gap-2.5 px-5">
@@ -59,6 +61,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       key={href}
                       href={href}
                       aria-current={active ? "page" : undefined}
+                      data-guide={`nav:${href}`}
                       className={cn(
                         "group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-k-body transition-colors duration-200",
                         active
@@ -82,7 +85,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        <div className="border-t border-hairline px-5 py-4">
+        <div className="border-t border-hairline px-3 pt-3">
+          <StarterGuideButton />
+        </div>
+        <div className="px-5 py-4">
           <p className="k-label">Platforms</p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {["Databricks", "Snowflake"].map((p) => (
@@ -102,6 +108,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </main>
       <VoiceNotesPill />
     </div>
+    </GuideProvider>
   );
 }
 
@@ -122,7 +129,14 @@ export function PageHeader({
         <h1 className="truncate text-k-h1 font-bold text-ink">{title}</h1>
         {description && <p className="truncate text-k-body text-ink-muted">{description}</p>}
       </div>
-      {actions && <div className="ml-auto flex items-center gap-2">{actions}</div>}
+      <div className="ml-auto flex items-center gap-2">
+        {actions && (
+          <div data-guide="page:actions" className="flex items-center gap-2">
+            {actions}
+          </div>
+        )}
+        <ScreenGuideButton />
+      </div>
     </header>
   );
 }

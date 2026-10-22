@@ -17,7 +17,7 @@ import { timeAgo } from "@/components/agents/bits";
 import { CallPill } from "@/components/living/jenny-call";
 import { JackPill } from "@/components/living/jack-call";
 import { NotePlay } from "@/components/living/voice-notes";
-import { MeetingControl } from "@/components/living/meeting-control";
+import { MEET_ON, MeetUnavailable, MeetingControl } from "@/components/living/meeting-control";
 import type { Meeting } from "@/lib/meetings";
 import { scenesOf, stage } from "@/lib/stage";
 import { getChat, jackStatus, latestChat, listChats, newChat, prepareWelcome, say, withoutTones, type ChatSession, type ConversationSummary } from "@/lib/companion";
@@ -213,7 +213,7 @@ export function CompanionChat({ workspaceId }: { workspaceId: string | null; hea
   }
 
   return (
-    <aside className="relative flex min-h-0 flex-col border-l border-hairline bg-surface">
+    <aside data-guide="jenny:chat" className="relative flex min-h-0 flex-col border-l border-hairline bg-surface">
       <div className="flex items-center gap-2.5 border-b border-hairline px-4 py-3">
         <KairosMark size={22} />
         <div className="min-w-0 flex-1">
@@ -249,6 +249,7 @@ export function CompanionChat({ workspaceId }: { workspaceId: string | null; hea
         )}
         {!calling && (
           <button
+            data-guide="jenny:call"
             onClick={() => setCalling(true)}
             disabled={callWith === "jenny" ? !session : !workspaceId}
             className="k-btn k-btn-primary k-btn-sm"
@@ -294,7 +295,7 @@ export function CompanionChat({ workspaceId }: { workspaceId: string | null; hea
         <CallPill workspaceId={workspaceId} session={session} onSession={setSession} onEnd={() => setCalling(false)} />
       )}
       {calling && workspaceId && callWith === "jack" && <JackPill workspaceId={workspaceId} onEnd={() => setCalling(false)} />}
-      {!calling && <MeetingControl workspaceId={workspaceId} onMeeting={setMeeting} />}
+      {!calling && (MEET_ON ? <MeetingControl workspaceId={workspaceId} onMeeting={setMeeting} /> : <MeetUnavailable />)}
 
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {(session?.messages.length ?? 0) === 0 && (

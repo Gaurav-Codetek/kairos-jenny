@@ -79,6 +79,7 @@ export default function OverviewPage() {
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-6xl space-y-5 px-7 py-6">
+          <div data-guide="ov:layer">
           <LayerScene
             workspaces={workspaces}
             health={health}
@@ -88,8 +89,9 @@ export default function OverviewPage() {
             verified={verified}
             links={links}
           />
+          </div>
 
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div data-guide="ov:stats" className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <Stat
               index={0}
               icon={Layers}
@@ -126,8 +128,11 @@ export default function OverviewPage() {
           </div>
 
           <div className="grid items-start gap-4 lg:grid-cols-2">
-              <TrustCoverage health={health} />
+              <div data-guide="ov:trust" className="contents">
+                <TrustCoverage health={health} />
+              </div>
 
+              <div data-guide="ov:composition" className="contents">
               <Panel title="Warehouse composition" icon={Database} className="k-rise" style={stagger(5)}>
                 {!map ? (
                   <p className="px-4 py-6 text-k-body text-ink-muted">Loading…</p>
@@ -161,6 +166,7 @@ export default function OverviewPage() {
                   </div>
                 )}
               </Panel>
+              </div>
           </div>
         </div>
       </div>

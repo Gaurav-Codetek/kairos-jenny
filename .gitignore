@@ -59,3 +59,6 @@ backups/
 # Jenny's meeting body: debug screenshots and dependencies
 meet/out/
 meet/node_modules/
+
+# Database dumps (deploy/make_public_db.sh writes kairos-public.dump)
+*.dump

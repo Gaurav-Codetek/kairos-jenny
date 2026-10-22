@@ -179,7 +179,7 @@ export default function ConnectionsPage() {
 
       <div className="flex min-h-0 flex-1">
         {/* Connection list */}
-        <div className="w-[300px] shrink-0 overflow-y-auto border-r border-hairline bg-surface">
+        <div data-guide="conn:list" className="w-[300px] shrink-0 overflow-y-auto border-r border-hairline bg-surface">
           <p className="k-label px-5 pb-2 pt-4">Connected</p>
 
           {loading && (
@@ -266,7 +266,7 @@ export default function ConnectionsPage() {
           {status && (
             <div key={status.name} className="mx-auto max-w-3xl space-y-5 px-7 py-6">
               {/* Connection summary */}
-              <section className="kairos-panel k-rise p-5">
+              <section data-guide="conn:summary" className="kairos-panel k-rise p-5">
                 <div className="flex items-start gap-3.5">
                   <PlatformBadge platform={status.platform} large />
                   <div className="min-w-0 flex-1">
@@ -338,7 +338,7 @@ export default function ConnectionsPage() {
               </section>
 
               {status.mcp_url && (
-                <section className="kairos-panel k-rise p-5" style={stagger(1)}>
+                <section data-guide="conn:mcp" className="kairos-panel k-rise p-5" style={stagger(1)}>
                   <div className="flex items-center gap-3">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
                       <Radio className="h-4 w-4" />
@@ -367,6 +367,7 @@ export default function ConnectionsPage() {
               )}
 
               {/* Per-domain sync state, drawn as the chain they run in */}
+              <div data-guide="conn:domains">
               <Panel
                 title="Sync domains"
                 meta="Each runs in order; a failure in one does not stop the others"
@@ -427,7 +428,10 @@ export default function ConnectionsPage() {
                 </ol>
               </Panel>
 
+              </div>
+
               {/* Sync controls */}
+              <div data-guide="conn:sync">
               <Panel title="Run a sync" className="k-rise" style={stagger(3)} bodyClassName="p-5">
                 <p className="text-k-body text-ink-muted">
                   Mirrors the platform into the Synthetic Warehouse. Safe to re-run: unchanged entities are updated in
@@ -494,6 +498,7 @@ export default function ConnectionsPage() {
                   )}
                 </div>
               </Panel>
+              </div>
 
               {live && <SyncLivePanel sync={live} />}
             </div>

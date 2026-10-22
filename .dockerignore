@@ -10,3 +10,17 @@ logs
 .mypy_cache
 *.egg-info
 .gemini
+
+# Not part of the API image (the frontend deploys on its own; the rest is for local work)
+frontend
+video
+meet
+docs
+tests
+node_modules
+*.dump
+test.json
+api_response.json
+AI-Native*
+# never shipped: the employer warehouse's documents (the knowledge pack excludes them at runtime as well)
+us-pharma-kb/warehouse

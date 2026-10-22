@@ -184,6 +184,7 @@ export default function LivingPage() {
           </div>
         }
       />
+      <div data-guide="jenny:tabs">
       <Tabs
         items={[
           { id: "pulse", label: "Pulse", icon: Activity },
@@ -193,6 +194,7 @@ export default function LivingPage() {
         value={tab}
         onChange={setTab}
       />
+      </div>
       <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_400px] overflow-hidden">
         <div className="min-h-0 overflow-y-auto">
           <div className="mx-auto max-w-4xl space-y-4 px-6 py-5">
@@ -204,6 +206,7 @@ export default function LivingPage() {
             )}
             {tab === "pulse" && (
               <div className="flex items-center gap-3">
+                <span data-guide="jenny:views">
                 <Segmented
                   size="sm"
                   items={[
@@ -221,10 +224,11 @@ export default function LivingPage() {
                   value={pulseView}
                   onChange={setPulseView}
                 />
+                </span>
                 {pulseView === "stage" && (
                   <span className="text-k-caption text-ink-muted">What Jenny is showing you as she talks</span>
                 )}
-                <div className="ml-auto">
+                <div data-guide="jenny:desk" className="ml-auto">
                   <DeskButton workspaceId={workspaceId} />
                 </div>
               </div>

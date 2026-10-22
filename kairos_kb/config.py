@@ -172,6 +172,16 @@ class Settings(BaseSettings):
     sync_default_run_history_limit: int = 25
     sync_initial_lookback_hours: int = 24
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _async_driver(cls, value):
+        """A plain Postgres URL (as Render and most hosts give it) gets the async driver Kairos runs on."""
+        if isinstance(value, str):
+            for plain in ("postgres://", "postgresql://"):
+                if value.startswith(plain):
+                    return "postgresql+asyncpg://" + value[len(plain):]
+        return value
+
     @field_validator("nebius_base_url", "nebius_model", "nebius_fast_model", mode="before")
     @classmethod
     def _blank_means_default(cls, value, info):
