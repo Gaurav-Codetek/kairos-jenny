@@ -192,7 +192,8 @@ async def propose(flow: Dict[str, Any], existing: List[str]) -> Plan:
     if llm is None:
         raise RuntimeError("No LLM is configured; the engine cannot propose products.")
     if not flow["facts"] and not flow["marts"]:
-        raise ValueError("No curated fact or mart is enriched on this connection yet; enrich it first.")
+        raise ValueError("No curated fact or mart is enriched on this connection yet. Enrich its main tables first "
+                         "(Enrichment), or pick another connection at the top of this screen.")
     return await llm.with_structured_output(Plan).ainvoke(
         [("system", PLAN_SYSTEM), ("human", plan_brief(flow, existing))])
 

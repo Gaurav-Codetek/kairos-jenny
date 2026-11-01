@@ -44,10 +44,15 @@ export default function ProductsPage() {
   const [startingEngine, setStartingEngine] = useState(false);
 
   useEffect(() => {
+    // Open on a connection that already has products, not simply the newest (a connection just added has none yet).
     listWorkspaces()
-      .then((ws) => {
+      .then(async (ws) => {
         setWorkspaces(ws);
-        setWorkspaceId((cur) => cur ?? ws[0]?.id ?? null);
+        const counts = ws.length > 1
+          ? await Promise.all(ws.map((w) => listProducts(w.id).then((r) => r.products.length).catch(() => 0)))
+          : [];
+        const first = ws[counts.findIndex((n) => n > 0)] ?? ws[0];
+        setWorkspaceId((cur) => cur ?? first?.id ?? null);
       })
       .catch(() => setWorkspaces([]));
   }, []);
