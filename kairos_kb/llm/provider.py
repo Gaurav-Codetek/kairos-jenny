@@ -16,9 +16,12 @@ re-indexing everything.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+import logging
+from typing import Any, List, Optional
 
 from kairos_kb.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 PROVIDERS = ("azure", "openai", "nebius")
 
@@ -67,10 +70,91 @@ def _nebius_chat(**kwargs: Any):
     from langchain_openai import ChatOpenAI
 
     class NemotronChat(ChatOpenAI):
-        def with_structured_output(self, schema: Any = None, *, method: str = "function_calling", **kw: Any):
-            return super().with_structured_output(schema, method=method, **kw)
+        def with_structured_output(self, schema: Any = None, *, method: str = "function_calling",
+                                   include_raw: bool = False, **kw: Any):
+            inner = super().with_structured_output(schema, method=method, include_raw=True, **kw)
+            return inner if include_raw else _recovering(inner, schema)
 
     return NemotronChat(**kwargs)
+
+
+def _recovering(inner: Any, schema: Any):
+    """Structured output that doesn't come back as None. Nemotron sometimes writes its function call as text
+    (<tool_call>…</tool_call>) instead of making it; LangChain then returns None, and the caller failed later with
+    "'NoneType' object has no attribute …". The call is read from the text; failing that, the model is asked once more;
+    failing that, a clear error."""
+    from langchain_core.messages import HumanMessage
+    from langchain_core.runnables import RunnableLambda
+
+    name = getattr(schema, "__name__", None) or (schema.get("title") if isinstance(schema, dict) else None) or "answer"
+
+    def again(messages: Any) -> Any:
+        nudge = f"Answer only by calling the function {name}, with every required field filled in."
+        if isinstance(messages, str):
+            return [HumanMessage(messages), HumanMessage(nudge)]
+        if hasattr(messages, "to_messages"):
+            return messages.to_messages() + [HumanMessage(nudge)]
+        return list(messages) + [("human", nudge)]
+
+    async def run(messages: Any, config: Any = None) -> Any:
+        problem = None
+        for attempt in range(2):
+            out = await inner.ainvoke(messages if attempt == 0 else again(messages), config)
+            got = out.get("parsed")
+            if got is None:
+                got = from_text(out.get("raw"), schema)
+            if got is not None:
+                return got
+            problem = out.get("parsing_error")
+            logger.warning("Nemotron gave no usable %s (attempt %d)%s", name, attempt + 1,
+                           f": {str(problem)[:300]}" if problem else "")
+        raise ValueError(f"The model gave no usable {name}" + (f": {str(problem)[:200]}" if problem else "") + ".")
+
+    def run_sync(messages: Any, config: Any = None) -> Any:
+        import asyncio
+
+        return asyncio.run(run(messages, config))
+
+    return RunnableLambda(run_sync, afunc=run, name=f"{name}Recovering")
+
+
+def from_text(raw: Any, schema: Any) -> Any:
+    """A structured answer the model wrote as text: a <tool_call> block (XML or JSON) or a bare JSON object."""
+    import json
+    import re
+
+    text = getattr(raw, "content", raw)
+    if not isinstance(text, str) or not text.strip():
+        return None
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.S)
+    candidates: List[Any] = []
+    from kairos_kb.companion.chat import fix_lists, text_tool_calls
+
+    for call in text_tool_calls(text):
+        try:
+            candidates.append(json.loads(call["arguments"]))
+        except (json.JSONDecodeError, ValueError, TypeError):
+            pass
+    start, end = text.find("{"), text.rfind("}")
+    if start != -1 and end > start:
+        try:
+            obj = json.loads(text[start:end + 1])
+            if isinstance(obj, dict):
+                a = obj.get("arguments") or obj.get("parameters")
+                candidates.append(json.loads(a) if isinstance(a, str) else a if isinstance(a, dict) else obj)
+        except (json.JSONDecodeError, ValueError):
+            pass
+    for args in candidates:
+        if not isinstance(args, dict):
+            continue
+        if not hasattr(schema, "model_validate"):
+            return args
+        for attempt in (args, fix_lists(args)):
+            try:
+                return schema.model_validate(attempt)
+            except Exception:  # noqa: BLE001 — try the next reading
+                continue
+    return None
 
 
 def chat_model(model: Optional[str] = None, **kwargs: Any):

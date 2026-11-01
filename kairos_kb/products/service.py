@@ -169,7 +169,13 @@ async def build(db: AsyncSession, workspace: Workspace, *, concept: str, intent:
             dropped += await verify_on_platform(model, connector)
             repaired = sorted(names - {d["item"] for d in dropped if d["kind"] == "metric"})
     if not model["metrics"]:
-        raise ValueError("No metric of the proposed model holds against the warehouse; nothing to serve.")
+        # Say why: when every metric fails alike, it is usually the platform (a stopped warehouse, a token that may
+        # not use it), not the metrics.
+        reasons = list(dict.fromkeys(d["reason"].removeprefix("does not compile on the platform: ")
+                                     for d in dropped if d["kind"] == "metric"))
+        raise ValueError("No metric of the proposed model holds against the warehouse; nothing to serve."
+                         + (f" The platform said: {reasons[0][:300]}" if reasons else "")
+                         + (f" (and {len(reasons) - 1} other reasons)" if len(reasons) > 1 else ""))
 
     # ── supply chain upstream of the inputs ──
     step("supply")

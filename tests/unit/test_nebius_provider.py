@@ -37,9 +37,10 @@ def test_nemotron_structured_output_goes_through_tool_calling(monkeypatch):
         name: str
 
     llm = P.chat_model()
-    runnable = llm.with_structured_output(Plan)
-    first = getattr(runnable, "first", None)
-    assert first is not None and "tools" in (getattr(first, "kwargs", {}) or {})
+    raw = llm.with_structured_output(Plan, include_raw=True)  # what the recovering wrapper calls
+    assert "tools" in str(raw)
+    # The default never hands back None: it recovers a call written as text, asks again, or raises.
+    assert llm.with_structured_output(Plan).name == "PlanRecovering"
 
 
 def test_jenny_on_nemotron_keeps_the_main_provider_as_her_backup(monkeypatch):
