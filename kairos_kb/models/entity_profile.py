@@ -1,7 +1,7 @@
 """EntityProfile model — the agent's consolidated understanding of one entity.
 
-The YAML file on disk is the artifact the user reads; this row indexes it so
-the graph, search, and UI can query profiles without parsing every file.
+This row indexes the profile so the graph, search, and UI can query profiles
+without parsing every one, and holds its YAML (also written to disk as a file).
 """
 
 
@@ -28,6 +28,9 @@ class EntityProfile(Base):
 
     # Path of the YAML artifact within the storage backend.
     yaml_path: Mapped[str] = mapped_column(String(1024), nullable=False)
+    # The YAML itself. The database copy is what's read; the file is a convenience for people. A host whose disk
+    # is reset on every deploy keeps its profiles this way. Null for a profile written before this column existed.
+    content: Mapped[str | None] = mapped_column(Text, nullable=True, deferred=True)
 
     # Denormalized headline fields, lifted out of the YAML for querying.
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)

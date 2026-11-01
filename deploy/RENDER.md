@@ -54,6 +54,17 @@ bash deploy/restore.sh "postgresql://kairos:...@dpg-....frankfurt-postgres.rende
 
 Then restart the API: `kairos-jenny-api` → **Manual Deploy → Restart service**.
 
+Enrichment profiles live in the database (`entity_profiles.content`), not on the API's disk: Render resets that disk on
+every deploy. Profiles written before that change exist only as files under `data/profiles`; copy a connection's into
+the database once, locally and then to Render (after the API there runs the new code):
+
+```bash
+docker compose exec api python deploy/push_profiles.py --workspace "Zomato Snowflake"
+docker compose exec api python deploy/push_profiles.py --workspace "Zomato Snowflake" --to "postgresql://...render.com/kairos"
+```
+
+It reads only the named connection and updates only rows the target already has.
+
 ## 4. Check it
 
 Open `https://kairos-jenny-web.onrender.com`:

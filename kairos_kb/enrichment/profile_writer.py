@@ -161,6 +161,7 @@ async def write_profile(
     if existing:
         existing.kind = kind
         existing.yaml_path = path
+        existing.content = content
         existing.summary = fields.get("summary")
         existing.purpose = fields.get("purpose")
         existing.data_product = fields.get("data_product")
@@ -177,6 +178,7 @@ async def write_profile(
             entity_id=entity_id,
             kind=kind,
             yaml_path=path,
+            content=content,
             summary=fields.get("summary"),
             purpose=fields.get("purpose"),
             data_product=fields.get("data_product"),
@@ -211,34 +213,39 @@ async def refresh_profile_yaml(
         return False
 
     backend = storage or LocalStorageBackend()
+    raw = await load_profile_yaml(db, entity_id, storage=backend)
     try:
-        raw = await backend.load(profile.yaml_path)
-        document = yaml.safe_load(raw.decode("utf-8")) or {}
-    except (FileNotFoundError, yaml.YAMLError) as exc:
+        document = yaml.safe_load(raw) if raw else None
+    except yaml.YAMLError as exc:
         logger.warning("Could not reload profile %s: %s", profile.yaml_path, exc)
+        return False
+    if not isinstance(document, dict):
+        logger.warning("Could not reload profile %s: not stored", profile.yaml_path)
         return False
 
     document["relationships"] = await _relationship_block(db, entity_id)
     document["generated_at"] = datetime.now(timezone.utc).isoformat()
 
-    await backend.save(
-        profile.yaml_path,
-        yaml.safe_dump(document, sort_keys=False, allow_unicode=True, default_flow_style=False, width=100),
-    )
+    content = yaml.safe_dump(document, sort_keys=False, allow_unicode=True, default_flow_style=False, width=100)
+    profile.content = content
+    await backend.save(profile.yaml_path, content)
+    await db.flush()
     return True
 
 
 async def load_profile_yaml(
     db: AsyncSession, entity_id: str, *, storage: LocalStorageBackend | None = None
 ) -> Optional[str]:
-    """Read back a stored YAML profile."""
-    profile = (
-        await db.execute(select(EntityProfile).where(EntityProfile.entity_id == entity_id))
-    ).scalars().first()
-    if not profile:
+    """Read back a stored YAML profile: the database copy, else the file (a profile from before the copy existed)."""
+    row = (
+        await db.execute(select(EntityProfile.yaml_path, EntityProfile.content).where(EntityProfile.entity_id == entity_id))
+    ).first()
+    if not row:
         return None
+    if row.content:
+        return row.content
     backend = storage or LocalStorageBackend()
     try:
-        return (await backend.load(profile.yaml_path)).decode("utf-8")
+        return (await backend.load(row.yaml_path)).decode("utf-8")
     except FileNotFoundError:
         return None

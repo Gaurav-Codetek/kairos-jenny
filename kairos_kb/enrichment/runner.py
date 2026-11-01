@@ -44,7 +44,7 @@ from kairos_kb.enrichment.context import (
 )
 from kairos_kb.context.documents import index_entities
 from kairos_kb.context.feedback import feedback_brief, mark_applied, open_feedback_for
-from kairos_kb.enrichment.profile_writer import refresh_profile_yaml, write_profile
+from kairos_kb.enrichment.profile_writer import load_profile_yaml, refresh_profile_yaml, write_profile
 from kairos_kb.enrichment.tools import ToolContext
 from kairos_kb.models.catalog import Catalog
 from kairos_kb.models.discovered import DiscoveredRelation
@@ -715,7 +715,8 @@ async def _process_item(
     async with async_session_factory() as db:
         reports = await open_feedback_for(db, entity_id)
 
-    # Skip entities whose underlying snapshot has not moved since last time.
+    # Skip entities whose underlying snapshot has not moved since last time, as long as their profile can still be
+    # read (one whose file was lost with a host's disk, and never copied to the database, is profiled again).
     if not force and not reports:
         async with async_session_factory() as db:
             existing = (
@@ -723,7 +724,7 @@ async def _process_item(
                     select(EntityProfile).where(EntityProfile.entity_id == entity_id)
                 )
             ).scalars().first()
-            if existing and existing.source_hash == digest:
+            if existing and existing.source_hash == digest and await load_profile_yaml(db, entity_id):
                 await _emit(run.id, entity_id, "entity_skipped", f"Unchanged since last profile: {entity_id}")
                 return "skipped", facts
 
