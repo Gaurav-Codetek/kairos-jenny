@@ -72,7 +72,7 @@ products.
 | Role | Model (Token Factory id) | Setting | Why |
 |---|---|---|---|
 | **Jenny** — every spoken and typed turn: plans the lookups, calls Kairos's tools, writes what she says | `nvidia/Nemotron-3.5-Super-VL` | `COMPANION_LLM=nebius:nvidia/Nemotron-3.5-Super-VL` | The only Nemotron in our tests that kept every number tied to what its lookup covered ("I don't have Pizza Hut orders in Mumbai today" instead of quoting the city total), with short, speakable answers |
-| **Kairos's reasoning** — enrichment, data products, root-cause analysis, evals | Azure OpenAI `gpt-5-mini` in the hosted demo; `nvidia/Nemotron-3.5-Super-VL` with `LLM_PROVIDER=nebius` | `LLM_PROVIDER`, `NEBIUS_MODEL` | Runs on Nemotron with one setting, and we tested it there. Designing a data product takes several long structured answers in a row, and Nemotron sometimes returned one as text instead of a function call (we added recovery for that, see below), so the hosted demo keeps this background work on gpt-5-mini. Jenny is all Nemotron |
+| **Kairos's reasoning** — enrichment, data products, root-cause analysis, evals | `nvidia/Nemotron-3.5-Super-VL` | `LLM_PROVIDER=nebius`, `NEBIUS_MODEL` | With thinking on, the only one that planned every lookup a profiling question needed in one turn |
 | **Fast model** (available to Jenny with `COMPANION_LLM=nebius`) | `nvidia/Nemotron-3_5-Lightning` | `NEBIUS_FAST_MODEL` | Fastest first token; good for simple turns |
 
 ### What Nemotron does in one of Jenny's turns
@@ -190,8 +190,8 @@ docker compose exec api python -m kairos_kb.llm.nebius_check
 
 1. **Connections** — add your Snowflake or Databricks warehouse (credentials in `.env`, see below). Kairos syncs it and
    builds the **Map**.
-2. **Enrichment** and **Data Products** — profile and verify the tables, and build data products (the model set by
-   `LLM_PROVIDER` does the reasoning; checks run against the warehouse).
+2. **Enrichment** and **Data Products** — profile and verify the tables, and build data products (Nemotron does the
+   reasoning; checks run against the warehouse).
 3. **Jenny** — her live pulse starts on its own. Ask her something in the chat, or press **Call**.
 4. **Send Jenny to a Google Meet** — the first time, sign her into her own Google account through the screen that opens
    (served from the Meet container at `localhost:6080`, reachable only from your machine). Then paste a Meet link; admit
@@ -223,10 +223,10 @@ Everything is set in `.env` (see [`.env.example`](.env.example)). The settings t
 |---|---|---|
 | `NEBIUS_API_KEY` | — | Your Token Factory key |
 | `NEBIUS_BASE_URL` | `https://api.tokenfactory.nebius.com/v1/` | Token Factory's OpenAI-compatible endpoint |
-| `LLM_PROVIDER` | `azure` (hosted demo) | Kairos's reasoning: `nebius`, `azure` or `openai` — one setting moves all of it. Jenny follows `COMPANION_LLM`, not this |
-| `NEBIUS_MODEL` | `nvidia/Nemotron-3.5-Super-VL` | Kairos's model on Nebius (`LLM_PROVIDER=nebius`) |
+| `LLM_PROVIDER` | `nebius` | Kairos's reasoning: `nebius`, `azure` or `openai` — one setting moves all of it |
+| `NEBIUS_MODEL` | `nvidia/Nemotron-3.5-Super-VL` | Kairos's model on Nebius |
 | `NEBIUS_FAST_MODEL` | `nvidia/Nemotron-3_5-Lightning` | The fast model (`COMPANION_LLM=nebius`) |
-| `COMPANION_LLM` | `nebius:nvidia/Nemotron-3.5-Super-VL` | Jenny's model: `nebius:<id>`, `nebius`, a Gemini id, or `azure`. On Nemotron, her backup is a second request to the same model, so every turn of hers is Nemotron whatever `LLM_PROVIDER` is |
+| `COMPANION_LLM` | `nebius:nvidia/Nemotron-3.5-Super-VL` | Jenny's model: `nebius:<id>`, `nebius`, a Gemini id, or `azure` |
 | `EMBEDDING_PROVIDER` | (follows `LLM_PROVIDER`; on Nebius stays Azure/OpenAI) | Where embeddings come from |
 | `ELEVENLABS_API_KEY` | — | Jenny's voice, and hearing a meeting through realtime speech to text |
 | `JENNY_MEET_HEARING` | `audio` with an ElevenLabs key | `audio` (speech to text) or `captions` (Meet's own captions) |
@@ -263,9 +263,8 @@ docs/screens/           screenshots
 Kairos and the first version of Jenny existed before the submission period. During it we:
 
 - **Added NVIDIA Nemotron on Nebius Token Factory** as an env-based provider for Kairos and for Jenny
-  (`kairos_kb/llm/provider.py`, `companion/chat.py`), with structured output through function calling (recovered when
-  Nemotron writes the call as text) and embeddings kept on their existing model. The hosted demo runs Jenny on Nemotron
-  and Kairos's background reasoning on Azure OpenAI gpt-5-mini.
+  (`kairos_kb/llm/provider.py`, `companion/chat.py`), with structured output through function calling and embeddings
+  kept on their existing model.
 - **Wrote the Nemotron check and benchmark** (`kairos_kb/llm/nebius_check.py`) and chose models from its results.
 - **Made Nemotron's tool calling reliable in a live voice loop** — hidden reasoning and text-form calls, the final-answer
   step, argument repair, scope on every lookup, spoken rules restated for Nemotron.
