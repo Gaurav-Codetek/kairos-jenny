@@ -9,7 +9,7 @@ which is how a table, task or job is traced back to its platform.
 from __future__ import annotations
 
 import time
-from typing import Dict, Iterable, Optional, Tuple
+from typing import Any, Dict, Iterable, Optional, Tuple
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -80,23 +80,31 @@ async def connector_for_entity(db: AsyncSession, entity_id: str) -> PlatformConn
     return connector_for(await _workspace_by_name(db, workspace_name_of(entity_id)))
 
 
-async def connector_for_tables(db: AsyncSession, full_names: Iterable[str]
+async def connector_for_tables(db: AsyncSession, full_names: Iterable[str], *,
+                               workspace_ids: Optional[Iterable[Any]] = None
                                ) -> Tuple[Optional[PlatformConnector], Optional[str]]:
-    """The one connector that can run a query over these tables, or (None, reason) when they span platforms."""
+    """The one connector that can run a query over these tables, or (None, reason) when they span connections.
+
+    workspace_ids: the connections the tables were found in, when the caller already knows (so a table name that
+    exists in two workspaces isn't looked up again by name alone).
+    """
     from kairos_kb.models.table import Table
 
     names = [n.lower() for n in full_names]
     if not names:
         return connector_for(None), None
     # A subquery, not DISTINCT: Postgres cannot compare the JSON connection_config column.
-    rows = (await db.execute(
-        select(Workspace).where(Workspace.id.in_(
-            select(Table.workspace_id).where(func.lower(Table.full_name).in_(names))))
-    )).scalars().all()
+    ids = list(workspace_ids) if workspace_ids is not None else None
+    where = Workspace.id.in_(ids) if ids is not None else Workspace.id.in_(
+        select(Table.workspace_id).where(func.lower(Table.full_name).in_(names)))
+    rows = (await db.execute(select(Workspace).where(where))).scalars().all()
     platforms = {(w.platform or "databricks") for w in rows}
     if len(platforms) > 1:
         return None, ("These tables live on different platforms (" + ", ".join(sorted(platforms)) +
                       "); one query can only read one platform. Query each separately.")
+    if len(rows) > 1:
+        return None, ("These tables live in different connections (" + ", ".join(sorted(w.name for w in rows)) +
+                      "); one query runs on one connection. Query each separately.")
     return connector_for(rows[0] if rows else None), None
 
 

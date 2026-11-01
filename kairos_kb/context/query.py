@@ -37,7 +37,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kairos_kb.config import get_settings
 from kairos_kb.connectors.factory import connector_for_tables
-from kairos_kb.context.access import AgentIdentity
+from kairos_kb.context.access import AgentIdentity, visible_workspace_filter
 from kairos_kb.context.documents import first_sentence, load_profile
 from kairos_kb.models.column import Column
 from kairos_kb.models.context import ContextDocument
@@ -374,9 +374,21 @@ async def run_sql(db: AsyncSession, identity: AgentIdentity, sql: str, limit: in
     limit = max(1, min(int(limit or 100), settings.sql_max_rows))
 
     tables = referenced_tables(sql)
-    known = {fn.lower(): eid for eid, fn in (await db.execute(
-        select(Table.entity_id, Table.full_name).where(func.lower(Table.full_name).in_(list(tables)))
-    )).all()} if tables else {}
+    # Only the connections this agent may see. Two Databricks workspaces can each have main.sales.orders: then the
+    # name alone doesn't say which one to run on, and the agent is sent to that connection's own endpoint.
+    found: Dict[str, Dict[Any, str]] = {}
+    for eid, fn, ws_id in ((await db.execute(
+        select(Table.entity_id, Table.full_name, Table.workspace_id).where(
+            func.lower(Table.full_name).in_(list(tables)), *visible_workspace_filter(identity, Table.workspace_id))
+    )).all() if tables else []):
+        found.setdefault(fn.lower(), {})[ws_id] = eid
+    twice = sorted(fn for fn, by_ws in found.items() if len(by_ws) > 1)
+    if twice:
+        names = sorted({eid.split(":")[1] for fn in twice for eid in found[fn].values() if eid.count(":") >= 2})
+        return {"error": f"{', '.join(twice)} exists in more than one connection ({', '.join(names)}). Ask through "
+                         "that connection's own agent endpoint (/mcp/c/<connection>), which sees only it."}
+    known = {fn: next(iter(by_ws.values())) for fn, by_ws in found.items()}
+    workspace_ids = {ws_id for by_ws in found.values() for ws_id in by_ws}
     unknown = sorted(tables - set(known))
     if unknown and not settings.sql_allow_unmapped:
         return {"error": f"Not in the map: {', '.join(unknown)}. Only tables Kairos has synced can be queried; "
@@ -396,7 +408,7 @@ async def run_sql(db: AsyncSession, identity: AgentIdentity, sql: str, limit: in
     if not settings.sql_mask_personal_data:
         personal = set()
 
-    connector, spans = await connector_for_tables(db, known.keys())
+    connector, spans = await connector_for_tables(db, known.keys(), workspace_ids=workspace_ids)
     if spans:
         return {"error": spans, "tables": facts}
     started = time.perf_counter()

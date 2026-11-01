@@ -25,8 +25,8 @@ class Workspace(Base):
         String(50), nullable=False, default="databricks", index=True
     )
     # Non-secret connection settings that differ per platform — Snowflake
-    # account/warehouse/role, dbt manifest location, and so on. Secrets stay
-    # in configuration, never here.
+    # account/warehouse/role, dbt manifest location, and so on. The one secret
+    # here is a Databricks connection's own token, sealed (connectors/credentials.py).
     connection_config: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     cloud: Mapped[str] = mapped_column(String(50), nullable=False, default="azure")
     region: Mapped[str] = mapped_column(String(100), nullable=False, default="")

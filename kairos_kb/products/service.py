@@ -33,7 +33,7 @@ from kairos_kb.models.data_product import DataProduct
 from kairos_kb.models.entity_profile import EntityProfile
 from kairos_kb.models.workspace import Workspace
 from kairos_kb.products import contracts as contract_checks
-from kairos_kb.products.bundle import LANES, _table_member, lane_from_classification
+from kairos_kb.products.bundle import LANES, _table_member, _text, lane_from_classification
 from kairos_kb.products.semantic import QueryError, compile_query
 
 MAX_SELECTION_TABLES = 90
@@ -64,7 +64,7 @@ async def enriched_tables(db: AsyncSession, workspace: Workspace) -> List[Dict[s
     for eid in ids:
         profile = await load_profile(db, eid)
         cls = (profile or {}).get("classification") or {}
-        lane = (lane_from_classification(cls.get("role"), cls.get("layer"), by_role=True)
+        lane = (lane_from_classification(_text(cls.get("role")), _text(cls.get("layer")), by_role=True)
                 if cls.get("status") == "ok" else None) or "core"
         m = await _table_member(db, eid, lane, profile, False)
         if m:

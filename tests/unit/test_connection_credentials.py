@@ -57,3 +57,51 @@ def test_blank_token_keeps_config_and_production_needs_a_real_secret_key(monkeyp
     monkeypatch.setattr(credentials, "get_settings", lambda: prod)
     with pytest.raises(KairosException):
         credentials.seal({}, "dapi-X")
+
+
+# ── Two Databricks workspaces side by side ──────────────────────────
+
+
+class _Rows:
+    def __init__(self, rows):
+        self._rows = rows
+
+    def all(self):
+        return self._rows
+
+    def scalars(self):
+        return self
+
+
+class _DB:
+    def __init__(self, *results):
+        self._results = list(results)
+
+    async def execute(self, _stmt):
+        return _Rows(self._results.pop(0))
+
+
+def test_a_table_name_in_two_workspaces_is_not_guessed():
+    import asyncio
+
+    from kairos_kb.context.access import AgentIdentity
+    from kairos_kb.context.query import run_sql
+
+    a, b = uuid.uuid4(), uuid.uuid4()
+    db = _DB([("table:Sales A:main.sales.orders", "main.sales.orders", a),
+              ("table:Sales B:main.sales.orders", "main.sales.orders", b)])
+    agent = AgentIdentity(agent_id=uuid.uuid4(), name="q", scopes=frozenset({"read", "query"}))
+    out = asyncio.run(run_sql(db, agent, "SELECT count(*) FROM main.sales.orders"))
+    assert "more than one connection (Sales A, Sales B)" in out["error"]
+
+
+def test_one_query_runs_on_one_connection():
+    import asyncio
+
+    two = [ws("https://a", None), ws("https://b", None)]
+    two[0].name, two[1].name = "Sales A", "Sales B"
+    connector, why = asyncio.run(factory.connector_for_tables(_DB(two), ["a.s.t", "b.s.u"],
+                                                              workspace_ids=[w.id for w in two]))
+    assert connector is None and "different connections (Sales A, Sales B)" in why
+    one, _ = asyncio.run(factory.connector_for_tables(_DB(two[:1]), ["a.s.t"], workspace_ids=[two[0].id]))
+    assert one._host == "https://a"

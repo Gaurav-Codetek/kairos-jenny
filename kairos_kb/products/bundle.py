@@ -173,8 +173,8 @@ def _columns_from(profile: Optional[Dict[str, Any]], synced: List[Column]) -> Li
         out.append({
             "name": c.name,
             "type": c.data_type,
-            "meaning": d.get("meaning") or c.comment,
-            "aggregation": d.get("aggregation"),
+            "meaning": _text(d.get("meaning")) or c.comment,
+            "aggregation": _text(d.get("aggregation")),
             "tags": [t for t in tags if t],
         })
     return out
@@ -190,6 +190,21 @@ def _freshness(table: Table, profile: Optional[Dict[str, Any]]) -> Dict[str, Any
         "built_by": origin.get("by") or props.get("last_ddl_by"),
         "build_kind": origin.get("kind") or facts.get("code_source"),
     }.items() if v}
+
+
+def _text(v: Any) -> Optional[str]:
+    """A profile field the engine reads as text, as text. A model sometimes writes one as an object
+    ({"description": …, "keys": […]}) or a list; read as a string that crashed the engine ("unhashable type: 'slice'")."""
+    if v is None or isinstance(v, str):
+        return v
+    if isinstance(v, dict):
+        for k in ("description", "text", "value", "grain", "summary", "name"):
+            if isinstance(v.get(k), str) and v[k].strip():
+                return v[k]
+        return "; ".join(f"{k}: {_text(x)}" for k, x in v.items() if x not in (None, "", [], {})) or None
+    if isinstance(v, (list, tuple)):
+        return ", ".join(t for t in (_text(x) for x in v) if t) or None
+    return str(v)
 
 
 async def _table_member(db: AsyncSession, entity_id: str, lane: str, profile: Optional[Dict[str, Any]],
@@ -213,12 +228,12 @@ async def _table_member(db: AsyncSession, entity_id: str, lane: str, profile: Op
         "lane": lane,
         "output_port": output_port,
         "trust": trust_level(profile or None),
-        "role": cls.get("role") if cls.get("status") == "ok" else None,
-        "layer": cls.get("layer") if cls.get("status") == "ok" else None,
+        "role": _text(cls.get("role")) if cls.get("status") == "ok" else None,
+        "layer": _text(cls.get("layer")) if cls.get("status") == "ok" else None,
         "personal_data": cls.get("personal_data"),
-        "summary": profile.get("summary") or table.comment,
-        "purpose": profile.get("purpose"),
-        "grain": shape.get("grain"),
+        "summary": _text(profile.get("summary")) or table.comment,
+        "purpose": _text(profile.get("purpose")),
+        "grain": _text(shape.get("grain")),
         "grain_key": profile.get("grain_key"),
         "table_type": table.table_type,
         "row_count": table.row_count,

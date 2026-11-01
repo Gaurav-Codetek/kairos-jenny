@@ -45,7 +45,15 @@ async def create_workspace(body: WorkspaceCreate, db: AsyncSession = Depends(get
         raise KairosException(f"Unknown platform {body.platform}; expected one of {', '.join(PLATFORMS)}.", status_code=400)
     from kairos_kb.connectors.credentials import SEALED, seal
 
-    config = {k: v for k, v in (body.connection_config or {}).items() if k not in (SEALED, "has_token")}
+    # Every table, job and run Kairos maps is keyed by its connection's name, so two connections can't share one.
+    name = (body.name or "").strip()
+    if not name:
+        raise KairosException("A connection needs a name.", status_code=400)
+    taken = (await db.execute(select(Workspace.name).where(func.lower(Workspace.name) == name.lower()))).first()
+    if taken:
+        raise KairosException(f"There is already a connection called {taken[0]}; give this one a different name.",
+                              status_code=409)
+    config ={k: v for k, v in (body.connection_config or {}).items() if k not in (SEALED, "has_token")}
     host = (body.host or "").rstrip("/")
     if platform == "snowflake":
         if body.token:
@@ -65,7 +73,7 @@ async def create_workspace(body: WorkspaceCreate, db: AsyncSession = Depends(get
         config = seal(config, body.token or "")
     workspace = Workspace(
         workspace_id=str(uuid.uuid4())[:8],
-        name=body.name,
+        name=name,
         host=host,
         platform=platform,
         connection_config=config or None,
