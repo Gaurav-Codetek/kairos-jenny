@@ -573,8 +573,8 @@ You're in a Google Meet with several people, not a one-to-one with your owner. E
 # whichever starts first gives the answer. COMPANION_LLM=azure turns Gemini off.
 #
 # COMPANION_LLM=nebius (or nebius:<model id>) puts NVIDIA Nemotron on Nebius Token Factory first instead — the fast
-# model (NEBIUS_FAST_MODEL) by default — with the main provider (LLM_PROVIDER) as its backup the same way. When the
-# main provider is Nebius as well, the backup is a second request to the same model, so she never answers on the heavy one.
+# model (NEBIUS_FAST_MODEL) by default — with a second request to the same model as its backup, so every turn of hers
+# is answered by Nemotron whatever runs Kairos's reasoning (LLM_PROVIDER).
 GEMINI_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 COMPANION_LLM = os.getenv("COMPANION_LLM", "gemini-3.5-flash" if GEMINI_KEY else "azure").strip()
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
@@ -614,10 +614,9 @@ def _models(client, model: str, effort: Optional[str]) -> List[Tuple[str, Any, s
             return [main]
         if client is _nebius_client:
             return [("nebius", _nebius(), nemotron, effort)]
-        if provider() == "nebius":
-            # Main is Nebius too: the backup is a second try of her model, never the heavy one (NEBIUS_MODEL).
-            main = ("nebius", client, nemotron, effort)
-        return [("nebius", _nebius(), nemotron, effort), main]
+        # The backup is a second request to her own model, whatever runs Kairos's reasoning (LLM_PROVIDER): with
+        # Kairos on Azure, a slow start would otherwise hand some of her turns to gpt-5-mini.
+        return [("nebius", _nebius(), nemotron, effort), ("nebius", _nebius(), nemotron, effort)]
     if choice in ("", "azure") or not GEMINI_KEY:
         return [main]
     # Gemini: no thinking on calls and quick turns (it starts in about a second); a little for typed answers.

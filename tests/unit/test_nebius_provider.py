@@ -43,12 +43,12 @@ def test_nemotron_structured_output_goes_through_tool_calling(monkeypatch):
     assert llm.with_structured_output(Plan).name == "PlanRecovering"
 
 
-def test_jenny_on_nemotron_keeps_the_main_provider_as_her_backup(monkeypatch):
+def test_jenny_on_nemotron_stays_on_nemotron_with_kairos_on_azure(monkeypatch):
     s = use(monkeypatch, nebius_api_key="nb")
     monkeypatch.setattr(chat, "COMPANION_LLM", "nebius")
     monkeypatch.setattr(chat, "_nebius_client", None)
     order = chat._models("azure-client", "gpt-5-mini", "low")
-    assert [(label, m) for label, _c, m, _e in order] == [("nebius", s.nebius_fast_model), ("azure", "gpt-5-mini")]
+    assert [(label, m) for label, _c, m, _e in order] == [("nebius", s.nebius_fast_model)] * 2
     monkeypatch.setattr(chat, "COMPANION_LLM", "nebius:nvidia/nemotron-3-super-120b-a12b")
     assert chat._models("azure-client", "gpt-5-mini", "low")[0][2] == "nvidia/nemotron-3-super-120b-a12b"
 

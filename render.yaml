@@ -37,9 +37,14 @@ services:
         value: production
       - key: SECRET_KEY
         generateValue: true
-      # NVIDIA Nemotron on Nebius Token Factory: Kairos's reasoning and Jenny
+      # Kairos's reasoning (enrichment, data products, root-cause analysis): Azure OpenAI gpt-5-mini
       - key: LLM_PROVIDER
-        value: nebius
+        value: azure
+      - key: AZURE_OPENAI_DEPLOYMENT
+        value: gpt-5-mini
+      - key: AZURE_OPENAI_API_VERSION
+        value: 2025-04-01-preview
+      # Jenny: NVIDIA Nemotron on Nebius Token Factory (every turn, its backup a second request to the same model)
       - key: NEBIUS_API_KEY
         sync: false
       - key: NEBIUS_MODEL
@@ -48,7 +53,7 @@ services:
         value: nvidia/Nemotron-3_5-Lightning
       - key: COMPANION_LLM
         value: nebius:nvidia/Nemotron-3.5-Super-VL
-      # Embeddings for meaning-based search (the stored vectors were made with text-embedding-3-large)
+      # Kairos's reasoning, and embeddings for meaning-based search (stored vectors: text-embedding-3-large)
       - key: AZURE_OPENAI_API_KEY
         sync: false
       - key: AZURE_OPENAI_ENDPOINT
