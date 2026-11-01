@@ -28,7 +28,8 @@ from kairos_kb.models.task import Task
 from kairos_kb.models.task_run import TaskRun
 from kairos_kb.models.workspace import Workspace
 from kairos_kb.schemas.common import SyncRequest
-from kairos_kb.schemas.workspace import WorkspaceCreate, WorkspaceResponse
+from kairos_kb.connectors.credentials import public
+from kairos_kb.schemas.workspace import WorkspaceCreate, WorkspaceResponse, WorkspaceToken
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/workspaces", tags=["workspaces"])
@@ -42,9 +43,14 @@ async def create_workspace(body: WorkspaceCreate, db: AsyncSession = Depends(get
     platform = (body.platform or "databricks").lower()
     if platform not in PLATFORMS:
         raise KairosException(f"Unknown platform {body.platform}; expected one of {', '.join(PLATFORMS)}.", status_code=400)
-    config = dict(body.connection_config or {})
+    from kairos_kb.connectors.credentials import SEALED, seal
+
+    config = {k: v for k, v in (body.connection_config or {}).items() if k not in (SEALED, "has_token")}
     host = (body.host or "").rstrip("/")
     if platform == "snowflake":
+        if body.token:
+            raise KairosException("A Snowflake connection's credentials come from the server's SNOWFLAKE_* settings.",
+                                  status_code=400)
         from kairos_kb.config import get_settings
 
         account = config.get("account") or get_settings().snowflake_account
@@ -55,6 +61,8 @@ async def create_workspace(body: WorkspaceCreate, db: AsyncSession = Depends(get
         host = host or f"https://{account}.snowflakecomputing.com"
     elif not host:
         raise KairosException("A Databricks connection needs the workspace URL.", status_code=400)
+    else:
+        config = seal(config, body.token or "")
     workspace = Workspace(
         workspace_id=str(uuid.uuid4())[:8],
         name=body.name,
@@ -67,6 +75,22 @@ async def create_workspace(body: WorkspaceCreate, db: AsyncSession = Depends(get
         description=body.description,
     )
     db.add(workspace)
+    await db.flush()
+    await db.refresh(workspace)
+    return workspace
+
+
+@router.put("/{workspace_id}/token", response_model=WorkspaceResponse)
+async def set_workspace_token(workspace_id: uuid.UUID, body: WorkspaceToken, db: AsyncSession = Depends(get_db)):
+    """Give a Databricks connection a new personal access token (stored encrypted, never returned)."""
+    from kairos_kb.connectors.credentials import seal
+
+    workspace = await db.get(Workspace, workspace_id)
+    if not workspace:
+        raise NotFoundError("Workspace", str(workspace_id))
+    if (workspace.platform or "databricks") != "databricks":
+        raise KairosException("Only a Databricks connection holds its own token.", status_code=400)
+    workspace.connection_config = seal(workspace.connection_config, body.token)
     await db.flush()
     await db.refresh(workspace)
     return workspace
@@ -293,7 +317,7 @@ async def get_workspace_status(workspace_id: uuid.UUID, db: AsyncSession = Depen
             else workspace.status
         ),
         "last_synced_at": workspace.last_synced_at.isoformat() if workspace.last_synced_at else None,
-        "connection_config": workspace.connection_config or {},
+        "connection_config": public(workspace.connection_config),
         **(await _endpoint(db, workspace)),
         "domains": domains,
         "counts": counts,

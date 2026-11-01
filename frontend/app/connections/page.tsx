@@ -18,6 +18,7 @@ import { PageHeader } from "@/components/shell/app-shell";
 import { AddConnectionDialog } from "@/components/connections/add-connection";
 import { DeleteConnectionDialog } from "@/components/connections/delete-connection";
 import { SyncLivePanel } from "@/components/connections/sync-live-panel";
+import { TokenRow } from "@/components/connections/token-row";
 import {
   DOMAIN_META,
   PLATFORM_META,
@@ -318,6 +319,17 @@ export default function ConnectionsPage() {
                       ))}
                     </div>
                   </div>
+                )}
+
+                {status.platform === "databricks" && selected && (
+                  <TokenRow
+                    id={selected}
+                    config={status.connection_config ?? {}}
+                    onSaved={() => {
+                      setTestResult(null);
+                      refreshStatus(selected);
+                    }}
+                  />
                 )}
 
                 <dl className="mt-5 grid grid-cols-4 gap-3 border-t border-hairline pt-4">

@@ -26,6 +26,8 @@ dependencies = [
     "python-multipart>=0.0.9",
     "typesafe-sdk",
     "snowflake-connector-python>=3.12",
+    # A Databricks connection's own token is stored encrypted (kairos_kb/connectors/credentials.py)
+    "cryptography>=42",
     # Jenny's turn-taking: the Smart Turn audio model (kairos_kb/companion/smart_turn.py)
     "numpy>=1.26",
     "onnxruntime>=1.18",

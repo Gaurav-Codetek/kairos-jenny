@@ -23,15 +23,24 @@ _TTL = 60.0
 
 
 def connector_for(workspace: Optional[Workspace]) -> PlatformConnector:
-    """The connector for a workspace; Databricks when there is none (the original single-workspace setup)."""
+    """The connector for a workspace; Databricks when there is none (the original single-workspace setup).
+
+    A Databricks connection uses its own token and SQL warehouse when it has them, else DATABRICKS_TOKEN and
+    DATABRICKS_SQL_WAREHOUSE_ID from the server's configuration.
+    """
     platform = (workspace.platform if workspace else "databricks") or "databricks"
     if platform == "snowflake":
         from kairos_kb.connectors.snowflake import SnowflakeConnector
 
         return SnowflakeConnector(config=workspace.connection_config or {})
+    from kairos_kb.connectors.credentials import token_of
     from kairos_kb.connectors.databricks import DatabricksConnector
 
-    return DatabricksConnector(host=workspace.host) if workspace else DatabricksConnector()
+    if not workspace:
+        return DatabricksConnector()
+    config = workspace.connection_config or {}
+    return DatabricksConnector(host=workspace.host, token=token_of(config),
+                               warehouse_id=str(config.get("warehouse_id") or "") or None)
 
 
 def workspace_name_of(entity_id: str) -> Optional[str]:

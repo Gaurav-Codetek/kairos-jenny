@@ -34,7 +34,11 @@ agent activity and all evaluation runs), checks every text column for any trace 
    - `TAVILY_API_KEY` (Jenny's weather lookup)
    - `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, `SNOWFLAKE_TOKEN`, `SNOWFLAKE_WAREHOUSE`, `SNOWFLAKE_ROLE` — use a
      **read-only** role
-   - Never the `DATABRICKS_*` values from your local `.env`: they reach the ICS warehouse.
+   - Never the `DATABRICKS_*` values from your local `.env`: they reach the ICS warehouse. A Databricks workspace
+     is added in the app instead (**Connections → Add connection → Databricks**), with its own personal access token
+     and SQL warehouse ID: the token is stored encrypted with `SECRET_KEY`, for that connection only, and never shown.
+     Each Databricks connection can have different credentials. Keep `SECRET_KEY` as Render generated it: changing it
+     makes stored tokens unreadable (set them again with **Replace token**).
 4. **Apply**. The first deploy takes a few minutes; the API creates an empty schema on its first start.
 5. Check the two URLs Render gave the services. If they aren't exactly `kairos-jenny-api.onrender.com` and
    `kairos-jenny-web.onrender.com`, fix them in the API's `FRONTEND_ORIGINS`, `PUBLIC_API_URL`, `MCP_ALLOWED_HOSTS` and

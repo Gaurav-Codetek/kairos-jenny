@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class WorkspaceCreate(BaseModel):
@@ -14,10 +14,19 @@ class WorkspaceCreate(BaseModel):
     platform: str = Field("databricks", description="databricks or snowflake")
     host: str = Field("", description="Databricks workspace URL, or the Snowflake account URL")
     # Non-secret settings. Snowflake: account, warehouse, role, databases (list) — secrets stay in .env.
+    # Databricks: warehouse_id (the SQL warehouse; else DATABRICKS_SQL_WAREHOUSE_ID).
     connection_config: Optional[Dict[str, Any]] = None
+    # Databricks: this workspace's personal access token. Stored encrypted, never returned; blank uses DATABRICKS_TOKEN.
+    token: Optional[str] = None
     cloud: str = Field("azure", description="Cloud provider: azure, aws, gcp")
     region: str = Field("", description="Cloud region")
     description: Optional[str] = None
+
+
+class WorkspaceToken(BaseModel):
+    """A new personal access token for a Databricks connection (rotating an expiring one)."""
+
+    token: str = Field(..., min_length=1)
 
 
 class WorkspaceResponse(BaseModel):
@@ -36,3 +45,10 @@ class WorkspaceResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+    @field_validator("connection_config", mode="after")
+    @classmethod
+    def _hide_token(cls, v: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        from kairos_kb.connectors.credentials import public
+
+        return public(v) if v else v

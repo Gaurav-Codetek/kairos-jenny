@@ -124,13 +124,20 @@ export function createWorkspace(body: {
   name: string;
   host?: string;
   platform?: Platform;
-  /** Non-secret settings. Snowflake: account, warehouse, role, databases. */
+  /** Non-secret settings. Snowflake: account, warehouse, role, databases. Databricks: warehouse_id. */
   connection_config?: Record<string, unknown>;
+  /** Databricks: this workspace's personal access token. Stored encrypted; never sent back. */
+  token?: string;
   cloud?: string;
   region?: string;
   description?: string;
 }): Promise<Workspace> {
   return fetchApi("/workspaces", { method: "POST", body: JSON.stringify(body) });
+}
+
+/** Give a Databricks connection a new personal access token (rotating an expiring one). */
+export function setWorkspaceToken(id: string, token: string): Promise<Workspace> {
+  return fetchApi(`/workspaces/${id}/token`, { method: "PUT", body: JSON.stringify({ token }) });
 }
 
 /** Remove a connection and everything mirrored or learned from it. Nothing changes on the platform. */

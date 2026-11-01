@@ -28,6 +28,9 @@ export function AddConnectionDialog({ onClose, onCreated }: Props) {
   const [warehouse, setWarehouse] = useState("");
   const [role, setRole] = useState("");
   const [databases, setDatabases] = useState("");
+  // Databricks: this workspace's own token and SQL warehouse. Each falls back to the server's DATABRICKS_* setting.
+  const [token, setToken] = useState("");
+  const [warehouseId, setWarehouseId] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +58,10 @@ export function AddConnectionDialog({ onClose, onCreated }: Props) {
                 databases: dbs.length ? dbs : undefined,
               }).filter(([, v]) => v)
             )
-          : undefined,
+          : warehouseId.trim()
+            ? { warehouse_id: warehouseId.trim() }
+            : undefined,
+        token: snowflake ? undefined : token.trim() || undefined,
       });
       onCreated(created.id);
     } catch (e) {
@@ -173,15 +179,46 @@ export function AddConnectionDialog({ onClose, onCreated }: Props) {
                   </p>
                 </>
               ) : (
-                <label className="block">
-                  <span className="mb-1.5 block text-k-caption font-semibold text-ink-2">Workspace URL</span>
-                  <input
-                    value={host}
-                    onChange={(e) => setHost(e.target.value)}
-                    placeholder="https://adb-000000000000.0.azuredatabricks.net"
-                    className="k-input font-mono !text-k-caption"
-                  />
-                </label>
+                <>
+                  <label className="block">
+                    <span className="mb-1.5 block text-k-caption font-semibold text-ink-2">Workspace URL</span>
+                    <input
+                      value={host}
+                      onChange={(e) => setHost(e.target.value)}
+                      placeholder="https://adb-000000000000.0.azuredatabricks.net"
+                      className="k-input font-mono !text-k-caption"
+                    />
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="block" htmlFor="dbx-token">
+                      <span className="mb-1.5 block text-k-caption font-semibold text-ink-2">Personal access token</span>
+                      <input
+                        id="dbx-token"
+                        type="password"
+                        autoComplete="off"
+                        value={token}
+                        onChange={(e) => setToken(e.target.value)}
+                        placeholder="dapi…"
+                        className="k-input font-mono !text-k-caption"
+                      />
+                    </label>
+                    <label className="block" htmlFor="dbx-warehouse">
+                      <span className="mb-1.5 block text-k-caption font-semibold text-ink-2">SQL warehouse ID</span>
+                      <input
+                        id="dbx-warehouse"
+                        value={warehouseId}
+                        onChange={(e) => setWarehouseId(e.target.value)}
+                        placeholder="1234567890abcdef"
+                        className="k-input font-mono !text-k-caption"
+                      />
+                    </label>
+                  </div>
+                  <p className="text-k-caption leading-snug text-ink-subtle">
+                    The token is stored encrypted on the server for this connection only and never shown again. Leave
+                    either field empty to use the server&apos;s DATABRICKS_* setting. Kairos only reads: a token that
+                    can read the catalogs, view jobs and use the warehouse is enough.
+                  </p>
+                </>
               )}
 
               <label className="block">
@@ -196,14 +233,11 @@ export function AddConnectionDialog({ onClose, onCreated }: Props) {
                 />
               </label>
 
-              {/* Credentials are deliberately not collected here — being
-                  explicit about that is better than a field that silently
-                  does nothing. */}
-              <p className="rounded-lg border border-hairline bg-sunken px-3.5 py-2.5 text-k-caption leading-snug text-ink-muted">
-                Credentials are read from server configuration, not stored per
-                connection. Per-workspace encrypted credentials are required before
-                this is safe for more than one tenant.
-              </p>
+              {snowflake && (
+                <p className="rounded-lg border border-hairline bg-sunken px-3.5 py-2.5 text-k-caption leading-snug text-ink-muted">
+                  Snowflake credentials are read from the server&apos;s configuration, not stored per connection.
+                </p>
+              )}
             </div>
           )}
 

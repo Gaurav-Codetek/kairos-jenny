@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class DatabricksConnector(PlatformConnector):
     """Talks to a Databricks workspace over its REST APIs."""
 
-    def __init__(self, *, host: str | None = None, token: str | None = None) -> None:
+    def __init__(self, *, host: str | None = None, token: str | None = None, warehouse_id: str | None = None) -> None:
         settings = get_settings()
         self._host = (host or settings.databricks_host).rstrip("/")
         self._token = token or settings.databricks_token
@@ -34,7 +34,7 @@ class DatabricksConnector(PlatformConnector):
         self._workspace_api = settings.databricks_workspace_api_version
         self._sql_api = settings.databricks_sql_api_version
         self._uc_api = settings.databricks_unity_catalog_api_version
-        self._warehouse_id = settings.databricks_sql_warehouse_id
+        self._warehouse_id = warehouse_id or settings.databricks_sql_warehouse_id
 
         if not self._host or not self._token:
             logger.warning("DatabricksConnector created without host/token — calls will fail.")
