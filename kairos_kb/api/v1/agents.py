@@ -212,6 +212,8 @@ async def connect_info(db: AsyncSession = Depends(get_db)):
         "mcp_url": mcp_url,
         # The same map through 11 consolidated tools, run side by side with v1 for comparison.
         "mcp_v2_url": f"{base}/mcp-v2/",
+        # The map for applications to draw: nodes and links in words, profiles, evidence.
+        "mcp_map_url": f"{base}/mcp-map/",
         "rest_base": f"{base}/api/v1/context",
         "openapi_url": f"{base}/openapi.json",
         "auth_mode": settings.agent_auth_mode,

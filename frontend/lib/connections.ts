@@ -146,7 +146,6 @@ export interface SqlWarehouse {
   state?: string;
   size?: string;
   serverless?: boolean;
-  creator?: string;
 }
 
 /** The SQL warehouses a Databricks connection's token can see, and the one it uses now. */

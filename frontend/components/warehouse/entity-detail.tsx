@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ExternalLink, FileCode2, Info, Network, Sparkles, X } from "lucide-react";
+import { FileCode2, Info, Maximize2, Network, Sparkles, X } from "lucide-react";
 
 import { kindVisual } from "@/components/graph/lineage-card";
 import { Callout, EmptyState, Spinner, StatusPill, Tabs } from "@/components/kairos/ds";
+import { EntityModal, RelatedRow } from "@/components/warehouse/entity-modal";
 
 import { getProfileYaml } from "@/lib/enrichment";
 import {
@@ -13,6 +14,7 @@ import {
   kindStyle,
   RELATION_GROUP_STYLE,
   type EntityDetail,
+  type MapItem,
 } from "@/lib/warehouse";
 
 interface EntityDetailPanelProps {
@@ -34,6 +36,8 @@ export function EntityDetailPanel({ entityId, onClose, onFocus }: EntityDetailPa
   const [yaml, setYaml] = useState<string | null>(null);
   const [yamlLoading, setYamlLoading] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
+  // The entity whose full details are open in the modal: a related one clicked here, or this one.
+  const [modalId, setModalId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!entityId) {
@@ -103,9 +107,24 @@ export function EntityDetailPanel({ entityId, onClose, onFocus }: EntityDetailPa
               </StatusPill>
             )}
           </div>
-          <p className="mt-1.5 break-all font-mono text-k-caption font-semibold text-ink">{detail.id.split(":").slice(-1)[0]}</p>
-          <p className="break-all font-mono text-[11px] text-ink-subtle">{detail.id}</p>
+          <p className="mt-1.5 break-words font-mono text-k-caption font-semibold text-ink">
+            {detail.label ?? detail.id.split(":").slice(-1)[0]}
+          </p>
+          {detail.summary ? (
+            <p className="mt-1 line-clamp-3 text-k-caption leading-snug text-ink-muted">{detail.summary}</p>
+          ) : (
+            <p className="break-all font-mono text-[11px] text-ink-subtle">{detail.id}</p>
+          )}
         </div>
+        <button
+          type="button"
+          onClick={() => setModalId(detail.id)}
+          className="k-btn k-btn-ghost k-btn-sm !px-1.5"
+          aria-label="Open full details"
+          title="Open full details"
+        >
+          <Maximize2 className="h-4 w-4" />
+        </button>
         <button type="button" onClick={onClose} className="k-btn k-btn-ghost k-btn-sm !px-1.5" aria-label="Close">
           <X className="h-4 w-4" />
         </button>
@@ -158,19 +177,8 @@ export function EntityDetailPanel({ entityId, onClose, onFocus }: EntityDetailPa
                     </span>
                   </div>
                   <div className="mt-2 space-y-0.5">
-                    {relation.sample.slice(0, 6).map((target) => (
-                      <button
-                        key={target}
-                        type="button"
-                        onClick={() => onFocus(target)}
-                        title={target}
-                        className="group flex w-full items-center gap-1.5 rounded-md px-1.5 py-1 text-left transition-colors hover:bg-brand-soft"
-                      >
-                        <ExternalLink className="h-3 w-3 shrink-0 text-ink-subtle group-hover:text-brand" />
-                        <span className="truncate font-mono text-k-caption text-ink-2 group-hover:text-brand-strong">
-                          {target.split(":").slice(-1)[0]}
-                        </span>
-                      </button>
+                    {(relation.items ?? relation.sample.map((id) => fallbackItem(id))).slice(0, 6).map((item) => (
+                      <RelatedRow key={item.id} item={item} onOpen={setModalId} compact />
                     ))}
                     {relation.count > 6 && <p className="px-1.5 text-k-caption text-ink-subtle">+{relation.count - 6} more</p>}
                   </div>
@@ -209,6 +217,23 @@ export function EntityDetailPanel({ entityId, onClose, onFocus }: EntityDetailPa
           </>
         )}
       </div>
+      {modalId && (
+        <EntityModal
+          entityId={modalId}
+          onClose={() => setModalId(null)}
+          onShowOnMap={(id) => {
+            setModalId(null);
+            onFocus(id);
+          }}
+        />
+      )}
     </aside>
   );
+}
+
+/** A related entity the server did not describe (an older API): its id's last segment. */
+function fallbackItem(id: string): MapItem {
+  const kind = id.split(":")[0];
+  return { id, kind, label: id.split(":").slice(-1)[0], sublabel: "", summary: null, known: true, discovered: false,
+    status: null, profiled: false, connection: null };
 }

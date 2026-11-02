@@ -39,6 +39,7 @@ from kairos_kb.warehouse.entity_map import (
     RELATIONS,
     relation_names_for_groups,
 )
+from kairos_kb.warehouse.evidence_text import change_label, evidence_digest
 
 logger = logging.getLogger(__name__)
 
@@ -841,13 +842,16 @@ def _entity_payload(kind: str, node_id: str, entity: Any) -> Dict[str, Any]:
             status=entity.result_state,
         )
     if kind == "evidence":
+        # What the evidence says, not its id: "Table metadata: zomato.raw.orders".
+        digest = evidence_digest(entity)
         return _payload(
             node_id,
             kind,
-            entity.source_type,
-            entity.entity_id,
+            digest["title"],
+            digest["summary"] or digest["source_label"],
             {
-                "content_hash": entity.content_hash[:12],
+                "source": digest["source_label"],
+                "about": entity.entity_id,
                 "observed_at": entity.observed_at.isoformat(),
             },
         )
@@ -855,8 +859,8 @@ def _entity_payload(kind: str, node_id: str, entity: Any) -> Dict[str, Any]:
         return _payload(
             node_id,
             kind,
-            entity.change_type,
-            entity.field_name or entity.entity_type,
+            change_label(entity),
+            entity.entity_id.split(":")[-1] if entity.entity_id else entity.entity_type,
             {
                 "entity_type": entity.entity_type,
                 "field_name": entity.field_name,

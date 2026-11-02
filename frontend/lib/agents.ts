@@ -76,6 +76,8 @@ export interface AgentStats {
 export interface ConnectInfo {
   mcp_url: string;
   mcp_v2_url: string;
+  /** The map itself over MCP, for applications to draw: nodes and links in words, profiles, evidence. */
+  mcp_map_url?: string;
   /** One endpoint per connection, with its platform's tools. */
   connections?: { name: string; platform: string; slug: string; mcp_url: string; tools: string[] }[];
   rest_base: string;

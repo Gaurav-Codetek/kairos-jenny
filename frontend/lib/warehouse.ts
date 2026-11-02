@@ -122,13 +122,79 @@ export interface WarehouseRoot {
   failed_runs: number;
 }
 
+/** Any node on the map said in words: an evidence row is "Table metadata: zomato.raw.orders", not its id. */
+export interface MapItem {
+  id: string;
+  kind: EntityKind;
+  label: string;
+  sublabel: string;
+  summary: string | null;
+  known: boolean;
+  discovered: boolean;
+  status: string | null;
+  profiled: boolean;
+  connection: string | null;
+  data_product?: string;
+}
+
+/** Why the agent believes a link it discovered, and what it saw. */
+export interface LinkReason {
+  rationale: string;
+  confidence: number;
+  status: string;
+  seen_in: string | null;
+  observed_at: string | null;
+  evidence: EvidenceDigest | null;
+}
+
+export interface EvidenceDigest {
+  id: string;
+  title: string;
+  summary: string | null;
+  source_type: string;
+  source_label: string;
+  source: string | null;
+  about: string;
+  observed_at: string | null;
+  size_chars: number;
+  excerpt?: string;
+  truncated?: boolean;
+}
+
 export interface EntityDetail {
   id: string;
   kind: EntityKind;
   known: boolean;
   attributes: Record<string, unknown>;
-  relations: Array<{ relation: string; group: RelationGroup; count: number; sample: string[] }>;
+  relations: Array<{ relation: string; group: RelationGroup; count: number; sample: string[]; items?: MapItem[] }>;
   relation_total: number;
+  note?: string;
+  /** The entity in words: an evidence row's "Table metadata: …" rather than its id. */
+  label?: string;
+  summary?: string | null;
+}
+
+/** One entity in full with every id resolved — what the map's detail modal shows (GET /warehouse/card). */
+export interface EntityCard extends MapItem {
+  attributes: Record<string, unknown>;
+  relations: Array<{
+    relation: string;
+    group: RelationGroup;
+    count: number;
+    items: Array<MapItem & { reason?: LinkReason }>;
+  }>;
+  relation_total: number;
+  profile: {
+    summary: string | null;
+    purpose: string | null;
+    data_product: string | null;
+    tags: string[];
+    generated_at: string | null;
+    model: string | null;
+    document: Record<string, unknown> | null;
+    yaml?: string | null;
+  } | null;
+  evidence?: EvidenceDigest;
   note?: string;
 }
 
@@ -172,6 +238,10 @@ export function fetchGraph(
 
 export function fetchEntityDetail(entityId: string): Promise<EntityDetail> {
   return fetchApi(`/warehouse/entity?entity_id=${encodeURIComponent(entityId)}`);
+}
+
+export function fetchEntityCard(entityId: string): Promise<EntityCard> {
+  return fetchApi(`/warehouse/card?entity_id=${encodeURIComponent(entityId)}`);
 }
 
 export function searchEntities(query: string, limit = 25): Promise<SearchResponse> {

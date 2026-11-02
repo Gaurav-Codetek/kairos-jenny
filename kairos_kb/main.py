@@ -94,6 +94,8 @@ def _build_mcp(module: str = "kairos_kb.mcp_server.server", server=None):
 mcp_server, mcp_app = _build_mcp()
 # v2: the same map through fewer, non-overlapping tools, side by side with v1 for comparison.
 mcp_v2_server, mcp_v2_app = _build_mcp("kairos_kb.mcp_server.server_v2")
+# The map itself, for any application to draw: nodes and links in words, profiles, evidence.
+mcp_map_server, mcp_map_app = _build_mcp("kairos_kb.mcp_server.map_server")
 
 
 def _build_connection_servers():
@@ -135,7 +137,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     from contextlib import AsyncExitStack
 
     async with AsyncExitStack() as stack:
-        for name, srv in (("v1", mcp_server), ("v2", mcp_v2_server),
+        for name, srv in (("v1", mcp_server), ("v2", mcp_v2_server), ("map", mcp_map_server),
                           *((f"connection:{p}", s) for p, s in connection_servers.items())):
             if srv is not None:
                 await stack.enter_async_context(srv.session_manager.run())
@@ -199,9 +201,15 @@ if mcp_v2_app is not None:
     app.mount("/mcp-v2", AgentAuthMiddleware(mcp_v2_app, channel="mcp-v2"))
     logger.info("MCP v2 server mounted at /mcp-v2")
 
+if mcp_map_app is not None:
+    from kairos_kb.context.access import AgentAuthMiddleware
+
+    app.mount("/mcp-map", AgentAuthMiddleware(mcp_map_app, channel="mcp-map"))
+    logger.info("MCP map server mounted at /mcp-map")
+
 
 class _McpNoRedirect:
-    """Serve /mcp (and /mcp-v2) as /mcp/ instead of redirecting.
+    """Serve /mcp (and /mcp-v2, /mcp-map) as /mcp/ instead of redirecting.
 
     Starlette answers the bare mount path with a 307 to the trailing-slash
     form, and some hosted MCP clients do not carry a protocol exchange across
@@ -212,7 +220,7 @@ class _McpNoRedirect:
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        if scope["type"] == "http" and scope.get("path") in ("/mcp", "/mcp-v2"):
+        if scope["type"] == "http" and scope.get("path") in ("/mcp", "/mcp-v2", "/mcp-map"):
             path = scope["path"] + "/"
             scope = dict(scope, path=path, raw_path=path.encode())
         await self.app(scope, receive, send)

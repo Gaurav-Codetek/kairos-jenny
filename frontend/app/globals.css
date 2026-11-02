@@ -342,11 +342,17 @@
 @keyframes k-spin {
   to { transform: rotate(360deg); }
 }
+@keyframes k-modal-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
 
 @media (prefers-reduced-motion: no-preference) {
   .k-page { animation: k-fade 0.35s var(--ease-out) both; }
   .k-rise { animation: k-rise 0.55s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 70ms); }
   .k-pop { animation: k-pop 0.45s var(--ease-back) both; animation-delay: calc(var(--i, 0) * 70ms); }
+  /* Short and without overshoot, for large dialogs over heavy pages (the map). */
+  .k-modal-in { animation: k-modal-in 0.18s var(--ease-out) both; will-change: transform, opacity; }
   .k-draw {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;

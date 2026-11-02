@@ -182,8 +182,16 @@ async def get_entity(
     db: AsyncSession = Depends(get_db),
 ):
     """Every stored attribute of one entity, plus exact neighbour counts per relation."""
+    from kairos_kb.warehouse.map_view import describe
+
     graph = EntityGraph(db)
     detail = await graph.entity_detail(entity_id)
+    # Each related entity in words (label, summary), not only its id: an evidence row is "Table metadata: …".
+    items = await describe(db, {entity_id} | {t for r in detail["relations"] for t in r["sample"]}, graph)
+    for r in detail["relations"]:
+        r["items"] = [items[t] for t in r["sample"] if t in items]
+    if entity_id in items:
+        detail.update(label=items[entity_id]["label"], summary=items[entity_id]["summary"])
     if not detail["known"]:
         # Still useful: lineage references entities outside the synced scope,
         # and the agent should be able to tell "absent" from "does not exist".
@@ -192,6 +200,22 @@ async def get_entity(
             "(typically lineage) but was never synced into the warehouse."
         )
     return detail
+
+
+@router.get("/card")
+async def get_entity_card(
+    entity_id: str = Query(..., description="Node id"),
+    per_relation: int = Query(10, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
+):
+    """One entity in full with every id resolved: attributes, profile, evidence text, and each relation's
+    entities described, with the agent's reason for links it discovered. What the map's detail modal shows."""
+    from kairos_kb.warehouse.map_view import entity_card
+
+    card = await entity_card(db, entity_id, per_relation=per_relation)
+    if card is None:
+        raise NotFoundError("Entity", entity_id)
+    return card
 
 
 @router.get("/search")

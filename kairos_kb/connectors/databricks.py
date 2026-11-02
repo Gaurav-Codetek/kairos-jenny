@@ -333,8 +333,8 @@ class DatabricksConnector(PlatformConnector):
         """The SQL warehouses this token can see: what a connection's warehouse can be set to."""
         data = await self._request("GET", f"/api/{self._sql_api}/sql/warehouses")
         return [{"id": w.get("id"), "name": w.get("name"), "state": w.get("state"),
-                 "size": w.get("cluster_size"), "serverless": w.get("enable_serverless_compute"),
-                 "creator": w.get("creator_name")} for w in data.get("warehouses") or []]
+                 "size": w.get("cluster_size"), "serverless": w.get("enable_serverless_compute")}
+                for w in data.get("warehouses") or []]  # not the creator: a person's email, shown to anyone
 
     # ── Helpers ──────────────────────────────────────────────────────
     @staticmethod

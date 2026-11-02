@@ -82,6 +82,16 @@ export function ConnectPanel({ onCreateKey }: { onCreateKey: () => void }) {
               index={i++}
             />
           )}
+          {info.mcp_map_url && (
+            <Endpoint
+              icon={Radio}
+              title="Map MCP server"
+              meta="5 tools · draw the map in any app"
+              url={info.mcp_map_url}
+              copy={info.mcp_map_url}
+              index={i++}
+            />
+          )}
           <Endpoint
             icon={Globe}
             title="REST context API"
