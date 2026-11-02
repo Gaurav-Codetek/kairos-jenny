@@ -105,3 +105,26 @@ def test_one_query_runs_on_one_connection():
     assert connector is None and "different connections (Sales A, Sales B)" in why
     one, _ = asyncio.run(factory.connector_for_tables(_DB(two[:1]), ["a.s.t"], workspace_ids=[two[0].id]))
     assert one._host == "https://a"
+
+
+def test_a_connection_can_be_pointed_at_another_warehouse():
+    import asyncio
+
+    from kairos_kb.api.v1.workspaces import set_workspace_warehouse
+    from kairos_kb.schemas.workspace import WorkspaceWarehouse
+
+    w = ws("https://a", credentials.seal({"warehouse_id": "wrong"}, "dapi-A"))
+
+    class DB:
+        async def get(self, _model, _id):
+            return w
+
+        async def flush(self):
+            pass
+
+        async def refresh(self, _obj):
+            pass
+
+    asyncio.run(set_workspace_warehouse(w.id, WorkspaceWarehouse(warehouse_id=" 1a2b3c "), DB()))
+    c = factory.connector_for(w)
+    assert (c._warehouse_id, c._token) == ("1a2b3c", "dapi-A")  # the token is kept

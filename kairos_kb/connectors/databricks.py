@@ -329,6 +329,13 @@ class DatabricksConnector(PlatformConnector):
         except ConnectorError:
             return False
 
+    async def list_warehouses(self) -> List[Dict[str, Any]]:
+        """The SQL warehouses this token can see: what a connection's warehouse can be set to."""
+        data = await self._request("GET", f"/api/{self._sql_api}/sql/warehouses")
+        return [{"id": w.get("id"), "name": w.get("name"), "state": w.get("state"),
+                 "size": w.get("cluster_size"), "serverless": w.get("enable_serverless_compute"),
+                 "creator": w.get("creator_name")} for w in data.get("warehouses") or []]
+
     # ── Helpers ──────────────────────────────────────────────────────
     @staticmethod
     def _rows_from_statement_result(result: Dict[str, Any]) -> List[Dict[str, Any]]:

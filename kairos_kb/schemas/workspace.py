@@ -29,6 +29,12 @@ class WorkspaceToken(BaseModel):
     token: str = Field(..., min_length=1)
 
 
+class WorkspaceWarehouse(BaseModel):
+    """The SQL warehouse a Databricks connection runs its queries on."""
+
+    warehouse_id: str = Field(..., min_length=1, max_length=64)
+
+
 class WorkspaceResponse(BaseModel):
     id: uuid.UUID
     workspace_id: str

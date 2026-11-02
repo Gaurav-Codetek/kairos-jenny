@@ -29,7 +29,7 @@ from kairos_kb.models.task_run import TaskRun
 from kairos_kb.models.workspace import Workspace
 from kairos_kb.schemas.common import SyncRequest
 from kairos_kb.connectors.credentials import public
-from kairos_kb.schemas.workspace import WorkspaceCreate, WorkspaceResponse, WorkspaceToken
+from kairos_kb.schemas.workspace import WorkspaceCreate, WorkspaceResponse, WorkspaceToken, WorkspaceWarehouse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/workspaces", tags=["workspaces"])
@@ -99,6 +99,39 @@ async def set_workspace_token(workspace_id: uuid.UUID, body: WorkspaceToken, db:
     if (workspace.platform or "databricks") != "databricks":
         raise KairosException("Only a Databricks connection holds its own token.", status_code=400)
     workspace.connection_config = seal(workspace.connection_config, body.token)
+    await db.flush()
+    await db.refresh(workspace)
+    return workspace
+
+
+@router.get("/{workspace_id}/warehouses")
+async def list_workspace_warehouses(workspace_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    """The SQL warehouses a Databricks connection's token can see, and which one it uses now."""
+    from kairos_kb.connectors.factory import connector_for
+
+    workspace = await db.get(Workspace, workspace_id)
+    if not workspace:
+        raise NotFoundError("Workspace", str(workspace_id))
+    if (workspace.platform or "databricks") != "databricks":
+        raise KairosException("Only a Databricks connection has SQL warehouses to pick from.", status_code=400)
+    connector = connector_for(workspace)
+    try:
+        warehouses = await connector.list_warehouses()
+    except Exception as exc:  # noqa: BLE001 — the platform's reason, for the person
+        raise KairosException(f"Could not list the warehouses: {str(exc)[:300]}", status_code=502)
+    return {"current": connector._warehouse_id or None, "warehouses": warehouses}
+
+
+@router.put("/{workspace_id}/warehouse", response_model=WorkspaceResponse)
+async def set_workspace_warehouse(workspace_id: uuid.UUID, body: WorkspaceWarehouse,
+                                  db: AsyncSession = Depends(get_db)):
+    """Point a Databricks connection at another SQL warehouse (its id, from list_workspace_warehouses)."""
+    workspace = await db.get(Workspace, workspace_id)
+    if not workspace:
+        raise NotFoundError("Workspace", str(workspace_id))
+    if (workspace.platform or "databricks") != "databricks":
+        raise KairosException("Only a Databricks connection has a SQL warehouse to set.", status_code=400)
+    workspace.connection_config = {**(workspace.connection_config or {}), "warehouse_id": body.warehouse_id.strip()}
     await db.flush()
     await db.refresh(workspace)
     return workspace

@@ -140,6 +140,25 @@ export function setWorkspaceToken(id: string, token: string): Promise<Workspace>
   return fetchApi(`/workspaces/${id}/token`, { method: "PUT", body: JSON.stringify({ token }) });
 }
 
+export interface SqlWarehouse {
+  id: string;
+  name: string;
+  state?: string;
+  size?: string;
+  serverless?: boolean;
+  creator?: string;
+}
+
+/** The SQL warehouses a Databricks connection's token can see, and the one it uses now. */
+export function listWarehouses(id: string): Promise<{ current: string | null; warehouses: SqlWarehouse[] }> {
+  return fetchApi(`/workspaces/${id}/warehouses`);
+}
+
+/** Point a Databricks connection at another SQL warehouse. */
+export function setWorkspaceWarehouse(id: string, warehouseId: string): Promise<Workspace> {
+  return fetchApi(`/workspaces/${id}/warehouse`, { method: "PUT", body: JSON.stringify({ warehouse_id: warehouseId }) });
+}
+
 /** Remove a connection and everything mirrored or learned from it. Nothing changes on the platform. */
 export function deleteWorkspace(id: string): Promise<null> {
   return fetchApi(`/workspaces/${id}`, { method: "DELETE" });

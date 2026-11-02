@@ -5,33 +5,58 @@ import { KeyRound } from "lucide-react";
 
 import { Callout, Spinner } from "@/components/kairos/ds";
 
-import { setWorkspaceToken } from "@/lib/connections";
+import { listWarehouses, setWorkspaceToken, setWorkspaceWarehouse, type SqlWarehouse } from "@/lib/connections";
 
 /**
- * A Databricks connection's credentials: whether it holds its own token or uses the server's DATABRICKS_TOKEN, and a
- * way to give it a new one (personal access tokens expire). The token itself is never shown.
+ * A Databricks connection's credentials: whether it holds its own token or uses the server's DATABRICKS_TOKEN, and
+ * the SQL warehouse it queries. Either can be changed in place (tokens expire; a warehouse can be wrong or retired)
+ * without losing what Kairos learned. The token itself is never shown.
  */
 export function TokenRow({ id, config, onSaved }: { id: string; config: Record<string, unknown>; onSaved: () => void }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<"token" | "warehouse" | null>(null);
   const [token, setToken] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [warehouses, setWarehouses] = useState<SqlWarehouse[] | null>(null);
+  const [choice, setChoice] = useState("");
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const own = config.has_token === true;
   const warehouse = typeof config.warehouse_id === "string" ? config.warehouse_id : null;
 
+  function close() {
+    setOpen(null);
+    setToken("");
+    setChoice("");
+    setError(null);
+  }
+
+  async function openWarehouses() {
+    setOpen("warehouse");
+    setError(null);
+    setWarehouses(null);
+    try {
+      const r = await listWarehouses(id);
+      setWarehouses(r.warehouses);
+      setChoice(r.warehouses.some((w) => w.id === r.current) ? (r.current ?? "") : (r.warehouses[0]?.id ?? ""));
+    } catch (e) {
+      setWarehouses([]);
+      setError(e instanceof Error ? e.message : "Could not list the warehouses");
+    }
+  }
+
   async function save() {
-    if (!token.trim()) return;
-    setSaving(true);
+    const value = open === "token" ? token.trim() : choice.trim();
+    if (!value) return;
+    setBusy(true);
     setError(null);
     try {
-      await setWorkspaceToken(id, token.trim());
-      setToken("");
-      setOpen(false);
+      if (open === "token") await setWorkspaceToken(id, value);
+      else await setWorkspaceWarehouse(id, value);
+      close();
       onSaved();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not save the token");
+      setError(e instanceof Error ? e.message : "Could not save");
     } finally {
-      setSaving(false);
+      setBusy(false);
     }
   }
 
@@ -51,12 +76,17 @@ export function TokenRow({ id, config, onSaved }: { id: string; config: Record<s
           )}
         </p>
         {!open && (
-          <button onClick={() => setOpen(true)} className="k-btn k-btn-sm">
-            {own ? "Replace token" : "Set token"}
-          </button>
+          <>
+            <button onClick={() => setOpen("token")} className="k-btn k-btn-sm">
+              {own ? "Replace token" : "Set token"}
+            </button>
+            <button onClick={openWarehouses} className="k-btn k-btn-sm">
+              Change warehouse
+            </button>
+          </>
         )}
       </div>
-      {open && (
+      {open === "token" && (
         <div className="k-rise mt-3 flex items-center gap-2">
           <input
             type="password"
@@ -69,18 +99,52 @@ export function TokenRow({ id, config, onSaved }: { id: string; config: Record<s
             aria-label="New personal access token"
             className="k-input flex-1 font-mono !text-k-caption"
           />
-          <button onClick={save} disabled={!token.trim() || saving} className="k-btn k-btn-primary k-btn-sm">
-            {saving ? <Spinner className="border-white/30" /> : null}
+          <button onClick={save} disabled={!token.trim() || busy} className="k-btn k-btn-primary k-btn-sm">
+            {busy ? <Spinner className="border-white/30" /> : null}
             Save
           </button>
-          <button
-            onClick={() => {
-              setOpen(false);
-              setToken("");
-              setError(null);
-            }}
-            className="k-btn k-btn-sm"
-          >
+          <button onClick={close} className="k-btn k-btn-sm">
+            Cancel
+          </button>
+        </div>
+      )}
+      {open === "warehouse" && (
+        <div className="k-rise mt-3 flex items-center gap-2">
+          {warehouses === null ? (
+            <span className="flex flex-1 items-center gap-2 text-k-caption text-ink-muted">
+              <Spinner /> Asking Databricks which warehouses this token can use…
+            </span>
+          ) : warehouses.length ? (
+            <select
+              value={choice}
+              onChange={(e) => setChoice(e.target.value)}
+              aria-label="SQL warehouse"
+              className="k-input flex-1 !text-k-caption"
+            >
+              {warehouses.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name} · {w.id}
+                  {w.state ? ` · ${w.state.toLowerCase()}` : ""}
+                  {w.serverless ? " · serverless" : ""}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              autoFocus
+              value={choice}
+              onChange={(e) => setChoice(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && save()}
+              placeholder="SQL warehouse ID"
+              aria-label="SQL warehouse ID"
+              className="k-input flex-1 font-mono !text-k-caption"
+            />
+          )}
+          <button onClick={save} disabled={!choice.trim() || busy} className="k-btn k-btn-primary k-btn-sm">
+            {busy ? <Spinner className="border-white/30" /> : null}
+            Save
+          </button>
+          <button onClick={close} className="k-btn k-btn-sm">
             Cancel
           </button>
         </div>
