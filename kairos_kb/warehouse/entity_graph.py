@@ -648,8 +648,8 @@ class EntityGraph:
 
     # ── Per-entity detail ────────────────────────────────────────────
 
-    async def entity_detail(self, node_id: str) -> Dict[str, Any]:
-        """Full attributes plus exact per-relation neighbour counts."""
+    async def entity_detail(self, node_id: str, *, sample: Optional[int] = 10, limit: int = 500) -> Dict[str, Any]:
+        """Full attributes plus exact per-relation neighbour counts, and `sample` neighbours of each (None: all)."""
         kind, _ = split_node_id(node_id)
         entity = await self.resolve(node_id)
 
@@ -657,7 +657,7 @@ class EntityGraph:
             node_id,
             relations={r["name"] for r in RELATIONS},
             # High cap: this is one node, and agents need true counts.
-            limit=500,
+            limit=limit,
         )
 
         neighbours: Dict[str, List[str]] = defaultdict(list)
@@ -675,7 +675,7 @@ class EntityGraph:
                 "relation": relation,
                 "group": group_by_relation.get(relation, "structural"),
                 "count": len(targets),
-                "sample": targets[:10],
+                "sample": targets if sample is None else targets[:sample],
             }
             for relation, targets in sorted(neighbours.items())
         ]

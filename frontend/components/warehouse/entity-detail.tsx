@@ -177,10 +177,9 @@ export function EntityDetailPanel({ entityId, onClose, onFocus }: EntityDetailPa
                     </span>
                   </div>
                   <div className="mt-2 space-y-0.5">
-                    {(relation.items ?? relation.sample.map((id) => fallbackItem(id))).slice(0, 6).map((item) => (
+                    {(relation.items ?? relation.sample.map((id) => fallbackItem(id))).map((item) => (
                       <RelatedRow key={item.id} item={item} onOpen={setModalId} compact />
                     ))}
-                    {relation.count > 6 && <p className="px-1.5 text-k-caption text-ink-subtle">+{relation.count - 6} more</p>}
                   </div>
                 </div>
               );

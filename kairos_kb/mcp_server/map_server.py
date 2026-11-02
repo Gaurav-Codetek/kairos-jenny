@@ -17,7 +17,8 @@ the evidence it saw, in words, with e-mail addresses masked.
                              pipeline → task) with the flow between them
   inspect  get_map_entity    one entity in full: attributes, profile, evidence, relations
 
-Read-only. Scope is the agent key's: entities in connections the key cannot
+Nothing is capped: every match, every neighbour, the whole evidence text and
+the whole profile flow through. Read-only. Scope is the agent key's: entities in connections the key cannot
 see are left out. Calls are recorded on channel "mcp-map".
 """
 
@@ -39,10 +40,10 @@ run, file, piece of evidence and change, how they connect, and what each one mea
 2. search_map(query) — find an entity by name. Every result has an id you pass to the tools below.
 3. get_map(node_id, depth) — a neighbourhood around one entity: nodes (label, summary, kind, connection) and edges
    (source, target, relation, group). Draw it as a left-to-right graph; edges point the way data or work flows.
-   Start at a connection's root ("workspace:<name>") or at a table. depth 1–4.
+   Start at a connection's root ("workspace:<name>") or at a table. Every neighbour comes back: no caps.
 4. get_mesh(connection) — the whole connection at once as nested bundles with flow between them (dbt-style).
-5. get_map_entity(node_id) — what to show when someone clicks a node: attributes, the enrichment profile
-   (summary, purpose, grain, columns), evidence text, and each relation with the related entities described.
+5. get_map_entity(node_id) — what to show when someone clicks a node: attributes, the whole enrichment profile
+   (as a document and as YAML), the whole evidence text, and every related entity described.
 
 Groups: lineage (data flow), discovered (links the agent found, each with a reason and evidence), pipeline (jobs and
 tasks), structural (containment, columns), operational (runs), provenance (evidence, changes)."""
@@ -62,26 +63,26 @@ async def map_overview(connection: str = "") -> Dict[str, Any]:
 
 
 @audited()
-async def search_map(query: str, kinds: str = "", connection: str = "", limit: int = 20) -> Dict[str, Any]:
+async def search_map(query: str, kinds: str = "", connection: str = "") -> Dict[str, Any]:
     """Find entities on the map by name: tables, columns, pipelines (jobs), tasks, runs, schemas, catalogs.
+    Every match is returned.
 
     Args:
         query: Part of a name, e.g. "orders" or "ingest".
         kinds: Optional comma-separated kinds: catalog, schema, table, column, job, task, run, taskrun.
         connection: Optional connection name to search within.
-        limit: Results to return (default 20, at most 100).
     """
     kind_list = [k.strip() for k in kinds.split(",") if k.strip()] or None
     async with async_session_factory() as db:
         results = await map_view.search_map(db, query, identity=current_agent(), kinds=kind_list,
-                                            connection=connection or None, limit=max(1, min(limit, 100)))
+                                            connection=connection or None)
     return {"query": query, "count": len(results), "results": results}
 
 
 @audited()
-async def get_map(node_id: str, depth: int = 1, relation_groups: str = "",
-                  limit_per_relation: int = 15) -> Dict[str, Any]:
+async def get_map(node_id: str, depth: int = 1, relation_groups: str = "") -> Dict[str, Any]:
     """A neighbourhood of the map around one entity, ready to draw: nodes and edges, every node described.
+    Every neighbour at every hop is included.
 
     Each node: id, kind, label, sublabel, summary (from its profile, evidence or change), connection, status,
     depth from the root. Each edge: source, target, relation, group, and for a discovered link its reason
@@ -89,19 +90,16 @@ async def get_map(node_id: str, depth: int = 1, relation_groups: str = "",
 
     Args:
         node_id: Where to start: an id from search_map or map_overview (a connection root is "workspace:<name>").
-        depth: Hops out from the start (1–4).
+        depth: Hops out from the start (default 1). Each hop can multiply the size.
         relation_groups: Comma-separated subset of lineage, discovered, pipeline, structural, operational,
-            provenance. Default: lineage, discovered, pipeline, structural, operational.
-        limit_per_relation: Neighbours per relation per node (1–50).
+            provenance. Default: all of them.
     """
-    from kairos_kb.warehouse.entity_map import DEFAULT_RELATION_GROUPS, RELATION_GROUPS
+    from kairos_kb.warehouse.entity_map import RELATION_GROUPS
 
-    groups = [g.strip() for g in relation_groups.split(",") if g.strip() in RELATION_GROUPS] or list(
-        DEFAULT_RELATION_GROUPS)
+    groups = [g.strip() for g in relation_groups.split(",") if g.strip() in RELATION_GROUPS] or list(RELATION_GROUPS)
     async with async_session_factory() as db:
-        return await map_view.map_graph(db, node_id, identity=current_agent(), depth=max(0, min(depth, 4)),
-                                        relation_groups=groups,
-                                        limit_per_relation=max(1, min(limit_per_relation, 50)))
+        return await map_view.map_graph(db, node_id, identity=current_agent(), depth=max(0, depth),
+                                        relation_groups=groups)
 
 
 @audited()
@@ -118,20 +116,18 @@ async def get_mesh(connection: str = "") -> Dict[str, Any]:
 
 
 @audited()
-async def get_map_entity(node_id: str, per_relation: int = 10) -> Dict[str, Any]:
-    """One entity in full — what to show when someone clicks it on the map.
+async def get_map_entity(node_id: str) -> Dict[str, Any]:
+    """One entity in full — what to show when someone clicks it on the map. Nothing is cut short.
 
-    Its label and summary, stored attributes, enrichment profile (summary, purpose, grain, columns, caveats as a
-    document), the evidence text for an evidence node, and every relation with the related entities described
-    (and for discovered links, the reason and evidence).
+    Its label and summary, stored attributes, the whole enrichment profile (as a document and as its YAML), the
+    whole evidence text for an evidence node, and every relation with every related entity described (and for
+    discovered links, the reason and evidence).
 
     Args:
         node_id: Any id from the map: table:…, job:…, evidence:…, change:…, workspace:…
-        per_relation: Related entities to describe per relation (1–50).
     """
     async with async_session_factory() as db:
-        card = await map_view.entity_card(db, node_id, identity=current_agent(),
-                                          per_relation=max(1, min(per_relation, 50)), with_yaml=False)
+        card = await map_view.entity_card(db, node_id, identity=current_agent())
     return card if card is not None else {"error": f"No such entity for this agent: {node_id}"}
 
 

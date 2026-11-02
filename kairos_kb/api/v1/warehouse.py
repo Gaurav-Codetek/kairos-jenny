@@ -182,10 +182,10 @@ async def get_entity(
     db: AsyncSession = Depends(get_db),
 ):
     """Every stored attribute of one entity, plus exact neighbour counts per relation."""
-    from kairos_kb.warehouse.map_view import describe
+    from kairos_kb.warehouse.map_view import EVERYTHING, describe
 
     graph = EntityGraph(db)
-    detail = await graph.entity_detail(entity_id)
+    detail = await graph.entity_detail(entity_id, sample=None, limit=EVERYTHING)
     # Each related entity in words (label, summary), not only its id: an evidence row is "Table metadata: …".
     items = await describe(db, {entity_id} | {t for r in detail["relations"] for t in r["sample"]}, graph)
     for r in detail["relations"]:
@@ -205,11 +205,11 @@ async def get_entity(
 @router.get("/card")
 async def get_entity_card(
     entity_id: str = Query(..., description="Node id"),
-    per_relation: int = Query(10, ge=1, le=50),
+    per_relation: Optional[int] = Query(None, ge=1, description="Related entities per relation; default all"),
     db: AsyncSession = Depends(get_db),
 ):
-    """One entity in full with every id resolved: attributes, profile, evidence text, and each relation's
-    entities described, with the agent's reason for links it discovered. What the map's detail modal shows."""
+    """One entity in full with every id resolved: attributes, profile, the whole evidence text, and every related
+    entity described, with the agent's reason for links it discovered. What the map's detail modal shows."""
     from kairos_kb.warehouse.map_view import entity_card
 
     card = await entity_card(db, entity_id, per_relation=per_relation)

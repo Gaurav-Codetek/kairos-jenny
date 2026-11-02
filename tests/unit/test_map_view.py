@@ -52,6 +52,13 @@ def test_long_evidence_is_cut_and_says_so():
     assert len(d["excerpt"]) == 100 and d["truncated"] is True and d["size_chars"] == 9000
 
 
+def test_whole_evidence_text_when_asked_for_everything():
+    from kairos_kb.warehouse.map_view import WHOLE_TEXT
+
+    d = evidence_digest(_evidence("x" * 90000, "FILE_CONTENT", "big.txt"), excerpt_chars=WHOLE_TEXT)
+    assert len(d["excerpt"]) == 90000 and d["truncated"] is False
+
+
 def test_graph_card_for_evidence_shows_what_it_is():
     row = _evidence(json.dumps({"name": "ORDERS", "full_name": "ZOMATO.RAW.ORDERS", "columns": []}))
     p = _entity_payload("evidence", f"evidence:{row.id}", row)
@@ -86,3 +93,6 @@ def test_map_endpoint_serves_its_tools_read_only():
     assert all(t.annotations.read_only_hint for t in tools)
     # node_id, not entity_id: evidence:<uuid> carries no connection name, so the map checks access itself.
     assert "node_id" in next(t for t in tools if t.name == "get_map_entity").input_schema["properties"]
+    # Nothing is capped: no knob that limits how much comes back.
+    knobs = {p for t in tools for p in t.input_schema["properties"]}
+    assert not knobs & {"limit", "per_relation", "limit_per_relation"}

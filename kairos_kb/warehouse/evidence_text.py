@@ -125,8 +125,9 @@ def evidence_digest(row: Any, *, excerpt_chars: int = 0) -> Dict[str, Any]:
     }
     if excerpt_chars:
         body = json.dumps(parsed, indent=2, default=str) if parsed is not None else text
-        out["excerpt"] = mask_emails(body[:excerpt_chars])
-        out["truncated"] = len(body) > excerpt_chars
+        whole = excerpt_chars < 0
+        out["excerpt"] = mask_emails(body if whole else body[:excerpt_chars])
+        out["truncated"] = not whole and len(body) > excerpt_chars
     return out
 
 

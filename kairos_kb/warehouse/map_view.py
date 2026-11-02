@@ -34,7 +34,10 @@ from kairos_kb.warehouse.entity_graph import SYNTHETIC_KINDS, EntityGraph, split
 from kairos_kb.warehouse.evidence_text import change_summary, evidence_digest, mask_emails
 
 HIDDEN_ATTRS = {"id", "workspace_id", "created_at", "updated_at", "content", "content_hash"}
-EXCERPT_CHARS = 6000
+# The map passes everything on: every neighbour, the whole evidence text. A bound no warehouse reaches stands in
+# for "no limit" where the graph's queries need a number.
+EVERYTHING = 1_000_000_000
+WHOLE_TEXT = -1
 _SYNTHETIC = {"evidence": Evidence, "change": ChangeEvent, "syncstate": SyncState}
 
 
@@ -187,26 +190,26 @@ async def load_profile(db: AsyncSession, entity_id: str, *, with_yaml: bool) -> 
 
 
 async def entity_card(db: AsyncSession, node_id: str, *, identity: Optional[AgentIdentity] = None,
-                      per_relation: int = 10, with_yaml: bool = True) -> Optional[Dict[str, Any]]:
+                      per_relation: Optional[int] = None, with_yaml: bool = True) -> Optional[Dict[str, Any]]:
     """One entity in full, every id resolved: attributes, profile, evidence, relations with reasons.
 
     None when there is no such entity for this caller.
     """
     graph = EntityGraph(db)
-    detail = await graph.entity_detail(node_id)
+    detail = await graph.entity_detail(node_id, sample=per_relation, limit=EVERYTHING)
     me = (await describe(db, [node_id], graph)).get(node_id)
     if me is None or not visible(identity, me):
         return None
     kind = detail["kind"]
 
-    sampled = {t for r in detail["relations"] for t in r["sample"][:per_relation]}
+    sampled = {t for r in detail["relations"] for t in r["sample"]}
     items = await describe(db, sampled, graph)
     reasons = await link_reasons(db, [node_id])
 
     relations = []
     for r in detail["relations"]:
         related = []
-        for other in r["sample"][:per_relation]:
+        for other in r["sample"]:
             item = items.get(other)
             if item is None or not visible(identity, item):
                 continue
@@ -229,12 +232,13 @@ async def entity_card(db: AsyncSession, node_id: str, *, identity: Optional[Agen
     if kind == "evidence" and (pk := _pk(node_id)):
         row = await db.get(Evidence, pk)
         if row is not None:
-            card["evidence"] = evidence_digest(row, excerpt_chars=EXCERPT_CHARS)
+            card["evidence"] = evidence_digest(row, excerpt_chars=WHOLE_TEXT)
     return card
 
 
 async def map_graph(db: AsyncSession, root: str, *, identity: Optional[AgentIdentity] = None, depth: int = 1,
-                    relation_groups: Optional[Sequence[str]] = None, limit_per_relation: int = 15) -> Dict[str, Any]:
+                    relation_groups: Optional[Sequence[str]] = None,
+                    limit_per_relation: int = EVERYTHING) -> Dict[str, Any]:
     """A neighbourhood of the map with every node in words and every discovered link's reason."""
     graph = EntityGraph(db)
     walked = await graph.traverse(root, depth=depth, relation_groups=relation_groups,
@@ -267,8 +271,8 @@ async def map_graph(db: AsyncSession, root: str, *, identity: Optional[AgentIden
 
 async def search_map(db: AsyncSession, query: str, *, identity: Optional[AgentIdentity] = None,
                      kinds: Optional[Sequence[str]] = None, connection: Optional[str] = None,
-                     limit: int = 20) -> List[Dict[str, Any]]:
-    found = await EntityGraph(db).search(query, kinds=kinds, limit=limit * 4)
+                     limit: Optional[int] = None) -> List[Dict[str, Any]]:
+    found = await EntityGraph(db).search(query, kinds=kinds, limit=EVERYTHING)
     items = await enrich(db, found)
     out = []
     for p in found:
@@ -276,7 +280,7 @@ async def search_map(db: AsyncSession, query: str, *, identity: Optional[AgentId
         if not visible(identity, item) or (connection and item.get("connection") != connection):
             continue
         out.append(item)
-        if len(out) >= limit:
+        if limit and len(out) >= limit:
             break
     return out
 

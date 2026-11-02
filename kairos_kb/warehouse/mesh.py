@@ -267,7 +267,7 @@ async def build_mesh(db: AsyncSession, workspace_id: Optional[str] = None) -> Di
         if rest and rest.strip("/"):
             volume_files[uid].append(rest.strip("/"))
     for uid, files in volume_files.items():
-        m.bundles[uid]["inherited"] = {"paths": len(set(files)), "sample": sorted(set(files))[:8]}
+        m.bundles[uid]["inherited"] = {"paths": len(set(files)), "sample": sorted(set(files))}
 
     # ── Data products: business concepts defined in Kairos, each reading its input tables ──
     for d in discovered:
